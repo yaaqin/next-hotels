@@ -1,9 +1,11 @@
+import { useNavigationStore } from '@/src/app/stores/layouts/useNavigationStore';
 import Images from '@/src/components/atoms/images'
 import Tooltips from '@/src/components/atoms/tooltips'
 import { Building03Icon, DashboardCircleIcon, Logout01Icon, MarketAnalysisIcon, Monocle01Icon, Pizza01Icon } from 'hugeicons-react'
 import { useState } from 'react'
 
 export default function Sidebars() {
+      const { activeSidebar, setActiveSidebar } = useNavigationStore();
     return (
         <section className='flex flex-col p-4 bg-blue-800 h-screen justify-between items-center'>
             <Images src='https://id.marinabaysands.com/content/dam/marinabaysands/secondary-navigation/logo-white-svg.svg' width={35} height={35}/>
@@ -12,19 +14,19 @@ export default function Sidebars() {
                     <DashboardCircleIcon />
                     <Tooltips label={'Dashboard'} />
                 </div>
-                <div className="relative group">
+                <div className="relative group" onClick={() => setActiveSidebar('facility')}>
                     <Building03Icon />
                     <Tooltips label={'Site'} />
                 </div>
-                <div className="relative group">
+                <div className="relative group" onClick={() => setActiveSidebar('site')}>
                     <Monocle01Icon />
                     <Tooltips label={'User Management'} />
                 </div>
-                <div className="relative group">
+                <div className="relative group" onClick={() => setActiveSidebar('room')}>
                     <Pizza01Icon />
                     <Tooltips label={'Foods'} />
                 </div>
-                <div className="relative group">
+                <div className="relative group" onClick={() => setActiveSidebar('facility')}>
                     <MarketAnalysisIcon />
                     <Tooltips label={'Finance'} />
                 </div>
