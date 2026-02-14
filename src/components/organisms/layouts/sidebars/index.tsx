@@ -5,7 +5,7 @@ import { Building03Icon, DashboardCircleIcon, Logout01Icon, MarketAnalysisIcon, 
 import { useState } from 'react'
 
 export default function Sidebars() {
-      const { activeSidebar, setActiveSidebar } = useNavigationStore();
+      const { setActiveSidebar } = useNavigationStore();
     return (
         <section className='flex flex-col p-4 bg-blue-800 h-screen justify-between items-center'>
             <Images src='https://id.marinabaysands.com/content/dam/marinabaysands/secondary-navigation/logo-white-svg.svg' width={35} height={35}/>

@@ -13,7 +13,7 @@ export default function RootLayout({
             <Sidebars/>
             <div className={` duration-500 flex flex-col flex-1 max-w-screen`}>
                 <Navbar/>
-                <section className="overflow-y-scroll hide-scrollbar flex-1">
+                <section className="overflow-y-scroll hide-scrollbar flex-1 p-4">
                     <Suspense>
                         {children}
                     </Suspense>
