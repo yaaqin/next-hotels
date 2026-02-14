@@ -1,7 +1,7 @@
 import Heads from '@/src/components/molecules/cards/heads'
 import { AnimatePresence, motion } from 'framer-motion';
 import ProfileCardnavbar from '@/src/components/molecules/cards/profileCardNavbar'
-import { useNavigationStore } from '@/src/app/stores/layouts/useNavigationStore';
+import { useNavigationStore } from '@/src/stores/layouts/useNavigationStore';
 
 const NAVBAR_MAP = {
     site: ['Site', 'Floor', 'Room', 'Bed', 'Facility'],
