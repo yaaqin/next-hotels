@@ -31,7 +31,7 @@ export const getAccessTokenClient = (): string | null => {
   const allCookies = document.cookie;
   console.log('All cookies:', allCookies);
 
-  const token = getCookie('accessToken');
+  const token = getCookie('access_token');
   console.log('tokennya qin ==>', token);
   console.log('type:', typeof token);
 

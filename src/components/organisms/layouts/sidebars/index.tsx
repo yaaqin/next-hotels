@@ -2,7 +2,6 @@ import Images from '@/src/components/atoms/images'
 import Tooltips from '@/src/components/atoms/tooltips'
 import { useNavigationStore } from '@/src/stores/layouts/useNavigationStore';
 import { Building03Icon, DashboardCircleIcon, Logout01Icon, MarketAnalysisIcon, Monocle01Icon, Pizza01Icon } from 'hugeicons-react'
-import { useState } from 'react'
 
 export default function Sidebars() {
       const { setActiveSidebar } = useNavigationStore();
