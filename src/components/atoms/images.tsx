@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { useState } from 'react'
 import type { ImgHTMLAttributes } from 'react'
 
@@ -18,8 +19,8 @@ export interface ImagesProps
 export default function Images({
   src,
   alt = 'images',
-  width,
-  height,
+  width= 20,
+  height= 20,
   fill = false,
   priority = false,
   quality, // intentionally unused (compat)
@@ -47,7 +48,7 @@ export default function Images({
   }
 
   return (
-    <img
+    <Image
       src={src}
       alt={alt}
       width={width}
