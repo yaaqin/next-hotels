@@ -15,7 +15,7 @@ const ProfileCardnavbar: React.FC<ProfileCardnavbarProps> = ({
   onActionClick,
 }) => {
   return (
-    <div className="flex items-center justify-between rounded-xl bg-[#F4F7FB] dark:bg-blue-400 px-3 py-2">
+    <div className="flex items-center justify-between rounded-xl bg-[#459997] px-3 py-2">
       {/* Left */}
       <div className="flex items-center gap-3">
         <Images

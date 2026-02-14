@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type SidebarKey = 'site' | 'room' | 'facility';
+export type SidebarKey = 'site' | 'finance' | 'food' | 'user' | 'dashboard';
 
 interface NavigationState {
   activeSidebar: SidebarKey;
