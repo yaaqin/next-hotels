@@ -3,6 +3,7 @@ import toast from 'react-hot-toast'
 import qs from 'qs'
 import { getCookie, deleteCookie, setCookie } from 'cookies-next'
 import { getAccessTokenClient } from '../utils/auth/token'
+import { getLanguage } from '../utils'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000'
 const isBrowser = typeof window !== 'undefined'
@@ -86,10 +87,13 @@ export const axiosPrivate: AxiosInstance = axios.create({
 axiosPrivate.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const token = getAccessTokenClient()
+    const lang = getLanguage()
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+
+    config.headers['x-lang'] = lang
 
     return config
   },
