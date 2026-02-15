@@ -1,9 +1,8 @@
-import React from 'react'
+'use client'
+import UserPage from '@/src/components/pages/user'
 
 export default function page() {
   return (
-    <div>
-      page user
-    </div>
+    <UserPage/>
   )
 }
