@@ -1,17 +1,16 @@
 import { useUserList } from '@/src/hooks/query/users'
 import React from 'react'
+import BasicCard from '../../molecules/cards/basicCard'
+import { label } from 'framer-motion/client'
 
 export default function UserPage() {
     const { data } = useUserList()
     return (
         <div>
-            list user here
+            <h6>list user here</h6>
             <div className='flex flex-wrap gap-3 mt-4'>
-                {data?.data.map((data, key) => (
-                    <div key={key} className='flex flex-col bg-amber-100 rounded-xl p-2 px-4'>
-                        <h5>{data.username}</h5>
-                        <span>{data.email}</span>
-                        </div>
+                {data && data?.data.map((data) => (
+                    <BasicCard key={data.id} Label={data?.username} desk={data.email} />
                 ))}
             </div>
         </div>
