@@ -5,7 +5,9 @@ import { getCookie, deleteCookie, setCookie } from 'cookies-next'
 import { getAccessTokenClient } from '../utils/auth/token'
 import { getLanguage } from '../utils'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000'
+console.log('ENV ==>', process.env.NEXT_PUBLIC_API_BASE_URL)
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://mbsc-be.yaaqin.xyz'
 const isBrowser = typeof window !== 'undefined'
 
 let isRefreshing = false
