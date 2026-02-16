@@ -56,7 +56,7 @@ export const Inputs = forwardRef<HTMLInputElement, InputProps>(
         <label 
           className={
             labelClassName || 
-            'block text-lg font-medium mb-1 md:mb-2'
+            'block text-md font-medium mb-1 md:mb-2'
           }
         >
           {label}
@@ -80,7 +80,7 @@ export const Inputs = forwardRef<HTMLInputElement, InputProps>(
               error ? `${label}-error` : helperText ? `${label}-helper` : undefined
             }
             className={`
-              w-full px-4 py-2 border rounded-lg placeholder-black text-black
+              w-full px-4 py-2 border rounded-lg placeholder-gray-400 text-black
               transition-colors duration-200
               ${
                 hasError

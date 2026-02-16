@@ -1,14 +1,17 @@
 'use client'
 
 import Buttons from "@/src/components/atoms/buttons";
+import InfoCard from "@/src/components/molecules/cards/infoCard";
 import TranslationTable from "@/src/components/organisms/roomTypes/translationTable";
 import RoomTypeMultiTranslationForm from "@/src/components/organisms/roomTypes/updateTranslation";
 import { useMultiRoomTypeTranslation } from "@/src/hooks/mutation/roomType/useMultiRoomTypeTranslation";
+import { useRoomTypeDetail } from "@/src/hooks/query/roomTypes/detail";
 import { useRoomTypeDetailAllLang } from "@/src/hooks/query/roomTypes/detailAllLang"
 import { mapToRoomTypeFormInitialData } from "@/src/utils/roomType/mapRoomTypeTranslations";
 import { useParams } from "next/navigation"
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { label } from 'framer-motion/client';
 
 export default function DetailRoomType() {
   const params = useParams<{ id: string }>();
@@ -17,9 +20,9 @@ export default function DetailRoomType() {
   const [isUpdate, setIsUpdate] = useState(false)
 
   const { data, isLoading, refetch } = useRoomTypeDetailAllLang(id || '')
+  const { data: dataDetail, isLoading: detailLoading,  } = useRoomTypeDetail(id || '')
 
-  const { mutateAsync, isPending } = useMultiRoomTypeTranslation(id);
-
+  const { mutateAsync } = useMultiRoomTypeTranslation(id);
 
   const handleSubmit = async (payload: {
     translations: {
@@ -29,7 +32,6 @@ export default function DetailRoomType() {
     }[];
   }) => {
 
-    console.log('datass ==>', payload)
     try {
       await mutateAsync(payload);
 
@@ -41,14 +43,18 @@ export default function DetailRoomType() {
       console.error(error);
     }
   };
+  
   return (
     <div>
-      <div className="flex justify-between items-center">
-        <h5>detailnya disini yaa</h5>
+      <div className="flex justify-end items-center">
         <Buttons label="Update Translation" onClick={() => setIsUpdate(!isUpdate)} />
       </div>
-      {isLoading ? (
-        <p>Loading</p>
+      <section className="grid grid-cols-3 gap-4 my-4">
+        <InfoCard Label={"Name"} value={dataDetail?.data.name} className="grid col-span-1 truncate"/>
+        <InfoCard Label={"Desk"} value={dataDetail?.data.desk} className="grid col-span-1 truncate"/>
+      </section>
+      {(isLoading || detailLoading) ? (
+        <p>Loading...</p>
       ) : isUpdate ? (
         <RoomTypeMultiTranslationForm
           onSubmit={handleSubmit}

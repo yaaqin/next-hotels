@@ -100,7 +100,7 @@ export default function RoomTypeTable({ data }: RoomTypeTableProps) {
               Detail
             </Link>
             
-            <Link href={`/room-types/${roomType.id}/edit`}
+            {/* <Link href={`/room-types/${roomType.id}/edit`}
               className="px-3 py-1.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors duration-200 flex items-center gap-1"
             >
               <svg 
@@ -118,7 +118,7 @@ export default function RoomTypeTable({ data }: RoomTypeTableProps) {
                 />
               </svg>
               Edit
-            </Link>
+            </Link> */}
           </div>
         );
       },

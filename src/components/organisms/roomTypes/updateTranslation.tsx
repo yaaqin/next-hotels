@@ -91,6 +91,7 @@ export default function RoomTypeMultiTranslationForm({
 
   return (
     <div className="space-y-6">
+      <h5 className="text-xl">Update Translation</h5>
       <div className="grid grid-cols-2 gap-6">
         {(Object.keys(form) as Lang[]).map((lang) => (
           <div
