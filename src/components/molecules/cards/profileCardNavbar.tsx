@@ -64,7 +64,7 @@ const ProfileCardnavbar: React.FC<{
   return (
     <div className="relative">
       {/* Card */}
-      <div className="flex items-center justify-between rounded-xl bg-[#459997] px-3 py-2">
+      <div className="flex items-center justify-between rounded-xl bg-blue-400 px-3 py-2">
         <div className="flex items-center gap-3">
           <Images
             src={avatarUrl}
@@ -75,8 +75,8 @@ const ProfileCardnavbar: React.FC<{
           />
 
           <div className="leading-tight">
-            <p className="text-xs font-semibold text-gray-900">{name}</p>
-            <p className="text-xs text-gray-800">{email}</p>
+            <p className="text-xs font-semibold text-white">{name}</p>
+            <p className="text-xs text-white">{email}</p>
           </div>
         </div>
 
