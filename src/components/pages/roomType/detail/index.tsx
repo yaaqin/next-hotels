@@ -12,6 +12,7 @@ import { useParams } from "next/navigation"
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { label } from 'framer-motion/client';
+import { useDeleteRoomTypeTranslations } from "@/src/hooks/mutation/roomType/useDeleteRoomTypeTranslations";
 
 export default function DetailRoomType() {
   const params = useParams<{ id: string }>();
@@ -20,9 +21,31 @@ export default function DetailRoomType() {
   const [isUpdate, setIsUpdate] = useState(false)
 
   const { data, isLoading, refetch } = useRoomTypeDetailAllLang(id || '')
-  const { data: dataDetail, isLoading: detailLoading,  } = useRoomTypeDetail(id || '')
+  const { data: dataDetail, isLoading: detailLoading, } = useRoomTypeDetail(id || '')
 
   const { mutateAsync } = useMultiRoomTypeTranslation(id);
+
+  const { mutate: deleteTranslations, isPending } =
+    useDeleteRoomTypeTranslations();
+
+  const handleDelete = (data: string[]) => {
+    deleteTranslations(
+      {
+        roomTypeId: id,
+        payload: {
+          langs: data,
+        },
+      },
+      {
+        onSuccess: () => {
+          console.log("Translation deleted");
+        },
+        onError: (err: any) => {
+          console.error(err?.response?.data?.message);
+        },
+      }
+    );
+  };
 
   const handleSubmit = async (payload: {
     translations: {
@@ -43,15 +66,15 @@ export default function DetailRoomType() {
       console.error(error);
     }
   };
-  
+
   return (
     <div>
       <div className="flex justify-end items-center">
         <Buttons label="Update Translation" onClick={() => setIsUpdate(!isUpdate)} />
       </div>
-      <section className="grid grid-cols-3 gap-4 my-4">
-        <InfoCard Label={"Name"} value={dataDetail?.data.name} className="grid col-span-1 truncate"/>
-        <InfoCard Label={"Desk"} value={dataDetail?.data.desk} className="grid col-span-1 truncate"/>
+      <section className="grid grid-cols-3 gap-4 my-4 rounded-xl border">
+        <InfoCard Label={"Name"} value={dataDetail?.data.name} className="grid col-span-1 truncate" />
+        <InfoCard Label={"Desk"} value={dataDetail?.data.desk} className="grid col-span-1 truncate" />
       </section>
       {(isLoading || detailLoading) ? (
         <p>Loading...</p>
@@ -60,7 +83,9 @@ export default function DetailRoomType() {
           onSubmit={handleSubmit}
           initialData={mapToRoomTypeFormInitialData(data?.data.translations)} />
       ) : data && (
-        <TranslationTable data={data?.data.translations} />
+        <TranslationTable
+          data={data?.data.translations}
+          onBulkDelete={handleDelete} />
       )}
 
     </div>

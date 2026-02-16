@@ -25,15 +25,10 @@ interface DecodedToken {
 
 // Untuk Client Components
 export const getAccessTokenClient = (): string | null => {
-  console.log('Function dipanggil!');
 
-  // Cek semua cookies
   const allCookies = document.cookie;
-  console.log('All cookies:', allCookies);
 
   const token = getCookie('access_token');
-  console.log('tokennya qin ==>', token);
-  console.log('type:', typeof token);
 
   return token ? String(token) : null;
 

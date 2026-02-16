@@ -12,7 +12,7 @@ export const useRoomTypeDetailAllLang = (id: string) => {
         error,
         refetch,
     } = useQuery<DetailAllLangProps>({
-        queryKey: ["room-type-detail-all-lang", ],
+        queryKey: ["room-type-detail-all-lang", id],
         queryFn: () => roomTypeDetailAllLang(id),
         enabled: !!page,
     });

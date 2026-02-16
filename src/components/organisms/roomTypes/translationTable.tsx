@@ -16,17 +16,20 @@ interface TranslationTableProps {
   data: TranslationDetailRoomType[];
   onEdit?: (translation: TranslationDetailRoomType) => void;
   onDelete?: (translationId: string) => void;
+  onBulkDelete?: (translationIds: string[]) => void;
 }
 
-export default function TranslationTable({ 
-  data, 
-  onEdit, 
-  onDelete 
+export default function TranslationTable({
+  data,
+  onEdit,
+  onDelete,
+  onBulkDelete
 }: TranslationTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // Language badges dengan warna berbeda
   const getLanguageBadge = (lang: string) => {
     const langColors: Record<string, string> = {
       'en': 'bg-blue-100 text-blue-800',
@@ -60,7 +63,63 @@ export default function TranslationTable({
     );
   };
 
+  const toggleRowSelection = (lang: string) => {
+    const newSelected = new Set(selectedRows);
+    if (newSelected.has(lang)) {
+      newSelected.delete(lang);
+    } else {
+      newSelected.add(lang);
+    }
+    setSelectedRows(newSelected);
+  };
+
+  const toggleAllRows = () => {
+    if (selectedRows.size === data.length) {
+      setSelectedRows(new Set());
+    } else {
+      // ✅ FIX: Ganti dari id ke lang
+      setSelectedRows(new Set(data.map(item => item.lang)));
+    }
+  };
+
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    const selectedLangs = Array.from(selectedRows);
+
+    console.log('Selected Langs:', selectedLangs);
+
+    if (onBulkDelete) {
+      onBulkDelete(selectedLangs);
+    }
+
+    setShowDeleteModal(false);
+    setSelectedRows(new Set());
+  };
+
   const columns: ColumnDef<TranslationDetailRoomType>[] = [
+    {
+      id: 'select',
+      header: () => (
+        <input
+          type="checkbox"
+          checked={selectedRows.size === data.length && data.length > 0}
+          onChange={toggleAllRows}
+          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+        />
+      ),
+      cell: ({ row }) => (
+        <input
+          type="checkbox"
+          checked={selectedRows.has(row.original.lang)}
+          onChange={() => toggleRowSelection(row.original.lang)}
+          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+        />
+      ),
+      enableSorting: false,
+    },
     {
       accessorKey: 'lang',
       header: 'Language',
@@ -118,77 +177,87 @@ export default function TranslationTable({
 
   return (
     <div className="w-full space-y-4 mt-4">
-        <h5 className='text-xl'>TransLation</h5>
-      {/* Filter Section */}
-      {/* <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm"> */}
-        {/* <div className="flex-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Search by Language
-          </label>
-          <input
-            type="text"
-            value={(table.getColumn('lang')?.getFilterValue() as string) ?? ''}
-            onChange={(e) => table.getColumn('lang')?.setFilterValue(e.target.value)}
-            placeholder="Filter languages (e.g., en, id)..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div className="flex-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Search by Name
-          </label>
-          <input
-            type="text"
-            value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-            onChange={(e) => table.getColumn('name')?.setFilterValue(e.target.value)}
-            placeholder="Search translations..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div> */}
-        {/* {(table.getColumn('lang')?.getFilterValue() || table.getColumn('name')?.getFilterValue()) && (
-          <button
-            onClick={() => {
-              table.getColumn('lang')?.setFilterValue('');
-              table.getColumn('name')?.setFilterValue('');
-            }}
-            className="mt-6 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50"
-          >
-            Clear Filters
-          </button>
-        )} */}
-      {/* </div> */}
+      <div className="flex items-center justify-between">
+        <h5 className='text-xl font-semibold'>Translation</h5>
 
-      {/* Table */}
+        {selectedRows.size > 0 && (
+          <div className="flex items-center gap-3 bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
+            <span className="text-sm font-medium text-blue-900">
+              {selectedRows.size} selected
+            </span>
+            <button
+              onClick={handleDeleteClick}
+              className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors duration-200 flex items-center gap-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+              Delete Selected
+            </button>
+            <button
+              onClick={() => setSelectedRows(new Set())}
+              className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+            >
+              Clear
+            </button>
+          </div>
+        )}
+      </div>
+
       <div className="overflow-x-auto shadow-md rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
-                    onClick={header.column.getToggleSortingHandler()}
-                  >
-                    <div className="flex items-center gap-2">
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                      {{
-                        asc: ' 🔼',
-                        desc: ' 🔽',
-                      }[header.column.getIsSorted() as string] ?? null}
-                    </div>
-                  </th>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  const canSort = header.column.getCanSort();
+                  const sortDirection = header.column.getIsSorted();
+
+                  return (
+                    <th
+                      key={header.id}
+                      className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider select-none ${canSort ? 'cursor-pointer hover:bg-gray-100' : ''
+                        }`}
+                      onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                    >
+                      <div className="flex items-center gap-2">
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                        {canSort && sortDirection && (
+                          <span>
+                            {sortDirection === 'asc' ? '🔼' : '🔽'}
+                          </span>
+                        )}
+                      </div>
+                    </th>
+                  );
+                })}
               </tr>
             ))}
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {table.getRowModel().rows.length > 0 ? (
               table.getRowModel().rows.map((row) => (
-                <tr key={row.id} className="hover:bg-gray-50 transition-colors">
+                <tr
+                  key={row.id}
+                  className={`hover:bg-gray-50 transition-colors ${
+                    // ✅ FIX: Ganti dari id ke lang
+                    selectedRows.has(row.original.lang) ? 'bg-blue-50' : ''
+                  }`}
+                >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="px-6 py-4 text-sm text-gray-900">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -200,17 +269,17 @@ export default function TranslationTable({
               <tr>
                 <td colSpan={columns.length} className="px-6 py-8 text-center text-gray-500">
                   <div className="flex flex-col items-center gap-2">
-                    <svg 
-                      className="w-12 h-12 text-gray-400" 
-                      fill="none" 
-                      viewBox="0 0 24 24" 
+                    <svg
+                      className="w-12 h-12 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
                       stroke="currentColor"
                     >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={2} 
-                        d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" 
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"
                       />
                     </svg>
                     <p className="text-lg font-medium">No translations found</p>
@@ -223,57 +292,103 @@ export default function TranslationTable({
         </table>
       </div>
 
-      {/* Pagination */}
-      {/* {table.getRowModel().rows.length > 0 && (
-        <div className="flex items-center justify-between px-6 py-4 bg-white border-t rounded-b-lg">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-700">
-              Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
-              {Math.min(
-                (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
-                table.getFilteredRowModel().rows.length
-              )}{' '}
-              of {table.getFilteredRowModel().rows.length} translations
-            </span>
-          </div>
-          
-          <div className="flex gap-2">
-            <button
-              onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
-              className="px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {'<<'}
-            </button>
-            <button
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-              className="px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {'<'}
-            </button>
-            
-            <span className="px-4 py-2 text-sm border border-gray-300 rounded-md bg-gray-50">
-              Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-            </span>
-            
-            <button
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-              className="px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {'>'}
-            </button>
-            <button
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              disabled={!table.getCanNextPage()}
-              className="px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {'>>'}
-            </button>
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-gray-900 opacity-50"
+            onClick={() => setShowDeleteModal(false)}
+          />
+
+          {/* Modal Content */}
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden z-10">
+            {/* Header */}
+            <div className="bg-red-600 px-6 py-4">
+              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+                Confirm Deletion
+              </h3>
+            </div>
+
+            {/* Body */}
+            <div className="p-6">
+              <p className="text-gray-700 mb-4">
+                Are you sure you want to delete <strong>{selectedRows.size}</strong> translation{selectedRows.size > 1 ? 's' : ''}?
+              </p>
+
+              {/* Selected Languages Preview */}
+              <div className="bg-gray-50 rounded-md p-4 mb-4 max-h-40 overflow-y-auto">
+                <p className="text-sm font-medium text-gray-700 mb-2">Selected Languages:</p>
+                <ul className="space-y-1">
+                  {Array.from(selectedRows).map((lang) => {
+                    // ✅ FIX: Cari berdasarkan lang bukan id
+                    const translation = data.find(t => t.lang === lang);
+                    return (
+                      <li key={lang} className="text-sm text-gray-600 flex items-center gap-2">
+                        <span className="font-semibold px-2 py-1 rounded bg-white">
+                          {lang.toUpperCase()}
+                        </span>
+                        {translation && (
+                          <span className="text-xs">
+                            - {translation.name}
+                          </span>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+
+              <p className="text-sm text-red-600 font-medium">
+                ⚠️ This action cannot be undone.
+              </p>
+            </div>
+
+            {/* Footer */}
+            <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors flex items-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+                Delete {selectedRows.size} Item{selectedRows.size > 1 ? 's' : ''}
+              </button>
+            </div>
           </div>
         </div>
-      )} */}
+      )}
     </div>
   );
 }
