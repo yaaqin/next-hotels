@@ -1,7 +1,10 @@
+'use client'
+
 import React, { useEffect, useState } from "react";
 import Images from "../../atoms/images";
 import { MoonIcon, Sun01Icon } from "hugeicons-react";
 import { queryClient } from "@/src/libs/react-query";
+import { useLanguageStore } from "@/src/stores/languageStore";
 
 const LANG_OPTIONS = [
   { label: "Bahasa Indonesia", value: "idn" },
@@ -10,6 +13,8 @@ const LANG_OPTIONS = [
   { label: "中文", value: "chn" },
 ];
 
+type Lang = "idn" | "eng" | "jpn" | "chn";
+
 const ProfileCardnavbar: React.FC<{
   name: string;
   email: string;
@@ -17,23 +22,24 @@ const ProfileCardnavbar: React.FC<{
 }> = ({ name, email, avatarUrl }) => {
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [language, setLanguage] = useState<string>("idn");
 
-  const isDark = theme === 'dark'
+  const { language, setLanguage } = useLanguageStore();
 
-  // 🔹 init from localStorage
+  const isDark = theme === "dark";
+
+  // 🔹 init theme from localStorage
   useEffect(() => {
     const savedTheme =
       (localStorage.getItem("theme") as "light" | "dark") ?? "light";
-    const savedLang = localStorage.getItem("language") ?? "idn";
-
     setTheme(savedTheme);
-    setLanguage(savedLang);
+    document.documentElement.classList.toggle("dark", savedTheme === "dark");
+  }, []);
 
-    document.documentElement.classList.toggle(
-      "dark",
-      savedTheme === "dark"
-    );
+  // 🔹 listen language-change event → invalidate queries
+  useEffect(() => {
+    const handler = () => queryClient.invalidateQueries();
+    window.addEventListener("language-change", handler);
+    return () => window.removeEventListener("language-change", handler);
   }, []);
 
   // 🔹 change theme
@@ -46,20 +52,13 @@ const ProfileCardnavbar: React.FC<{
 
   // 🔹 change language
   const changeLanguage = (value: string) => {
-    setLanguage(value)
-    localStorage.setItem("language", value)
-
-    window.addEventListener("language-change", () => {
-      queryClient.invalidateQueries()
-    })
-
+    setLanguage(value as Lang); // handles localStorage + i18n + zustand
     window.dispatchEvent(
       new CustomEvent("language-change", {
         detail: { language: value },
       })
-    )
-  }
-
+    );
+  };
 
   return (
     <div className="relative">

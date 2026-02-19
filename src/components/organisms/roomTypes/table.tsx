@@ -10,12 +10,15 @@ import {
 } from '@tanstack/react-table';
 import Link from 'next/link';
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next';
 
 interface RoomTypeTableProps {
   data: roomTypeListState[];
 }
 
 export default function RoomTypeTable({ data }: RoomTypeTableProps) {
+  const { t } = useTranslation()
+
   const [sorting, setSorting] = useState<SortingState>([]);
 
   // Definisi kolom
@@ -29,7 +32,7 @@ export default function RoomTypeTable({ data }: RoomTypeTableProps) {
     },
     {
       accessorKey: 'name',
-      header: 'Name',
+      header: t('label.name'),
       cell: (info) => (
         <span className="font-medium">{info.getValue() as string}</span>
       ),
@@ -71,35 +74,35 @@ export default function RoomTypeTable({ data }: RoomTypeTableProps) {
       header: 'Actions',
       cell: ({ row }) => {
         const roomType = row.original;
-        
+
         return (
           <div className="flex gap-2">
             <Link href={`/dashboard/room-type/${roomType.id}`}
               className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200 flex items-center gap-1"
             >
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                className="h-4 w-4" 
-                fill="none" 
-                viewBox="0 0 24 24" 
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" 
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                 />
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" 
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                 />
               </svg>
               Detail
             </Link>
-            
+
             {/* <Link href={`/room-types/${roomType.id}/edit`}
               className="px-3 py-1.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors duration-200 flex items-center gap-1"
             >
@@ -204,7 +207,7 @@ export default function RoomTypeTable({ data }: RoomTypeTableProps) {
             of {data.length} results
           </span>
         </div>
-        
+
         <div className="flex gap-2">
           <button
             onClick={() => table.setPageIndex(0)}
@@ -222,11 +225,11 @@ export default function RoomTypeTable({ data }: RoomTypeTableProps) {
           >
             {'<'}
           </button>
-          
+
           <span className="px-4 py-2 text-sm border border-gray-300 rounded-md bg-gray-50">
             Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
           </span>
-          
+
           <button
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}

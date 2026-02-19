@@ -1,0 +1,25 @@
+{
+  "label": {
+    "name": "名前",
+    "email": "メール",
+    "phone": "電話番号",
+    "address": "住所",
+    "date": "日付",
+    "status": "ステータス",
+    "action": "アクション",
+    "search": "検索",
+    "filter": "フィルター",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "edit": "編集",
+    "add": "追加",
+    "submit": "送信",
+    "back": "戻る",
+    "next": "次へ",
+    "previous": "前へ",
+    "loading": "読み込み中",
+    "noData": "データなし",
+    "confirm": "確認"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "label": {
+    "name": "Nama",
+    "email": "Email",
+    "phone": "Nomor Telepon",
+    "address": "Alamat",
+    "date": "Tanggal",
+    "status": "Status",
+    "action": "Aksi",
+    "search": "Cari",
+    "filter": "Filter",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "delete": "Hapus",
+    "edit": "Edit",
+    "add": "Tambah",
+    "submit": "Kirim",
+    "back": "Kembali",
+    "next": "Selanjutnya",
+    "previous": "Sebelumnya",
+    "loading": "Memuat",
+    "noData": "Tidak Ada Data",
+    "confirm": "Konfirmasi"
+  }
+}

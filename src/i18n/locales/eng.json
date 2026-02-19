@@ -1,0 +1,25 @@
+{
+  "label": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "address": "Address",
+    "date": "Date",
+    "status": "Status",
+    "action": "Action",
+    "search": "Search",
+    "filter": "Filter",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "loading": "Loading",
+    "noData": "No Data",
+    "confirm": "Confirm"
+  }
+}
