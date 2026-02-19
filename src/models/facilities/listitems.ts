@@ -17,4 +17,5 @@ export interface facilityItemsListState {
 export interface Type {
   id: string
   code: string
+  name: string
 }

@@ -8,12 +8,12 @@ export default function FacilityTypePage() {
     return (
         <div>
             <section className='flex items-center justify-between'>
-            <h6>list facility Type here</h6>
-<Link href={`/dashboard/facility/type/create`} className='px-4 p-2'>Create</Link>
+                <h6>list facility Type here</h6>
+                <Link href={`/dashboard/facility/type/create`} className='px-4 p-2'>Create</Link>
             </section>
             <div className='flex flex-wrap gap-3 mt-4'>
-                {data &&  (
-                    <FacilityTypeTable data={data.data}/>
+                {data && (
+                    <FacilityTypeTable data={data.data} />
                 )}
             </div>
         </div>
