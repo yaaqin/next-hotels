@@ -12,7 +12,7 @@ export const useRoomTypeList = () => {
         error,
         refetch,
     } = useQuery<roomTypeLIstProps>({
-        queryKey: ["room-type-list", ],
+        queryKey: ["room-type-list"],
         queryFn: () => roomTypeList(),
         enabled: !!page,
     });
