@@ -8,6 +8,10 @@
     "start": "next start -p 9022",
     "lint": "eslint"
   },
+  "overrides": {
+    "minimatch": "^10.2.1",
+    "ajv": "^8.18.0"
+  },
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",
     "@tanstack/react-table": "^8.21.3",
