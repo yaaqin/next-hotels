@@ -25,9 +25,9 @@ export const NAVIGATION: NavItem[] = [
         parentKey: 'dashboard',
       },
       {
-        key: 'setting',
-        label: 'Setting',
-        path: '/dashboard/setting',
+        key: 'menu',
+        label: 'Menu',
+        path: '/dashboard/menu',
         parentKey: 'dashboard',
       },
     ],
