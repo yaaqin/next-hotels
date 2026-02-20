@@ -43,7 +43,6 @@ export default function RoomTypeMultiTranslationForm({
     chn: { name: "", desk: "" },
   });
 
-  // 🔥 inject default value dari backend
   useEffect(() => {
     if (!initialData?.translations) return;
 
@@ -57,7 +56,6 @@ export default function RoomTypeMultiTranslationForm({
     });
 
     setForm(next);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialData]);
 
   const handleChange = (
