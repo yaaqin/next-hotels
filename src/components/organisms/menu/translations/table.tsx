@@ -1,4 +1,4 @@
-import { TranslationDetailRoomType } from '@/src/models/roomTypes/detailAllLang';
+import { Translation } from '@/src/models/menu/detailTranslations';
 import {
   useReactTable,
   getCoreRowModel,
@@ -7,106 +7,84 @@ import {
   getSortedRowModel,
   SortingState,
   getPaginationRowModel,
-  getFilteredRowModel,
-  ColumnFiltersState,
 } from '@tanstack/react-table';
 import { useState } from 'react';
 
-interface TranslationTableProps {
-  data: TranslationDetailRoomType[];
-  onEdit?: (translation: TranslationDetailRoomType) => void;
-  onDelete?: (translationId: string) => void;
-  onBulkDelete?: (translationIds: string[]) => void;
+interface MenuTranslationTableProps {
+  data: Translation[];
+  onDelete?: (langs: string[]) => void;
 }
 
-export default function TranslationTable({
+export default function MenuTranslationTable({
   data,
-  onEdit,
   onDelete,
-  onBulkDelete
-}: TranslationTableProps) {
+}: MenuTranslationTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const getLanguageBadge = (lang: string) => {
     const langColors: Record<string, string> = {
-      'eng': 'bg-blue-100 text-blue-800',
-      'idn': 'bg-red-100 text-red-800',
-      'chn': 'bg-yellow-100 text-yellow-800',
-      'jpn': 'bg-pink-100 text-pink-800',
-      'kor': 'bg-purple-100 text-purple-800',
-      'es': 'bg-orange-100 text-orange-800',
-      'fr': 'bg-indigo-100 text-indigo-800',
-      'de': 'bg-gray-100 text-gray-800',
+      eng: 'bg-blue-100 text-blue-800',
+      idn: 'bg-red-100 text-red-800',
+      chn: 'bg-yellow-100 text-yellow-800',
+      jpn: 'bg-pink-100 text-pink-800',
+      kor: 'bg-purple-100 text-purple-800',
+      es: 'bg-orange-100 text-orange-800',
+      fr: 'bg-indigo-100 text-indigo-800',
+      de: 'bg-gray-100 text-gray-800',
     };
 
     const langNames: Record<string, string> = {
-      'eng': 'English',
-      'idn': 'Indonesia',
-      'chn': '中文',
-      'jpn': '日本語',
-      'ko': '한국어',
-      'es': 'Español',
-      'fr': 'Français',
-      'de': 'Deutsch',
+      eng: 'English',
+      idn: 'Indonesia',
+      chn: '中文',
+      jpn: '日本語',
+      kor: '한국어',
+      es: 'Español',
+      fr: 'Français',
+      de: 'Deutsch',
     };
 
-    const colorClass = langColors[lang] || 'bg-gray-100 text-gray-800';
-    const langName = langNames[lang] || lang.toUpperCase();
-
     return (
-      <span className={`px-3 py-1 text-xs font-semibold rounded-full ${colorClass}`}>
-        {langName}
+      <span
+        className={`px-3 py-1 text-xs font-semibold rounded-full ${
+          langColors[lang] ?? 'bg-gray-100 text-gray-800'
+        }`}
+      >
+        {langNames[lang] ?? lang.toUpperCase()}
       </span>
     );
   };
 
-  const toggleRowSelection = (lang: string) => {
-    const newSelected = new Set(selectedRows);
-    if (newSelected.has(lang)) {
-      newSelected.delete(lang);
-    } else {
-      newSelected.add(lang);
-    }
-    setSelectedRows(newSelected);
+  const toggleRow = (lang: string) => {
+    const next = new Set(selectedRows);
+    next.has(lang) ? next.delete(lang) : next.add(lang);
+    setSelectedRows(next);
   };
 
-  const toggleAllRows = () => {
-    if (selectedRows.size === data.length) {
-      setSelectedRows(new Set());
-    } else {
-      // ✅ FIX: Ganti dari id ke lang
-      setSelectedRows(new Set(data.map(item => item.lang)));
-    }
-  };
-
-  const handleDeleteClick = () => {
-    setShowDeleteModal(true);
+  const toggleAll = () => {
+    setSelectedRows(
+      selectedRows.size === data.length
+        ? new Set()
+        : new Set(data.map((d) => d.lang)),
+    );
   };
 
   const handleConfirmDelete = () => {
-    const selectedLangs = Array.from(selectedRows);
-
-    console.log('Selected Langs:', selectedLangs);
-
-    if (onBulkDelete) {
-      onBulkDelete(selectedLangs);
-    }
-
+    onDelete?.(Array.from(selectedRows));
     setShowDeleteModal(false);
     setSelectedRows(new Set());
   };
 
-  const columns: ColumnDef<TranslationDetailRoomType>[] = [
+  const columns: ColumnDef<Translation>[] = [
     {
       id: 'select',
       header: () => (
         <input
           type="checkbox"
           checked={selectedRows.size === data.length && data.length > 0}
-          onChange={toggleAllRows}
+          onChange={toggleAll}
           className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
         />
       ),
@@ -114,7 +92,7 @@ export default function TranslationTable({
         <input
           type="checkbox"
           checked={selectedRows.has(row.original.lang)}
-          onChange={() => toggleRowSelection(row.original.lang)}
+          onChange={() => toggleRow(row.original.lang)}
           className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
         />
       ),
@@ -124,7 +102,6 @@ export default function TranslationTable({
       accessorKey: 'lang',
       header: 'Language',
       cell: (info) => getLanguageBadge(info.getValue() as string),
-      filterFn: 'includesString',
     },
     {
       accessorKey: 'name',
@@ -133,52 +110,24 @@ export default function TranslationTable({
         <span className="font-medium text-gray-900">{info.getValue() as string}</span>
       ),
     },
-    {
-      accessorKey: 'desk',
-      header: 'Description',
-      cell: (info) => (
-        <div className="max-w-md">
-          <p className="text-sm text-gray-600 line-clamp-2">
-            {info.getValue() as string}
-          </p>
-        </div>
-      ),
-    },
-    {
-      accessorKey: 'id',
-      header: 'Translation ID',
-      cell: (info) => (
-        <span className="font-mono text-xs text-gray-500">
-          {(info.getValue() as string).slice(0, 8)}...
-        </span>
-      ),
-    },
   ];
 
   const table = useReactTable({
     data,
     columns,
-    state: {
-      sorting,
-      columnFilters,
-    },
+    state: { sorting },
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: 10,
-      },
-    },
+    initialState: { pagination: { pageSize: 10 } },
   });
 
   return (
     <div className="w-full space-y-4 mt-4">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h5 className='text-xl font-semibold'>Translation</h5>
+        <h5 className="text-xl font-semibold">Translation</h5>
 
         {selectedRows.size > 0 && (
           <div className="flex items-center gap-3 bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
@@ -186,22 +135,11 @@ export default function TranslationTable({
               {selectedRows.size} selected
             </span>
             <button
-              onClick={handleDeleteClick}
+              onClick={() => setShowDeleteModal(true)}
               className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors duration-200 flex items-center gap-2"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
               Delete Selected
             </button>
@@ -215,6 +153,7 @@ export default function TranslationTable({
         )}
       </div>
 
+      {/* Table */}
       <div className="overflow-x-auto shadow-md rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -222,24 +161,18 @@ export default function TranslationTable({
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   const canSort = header.column.getCanSort();
-                  const sortDirection = header.column.getIsSorted();
-
                   return (
                     <th
                       key={header.id}
-                      className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider select-none ${canSort ? 'cursor-pointer hover:bg-gray-100' : ''
-                        }`}
+                      className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider select-none ${
+                        canSort ? 'cursor-pointer hover:bg-gray-100' : ''
+                      }`}
                       onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
                     >
                       <div className="flex items-center gap-2">
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                        {canSort && sortDirection && (
-                          <span>
-                            {sortDirection === 'asc' ? '🔼' : '🔽'}
-                          </span>
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {canSort && header.column.getIsSorted() && (
+                          <span>{header.column.getIsSorted() === 'asc' ? '🔼' : '🔽'}</span>
                         )}
                       </div>
                     </th>
@@ -254,7 +187,6 @@ export default function TranslationTable({
                 <tr
                   key={row.id}
                   className={`hover:bg-gray-50 transition-colors ${
-                    // ✅ FIX: Ganti dari id ke lang
                     selectedRows.has(row.original.lang) ? 'bg-blue-50' : ''
                   }`}
                 >
@@ -269,18 +201,8 @@ export default function TranslationTable({
               <tr>
                 <td colSpan={columns.length} className="px-6 py-8 text-center text-gray-500">
                   <div className="flex flex-col items-center gap-2">
-                    <svg
-                      className="w-12 h-12 text-gray-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"
-                      />
+                    <svg className="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                     </svg>
                     <p className="text-lg font-medium">No translations found</p>
                     <p className="text-sm">Add translations to get started</p>
@@ -292,72 +214,50 @@ export default function TranslationTable({
         </table>
       </div>
 
+      {/* Delete Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          {/* Backdrop */}
           <div
             className="absolute inset-0 bg-gray-900 opacity-50"
             onClick={() => setShowDeleteModal(false)}
           />
-
-          {/* Modal Content */}
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden z-10">
-            {/* Header */}
             <div className="bg-red-600 px-6 py-4">
               <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
                 Confirm Deletion
               </h3>
             </div>
-
-            {/* Body */}
             <div className="p-6">
               <p className="text-gray-700 mb-4">
-                Are you sure you want to delete <strong>{selectedRows.size}</strong> translation{selectedRows.size > 1 ? 's' : ''}?
+                Are you sure you want to delete{' '}
+                <strong>{selectedRows.size}</strong> translation
+                {selectedRows.size > 1 ? 's' : ''}?
               </p>
-
-              {/* Selected Languages Preview */}
               <div className="bg-gray-50 rounded-md p-4 mb-4 max-h-40 overflow-y-auto">
                 <p className="text-sm font-medium text-gray-700 mb-2">Selected Languages:</p>
                 <ul className="space-y-1">
                   {Array.from(selectedRows).map((lang) => {
-                    // ✅ FIX: Cari berdasarkan lang bukan id
-                    const translation = data.find(t => t.lang === lang);
+                    const translation = data.find((t) => t.lang === lang);
                     return (
                       <li key={lang} className="text-sm text-gray-600 flex items-center gap-2">
                         <span className="font-semibold px-2 py-1 rounded bg-white">
                           {lang.toUpperCase()}
                         </span>
                         {translation && (
-                          <span className="text-xs">
-                            - {translation.name}
-                          </span>
+                          <span className="text-xs">- {translation.name}</span>
                         )}
                       </li>
                     );
                   })}
                 </ul>
               </div>
-
               <p className="text-sm text-red-600 font-medium">
                 ⚠️ This action cannot be undone.
               </p>
             </div>
-
-            {/* Footer */}
             <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
@@ -369,19 +269,8 @@ export default function TranslationTable({
                 onClick={handleConfirmDelete}
                 className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors flex items-center gap-2"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
                 Delete {selectedRows.size} Item{selectedRows.size > 1 ? 's' : ''}
               </button>
