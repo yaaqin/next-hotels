@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         hostname: 'i.pinimg.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.yaaqin.xyz',
+        pathname: '/**',
+      },
     ],
   },
 };
