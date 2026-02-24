@@ -15,7 +15,7 @@ export default function ImageListPage() {
                     {data.data.map((image, key) => (
                         <div key={key} className='break-inside-avoid'>
                             <Image
-                                src={image}
+                                src={image.url}
                                 width={0}
                                 height={0}
                                 sizes='100vw'
