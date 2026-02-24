@@ -128,12 +128,12 @@ export default function ImageSelector({ images, onSubmit }: ImageSelectorProps) 
       </div>
 
       {/* Submit Button */}
-      <div className="sticky bottom-0 bg-white border-t p-4 -mx-4">
+      <div className="sticky bottom-0 p-4 -mx-4">
         <button
           type="submit"
           disabled={selectedIds.size === 0}
           className={`
-            w-full py-3 px-6 rounded-lg font-semibold text-white transition-all
+            w-full py-3 px-6 rounded-lg border-2 font-semibold text-white transition-all
             ${selectedIds.size > 0
               ? 'bg-blue-600 hover:bg-blue-700 active:scale-[0.98]'
               : 'bg-gray-300 cursor-not-allowed'

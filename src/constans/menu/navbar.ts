@@ -51,15 +51,15 @@ export const NAVIGATION: NavItem[] = [
         parentKey: 'site',
       },
       {
-        key: 'unit',
-        label: 'Unit',
-        path: '/dashboard/unit',
+        key: 'gallery',
+        label: 'Gallery',
+        path: '/dashboard/gallery',
         parentKey: 'site',
       },
       {
-        key: 'bed',
-        label: 'Bed',
-        path: '/dashboard/bed',
+        key: 'image',
+        label: 'Image',
+        path: '/dashboard/image',
         parentKey: 'site',
       },
       {
