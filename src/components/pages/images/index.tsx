@@ -10,10 +10,20 @@ export default function ImageListPage() {
                 <h5>list image here</h5>
                 <Link href={`/dashboard/image/add`} className='p-2 px-6'>Add</Link>
             </section>
-            {data &&  (
-                <section className='grid grid-cols-8 gap-4'>
+            {data && (
+                <section className='columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-4 space-y-4'>
                     {data.data.map((image, key) => (
-                        <Image key={key} src={image} width={50} height={50} className='grid rounded-md w-52' alt={'image-name'}/>
+                        <div key={key} className='break-inside-avoid'>
+                            <Image
+                                src={image}
+                                width={0}
+                                height={0}
+                                sizes='100vw'
+                                className='w-full h-auto rounded-md'
+                                alt='image-name'
+                                unoptimized
+                            />
+                        </div>
                     ))}
                 </section>
             )}
