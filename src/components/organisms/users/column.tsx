@@ -67,7 +67,7 @@ export const userColumns: ColumnDef<userListState>[] = [
       const user = row.original
       return (
         <Link
-          href={`/dashboard/users/${user.id}`}
+          href={`/dashboard/user/${user.id}`}
           className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
         >
           <svg

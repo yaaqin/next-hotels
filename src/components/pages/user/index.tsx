@@ -1,3 +1,4 @@
+'use client'
 import { useUserList } from '@/src/hooks/query/users'
 import UserTable from '../../organisms/users/table'
 
