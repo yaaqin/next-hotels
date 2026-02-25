@@ -86,3 +86,16 @@ export interface Item {
   code: string
   name: string
 }
+
+export interface Gallery {
+  id: string
+  title: string
+  createdAt: string
+  images: Image[]
+}
+
+export interface Image {
+  id: string
+  url: string
+  name: string
+}

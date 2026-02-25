@@ -65,7 +65,7 @@ export default function SliderImage({ data }: GalleryDetailProps) {
         {/* Main Large Image */}
         {mainImage && (
           <div 
-            className="relative aspect-[4/3] md:aspect-auto md:row-span-2 cursor-pointer group overflow-hidden"
+            className="relative md:aspect-auto md:row-span-2 cursor-pointer group overflow-hidden"
             onClick={() => openLightbox(0)}
           >
             <img
