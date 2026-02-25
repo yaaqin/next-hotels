@@ -1,25 +1,22 @@
-'use client'; 
+'use client';
 import { MultiImageInput } from '@/src/components/molecules/inputs/multiImageInput';
 import { useUploadImages } from '@/src/hooks/mutation/images/useCreateImage';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function UploadImagePage() {
   const [images, setImages] = useState<File[]>([]);
   const [fieldError, setFieldError] = useState<string>('');
   const { mutate, isPending } = useUploadImages();
-  const router = useRouter()
 
-const handleSubmit = () => {
-  mutate(images, {
-    // onSuccess: () => {
-    //   router.push(`/dashboard/images`)
-    // },
-    // onError: (err) => {
-    //   console.log(err)
-    // },
-  });
-};
+  const handleSubmit = async () => {
+    try {
+      mutate(images);
+      console.log('console log try catch mah jalan nih')
+      
+    } catch (error) {
+      
+    }
+  };
 
   const handleImagesChange = (files: File[]) => {
     setImages(files);
@@ -37,7 +34,7 @@ const handleSubmit = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="space-y-6">
+        <div className="space-y-6">
           {/* Multi Image Input */}
           <MultiImageInput
             label="Gambar"
@@ -53,7 +50,7 @@ const handleSubmit = () => {
 
           {/* Submit */}
           <button
-            type="submit"
+            onClick={handleSubmit}
             disabled={isPending}
             className={`
               w-full py-2.5 px-4 rounded-lg text-sm font-medium transition-colors duration-200
@@ -88,7 +85,7 @@ const handleSubmit = () => {
               `Upload ${images.length > 0 ? `${images.length} ` : ''}Gambar`
             )}
           </button>
-        </form>
+        </div>
       </div>
     </div>
   );

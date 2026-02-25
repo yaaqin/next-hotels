@@ -133,7 +133,7 @@ export default function ImageSelector({ images, onSubmit }: ImageSelectorProps) 
           type="submit"
           disabled={selectedIds.size === 0}
           className={`
-            w-full py-3 px-6 rounded-lg border-2 font-semibold text-white transition-all
+            w-full py-3 px-6 rounded-lg border-2w font-semibold text-white transition-all
             ${selectedIds.size > 0
               ? 'bg-blue-600 hover:bg-blue-700 active:scale-[0.98]'
               : 'bg-gray-300 cursor-not-allowed'
