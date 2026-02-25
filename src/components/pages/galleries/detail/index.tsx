@@ -12,11 +12,7 @@ export default function DetailGalleryPage() {
     return (
         <div>
             {data && (
-
                 <section>
-                    <h5 className='text-xl mb-2'>
-                        {data?.data.title}
-                    </h5>
                     <SliderImage data={data?.data} />
                 </section>
             )}

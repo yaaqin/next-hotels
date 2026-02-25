@@ -47,10 +47,10 @@ export default function SliderImage({ data }: GalleryDetailProps) {
   const remainingCount = images.length > 5 ? images.length - 5 : 0;
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-8">
+    <div className="w-full mx-auto p-6 space-y-8 ">
       {/* Header Info */}
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
+        <h1 className="text-3xl font-bold text-gray-900 capitalize">{title}</h1>
         <div className="flex items-center gap-4 text-sm text-gray-600">
           <span>By {data.createdBy}</span>
           <span>•</span>
@@ -61,7 +61,7 @@ export default function SliderImage({ data }: GalleryDetailProps) {
       </div>
 
       {/* Grid Layout - Top Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 rounded-2xl overflow-hidden bg-gray-100">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 rounded-2xl overflow-hidden bg-gray-100"  style={{ maxHeight: '75vh', height: '75vh' }}>
         {/* Main Large Image */}
         {mainImage && (
           <div 
@@ -82,7 +82,7 @@ export default function SliderImage({ data }: GalleryDetailProps) {
           {gridImages.map((image, idx) => (
             <div
               key={image.id}
-              className="relative aspect-[16/10] cursor-pointer group overflow-hidden rounded-lg"
+              className="relative cursor-pointer group overflow-hidden rounded-lg"
               onClick={() => openLightbox(idx + 1)}
             >
               <img
