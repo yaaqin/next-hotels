@@ -1,7 +1,7 @@
 import { bedTypeListState } from '@/src/models/bedType/list'
 import BasicCard from '../../molecules/cards/basicCard'
 
-interface BedTypePageProps {
+export interface BedTypePageProps {
     data: bedTypeListState[]
 }
 

@@ -12,7 +12,7 @@ export const useRoomList = () => {
         error,
         refetch,
     } = useQuery<roomListProps>({
-        queryKey: ["room-list", ],
+        queryKey: ["room-list"],
         queryFn: () => roomList(),
         enabled: !!page,
     });
