@@ -12,6 +12,10 @@ import { BedTypePageProps } from '../../bedType';
 import { mapSiteToOptions } from '@/src/utils/site';
 import { mapRoomTypeToOptions } from '@/src/utils/roomType/mapRoomTypeTranslations';
 import { mapBedTypeToOptions } from '@/src/utils/bedType';
+import { useFacilityGroupList } from '@/src/hooks/query/facilities/listGroups';
+import { mapFacilityGroupToOptions } from '@/src/utils/facility';
+import { useGalleryList } from '@/src/hooks/query/galleries/list';
+import { mapGalleryToOptions } from '@/src/utils/gallery';
 
 export default function CreateRoomPage({
   data: bedTypeList
@@ -24,39 +28,42 @@ export default function CreateRoomPage({
   const [roomTypeId, setRoomTypeId] = useState('');
   const [bedTypeId, setBedTypeId] = useState('');
   const [facilityGroupId, setFacilityGroupId] = useState('');
+  const [galleryId, setGalleryId] = useState('');
 
   const { mutate, isPending } = useCreateRoom();
 
   const { data: roomTypeList } = useRoomTypeList();
-  // const { data: facilityGroupList } = useF();
+  const { data: fg } = useFacilityGroupList()
   const { data: siteList } = useSiteList();
+  const { data: gallery } = useGalleryList();
 
   const handleSubmit = () => {
-    // mutate(
-    //   {
-    //     siteCode,
-    //     number,
-    //     roomTypeId,
-    //     bedTypeId,
-    //     facilityGroupId,
-    //   },
-    //   {
-    //     onSuccess: () => {
-    //       queryClient.invalidateQueries({
-    //         queryKey: ['room-list'],
-    //       });
+    mutate(
+      {
+        siteCode,
+        number,
+        roomTypeId,
+        bedTypeId,
+        facilityGroupId,
+        galleryId
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ['room-list'],
+          });
 
-    //       router.push('/dashboard/room');
-    //     },
-    //   }
-    // );
-    console.log({
-      siteCode,
-      number,
-      roomTypeId,
-      bedTypeId,
-      facilityGroupId,
-    })
+          router.push('/dashboard/room');
+        },
+      }
+    );
+    // console.log({
+    //   siteCode,
+    //   number,
+    //   roomTypeId,
+    //   bedTypeId,
+    //   facilityGroupId,
+    // })
   };
 
   return (
@@ -101,15 +108,24 @@ export default function CreateRoomPage({
           />
         )}
 
-        {/* {facilityGroupList && (
+        {fg && (
           <Selects
             label="Facility Group"
             value={facilityGroupId}
             onChange={setFacilityGroupId}
             containerClassName="w-1/2"
-            options={mapFacilityGroupToOptions(facilityGroupList.data)}
+            options={mapFacilityGroupToOptions(fg.data)}
           />
-        )} */}
+        )}
+        {gallery && (
+          <Selects
+            label="Gallery"
+            value={galleryId}
+            onChange={setGalleryId}
+            containerClassName="w-1/2"
+            options={mapGalleryToOptions(gallery.data)}
+          />
+        )}
       </section>
 
       <Buttons

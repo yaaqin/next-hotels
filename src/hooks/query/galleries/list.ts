@@ -12,7 +12,7 @@ export const useGalleryList = () => {
         error,
         refetch,
     } = useQuery<galleryListProps>({
-        queryKey: ["gallery-list",],
+        queryKey: ["gallery-list"],
         queryFn: () => galleryList(),
         enabled: !!page,
     });

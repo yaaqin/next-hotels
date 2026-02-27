@@ -4,6 +4,7 @@ export interface CreateRoomReq {
   roomTypeId: string;
   bedTypeId: string;
   facilityGroupId: string;
+  galleryId: string;
 }
 
 export interface CreateRoomRes {
