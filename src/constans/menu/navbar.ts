@@ -63,6 +63,12 @@ export const NAVIGATION: NavItem[] = [
         parentKey: 'site',
       },
       {
+        key: 'booking',
+        label: 'Booking',
+        path: '/dashboard/booking',
+        parentKey: 'site',
+      },
+      {
         key: 'facility',
         label: 'Facility',
         parentKey: 'site',
