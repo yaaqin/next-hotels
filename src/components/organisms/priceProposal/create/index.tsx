@@ -141,13 +141,11 @@ export default function CreatePriceProposalForm({
 
             {/* Actions */}
             <div className="flex items-center justify-end gap-3 pt-2">
-                <button
-                    type="button"
+                <Buttons
+                    label="Reset"
                     onClick={reset}
                     className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-                >
-                    Reset
-                </button>
+                />
                 <Buttons
                     onClick={handleSubmit}
                     label={isLoading ? 'Submitting...' : 'Create Proposal'}
