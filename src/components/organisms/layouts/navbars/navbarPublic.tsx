@@ -2,7 +2,13 @@
 import { useEffect, useState } from "react";
 import { BookingOverlay } from "./bookingOverlay";
 
-export default function Navbar() {
+interface NavbarProps {
+  isMain?: boolean
+}
+
+export default function Navbar({
+  isMain = true
+}: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
 
@@ -29,12 +35,14 @@ export default function Navbar() {
           }`}
       >
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <button
-            className={`text-sm font-medium tracking-widest uppercase transition-colors duration-500 ease-in-out
+          {isMain && (
+            <button
+              className={`text-sm font-medium tracking-widest uppercase transition-colors duration-500 ease-in-out
               ${scrolled ? "text-gray-900" : "text-white"}`}
-          >
-            Menu
-          </button>
+            >
+              Menu
+            </button>
+          )}
 
           <span
             className={`text-4xl font-semibold tracking-[0.2em] uppercase transition-colors duration-500 ease-in-out
@@ -43,13 +51,15 @@ export default function Navbar() {
             MBS
           </span>
 
-          <button
-            onClick={() => setBookingOpen(true)}
-            className={`text-sm font-medium cursor-pointer tracking-widest uppercase transition-colors duration-500 ease-in-out
-              ${scrolled ? "text-gray-900" : "text-white"}`}
-          >
-            Booking
-          </button>
+          {isMain && (
+            <button
+              onClick={() => setBookingOpen(true)}
+              className={`text-sm font-medium cursor-pointer tracking-widest uppercase transition-colors duration-500 ease-in-out
+                  ${scrolled ? "text-gray-900" : "text-white"}`}
+            >
+              Booking
+            </button>
+          )}
         </div>
       </nav>
 
