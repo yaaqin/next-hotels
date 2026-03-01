@@ -4,6 +4,8 @@ import RoomAvlbCard from "@/src/components/molecules/cards/publicRoomTypeAvlbCar
 import { usePublicRoomTypeAvailibility } from "@/src/hooks/query/roomAvailibility/publicRoomTypeAvailibility"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useMemo, useRef } from "react"
+import { roomListAvailableState } from "@/src/models/public/roomAvailibility/listRoomType"
+import { useBookingStore } from "@/src/stores/booking"
 
 // ─── Date Utilities ───────────────────────────────────────────────────────────
 
@@ -40,6 +42,8 @@ export default function BookingPublicPage() {
     const searchParams = useSearchParams()
     const dateInputRef = useRef<HTMLInputElement>(null)
 
+    const { setStay, setItem, setRoomDetail } = useBookingStore()
+
     const checkinParam = searchParams.get("checkin")
 
     const { checkinDate, checkoutDate, checkin, checkout } = useMemo(() => {
@@ -70,6 +74,34 @@ export default function BookingPublicPage() {
         dateInputRef.current?.showPicker?.()
     }, [])
 
+    const handleSelectRoom = useCallback(
+        (roomType: roomListAvailableState) => {
+            // 1. Set tanggal & siteCode ke store
+            setStay({
+                siteCode: 'MERAK', // ganti dengan siteCode dari config / env
+                checkInDate: checkin,
+                checkOutDate: checkout,
+            })
+
+            // 2. Set roomTypeId — roomId akan dipilih user di halaman /reservation
+            setItem({
+                roomTypeId: roomType.roomTypeId,
+            })
+
+            // 3. Simpan detail harga & nama buat ditampilkan di summary
+            setRoomDetail({
+                roomTypeName: roomType.name,
+                pricePerNight: roomType.pricing.price,
+                nights: roomType.pricing.nights,
+                totalPrice: roomType.pricing.totalPrice,
+            })
+
+            // 4. Redirect
+            router.push('/reservation')
+        },
+        [checkin, checkout, setStay, setItem, setRoomDetail, router],
+    )
+
     return (
         <div className="min-h-screen bg-white">
             {/* ── Date Bar ── */}
@@ -87,7 +119,6 @@ export default function BookingPublicPage() {
                     1 Malam · 1 Kamar
                 </p>
 
-                {/* Hidden native date input */}
                 <input
                     ref={dateInputRef}
                     type="date"
@@ -105,10 +136,7 @@ export default function BookingPublicPage() {
                 {isLoading && (
                     <div className="flex flex-col gap-4">
                         {[...Array(3)].map((_, i) => (
-                            <div
-                                key={i}
-                                className="h-64 rounded-2xl bg-gray-100 animate-pulse"
-                            />
+                            <div key={i} className="h-64 rounded-2xl bg-gray-100 animate-pulse" />
                         ))}
                     </div>
                 )}
@@ -137,7 +165,7 @@ export default function BookingPublicPage() {
                             price={roomType.pricing.totalPrice}
                             bedInfo="2 Tempat Tidur Queen & Tempat Tidur King tersedia"
                             onViewDetail={() => console.log("detail", roomType.roomTypeId)}
-                            onViewPackage={() => console.log("package", roomType.roomTypeId)}
+                            onViewPackage={() => handleSelectRoom(roomType)}
                         />
                     ))}
             </div>
