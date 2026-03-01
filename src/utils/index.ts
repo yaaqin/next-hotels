@@ -20,3 +20,11 @@ export const formatDateTime = (isoString?: string): string => {
 
   return `${day}-${month}-${year} - ${time}`
 }
+
+export function truncateText(text: string, maxLength = 75): string {
+  if (!text) return ""
+
+  if (text.length <= maxLength) return text
+
+  return text.slice(0, maxLength).trimEnd() + "..."
+}

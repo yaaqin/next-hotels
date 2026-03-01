@@ -1,4 +1,5 @@
 import { roomTypeListState } from '@/src/models/roomTypes/list';
+import { truncateText } from '@/src/utils';
 import {
   useReactTable,
   getCoreRowModel,
@@ -41,7 +42,7 @@ export default function RoomTypeTable({ data }: RoomTypeTableProps) {
       accessorKey: 'desk',
       header: 'Description',
       cell: (info) => (
-        <span className="text-gray-600">{info.getValue() as string}</span>
+        <span className="text-gray-600">{truncateText(info.getValue() as string, 75)}</span>
       ),
     },
     {
