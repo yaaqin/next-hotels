@@ -198,6 +198,15 @@ export const axiosPublic: AxiosInstance = axios.create({
   timeout: 30_000,
 })
 
+axiosPublic.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    const lang = getLanguage()
+    config.headers['x-lang'] = lang
+    return config
+  },
+  (error) => Promise.reject(error)
+)
+
 axiosPublic.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
