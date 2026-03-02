@@ -1,97 +1,42 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import type { Floor, Room, TypeMapping, GridMeta, SpecialCell } from "@/src/models/public/roomPlan/list";
+import { usePublicRoomPlan } from "@/src/hooks/query/roomPlan/list";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-type RoomStatus = "available" | "booked" | "selected";
+const SITE_CODE = "MERAK";
 
-interface Room {
-  id: string;
-  number: string;
-  floor: string;
-  roomType: number; // angka tipe kamar
-  isAvailable: boolean;
-  pricing: {
-    basePrice: number;
-    effectivePrice: number;
-    appliedRule: string | null;
-    nights: number;
-    totalPrice: number;
-  } | null;
-}
-
-// ─── Dummy Data ───────────────────────────────────────────────────────────────
-
-const dummyRooms: Room[] = [
-  // Row atas (lantai 05 kiri ke kanan)
-  { id: "r01", number: "0401", floor: "04", roomType: 4, isAvailable: true, pricing: { basePrice: 450000, effectivePrice: 450000, appliedRule: null, nights: 1, totalPrice: 450000 } },
-  { id: "r02", number: "0501", floor: "05", roomType: 0, isAvailable: false, pricing: null }, // td = tdk tersedia
-  { id: "r03", number: "0502", floor: "05", roomType: 2, isAvailable: true, pricing: { basePrice: 320000, effectivePrice: 320000, appliedRule: null, nights: 1, totalPrice: 320000 } },
-  { id: "r04", number: "0601", floor: "06", roomType: 2, isAvailable: true, pricing: { basePrice: 320000, effectivePrice: 350000, appliedRule: "WEEKEND", nights: 1, totalPrice: 350000 } },
-  { id: "r05", number: "0701", floor: "07", roomType: 2, isAvailable: false, pricing: null },
-
-  // Row bawah kiri
-  { id: "r06", number: "0301", floor: "03", roomType: 4, isAvailable: true, pricing: { basePrice: 450000, effectivePrice: 450000, appliedRule: null, nights: 1, totalPrice: 450000 } },
-  { id: "r07", number: "0201", floor: "02", roomType: 1, isAvailable: true, pricing: { basePrice: 250000, effectivePrice: 250000, appliedRule: null, nights: 1, totalPrice: 250000 } },
-  { id: "r08", number: "0101", floor: "01", roomType: 1, isAvailable: true, pricing: { basePrice: 250000, effectivePrice: 275000, appliedRule: "WEEKEND", nights: 1, totalPrice: 275000 } },
-
-  // Row kanan atas (08)
-  { id: "r09", number: "0801", floor: "08", roomType: 1, isAvailable: true, pricing: { basePrice: 250000, effectivePrice: 250000, appliedRule: null, nights: 1, totalPrice: 250000 } },
-
-  // Row kanan bawah (09, 10)
-  { id: "r10", number: "0901", floor: "09", roomType: 3, isAvailable: true, pricing: { basePrice: 380000, effectivePrice: 380000, appliedRule: null, nights: 1, totalPrice: 380000 } },
-  { id: "r11", number: "0902", floor: "09", roomType: 3, isAvailable: false, pricing: null },
-  { id: "r12", number: "1001", floor: "10", roomType: 3, isAvailable: true, pricing: { basePrice: 380000, effectivePrice: 400000, appliedRule: "DATE_RANGE", nights: 1, totalPrice: 400000 } },
-  { id: "r13", number: "1002", floor: "10", roomType: 3, isAvailable: true, pricing: { basePrice: 380000, effectivePrice: 380000, appliedRule: null, nights: 1, totalPrice: 380000 } },
+// Warna per gridType (1-4), di-assign berdasarkan urutan di typeMapping per lantai
+// gridType 1 = tipe paling mahal, dst
+const TYPE_COLORS = [
+  { bg: "#fdf2ff", border: "#c026d3", text: "#701a75" }, // gridType 1
+  { bg: "#fff7ed", border: "#f97316", text: "#7c2d12" }, // gridType 2
+  { bg: "#eff6ff", border: "#3b82f6", text: "#1e3a8a" }, // gridType 3
+  { bg: "#f5f3ff", border: "#8b5cf6", text: "#3b0764" }, // gridType 4
 ];
-
-// ─── Layout config — mirror dari gambar ──────────────────────────────────────
-
-const floorLayout = [
-  // [row, col, roomId, label kolom atas]
-  { row: 0, col: 0, id: "r01", colLabel: "04" },
-  { row: 0, col: 1, id: "r02", colLabel: "05" },
-  { row: 0, col: 2, id: "r03", colLabel: "" },
-  { row: 0, col: 3, id: "r04", colLabel: "06" },
-  { row: 0, col: 4, id: "r05", colLabel: "07" },
-
-  { row: 1, col: 0, id: "r06", colLabel: "" },
-  { row: 1, col: 1, id: "r07", colLabel: "" },
-  { row: 1, col: 2, id: "r08", colLabel: "" },
-  // lift ada di col 3 row 1 — special cell
-  { row: 1, col: 4, id: "r09", colLabel: "08" },
-
-  { row: 2, col: 3, id: "r10", colLabel: "" },
-  { row: 2, col: 4, id: "r11", colLabel: "09" },
-
-  { row: 3, col: 3, id: "r12", colLabel: "" },
-  { row: 3, col: 4, id: "r13", colLabel: "10" },
-];
-
-const rowLabels = ["", "03", "02", "01", "12", "11"];
+const NA_COLOR = { bg: "#f8fafc", border: "#e2e8f0", text: "#c0ccd8" };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const roomMap = Object.fromEntries(dummyRooms.map((r) => [r.id, r]));
+function toDateStr(d: Date) {
+  return d.toISOString().split("T")[0];
+}
 
-function formatRupiah(amount: number) {
+function formatRp(n: number) {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
     minimumFractionDigits: 0,
-  }).format(amount);
+  }).format(n);
 }
 
-const typeColors: Record<number, { bg: string; border: string; text: string }> = {
-  0: { bg: "#e5e7eb", border: "#9ca3af", text: "#6b7280" },       // td / tidak tersedia
-  1: { bg: "#dbeafe", border: "#3b82f6", text: "#1d4ed8" },       // tipe 1
-  2: { bg: "#d1fae5", border: "#10b981", text: "#065f46" },       // tipe 2
-  3: { bg: "#fef3c7", border: "#f59e0b", text: "#92400e" },       // tipe 3
-  4: { bg: "#ede9fe", border: "#8b5cf6", text: "#4c1d95" },       // tipe 4
-};
+function getTypeColor(gridType: number) {
+  return TYPE_COLORS[gridType - 1] ?? NA_COLOR;
+}
 
-// ─── Room Cell Component ──────────────────────────────────────────────────────
+// ─── Sub Components ───────────────────────────────────────────────────────────
 
 function RoomCell({
   room,
@@ -102,198 +47,165 @@ function RoomCell({
   isSelected: boolean;
   onClick: () => void;
 }) {
-  const colors = typeColors[room.isAvailable ? room.roomType : 0];
-  const isBooked = !room.isAvailable;
+  const isUnavailable = room.status !== "AVAILABLE";
+  const isBooked = room.status === "BOOKED";
+  const colors = isUnavailable ? NA_COLOR : getTypeColor(room.gridType);
 
   return (
     <button
-      onClick={isBooked ? undefined : onClick}
-      disabled={isBooked}
+      onClick={isUnavailable ? undefined : onClick}
+      disabled={isUnavailable}
       style={{
-        width: "90px",
-        height: "80px",
-        borderRadius: "12px",
-        border: `2px solid ${isSelected ? "#0f172a" : colors.border}`,
-        backgroundColor: isSelected ? "#0f172a" : isBooked ? "#f3f4f6" : colors.bg,
-        color: isSelected ? "#fff" : isBooked ? "#9ca3af" : colors.text,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        cursor: isBooked ? "not-allowed" : "pointer",
-        position: "relative",
-        transition: "all 0.15s ease",
+        width: 88, height: 78, borderRadius: 10, outline: "none",
+        border: `2px solid ${isSelected ? "#0f172a" : isUnavailable ? "#e2e8f0" : colors.border}`,
+        backgroundColor: isSelected ? "#0f172a" : isUnavailable ? "#f8fafc" : colors.bg,
+        color: isSelected ? "#fff" : isUnavailable ? "#c0ccd8" : colors.text,
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+        cursor: isUnavailable ? "not-allowed" : "pointer",
+        position: "relative", transition: "all 0.15s ease",
         boxShadow: isSelected
-          ? "0 4px 14px rgba(15,23,42,0.3)"
-          : isBooked
-          ? "none"
-          : "0 2px 6px rgba(0,0,0,0.07)",
-        transform: isSelected ? "scale(1.06)" : "scale(1)",
-        outline: "none",
+          ? "0 4px 14px rgba(15,23,42,0.25)"
+          : isUnavailable ? "none" : "0 1px 4px rgba(0,0,0,0.06)",
+        transform: isSelected ? "scale(1.07)" : "scale(1)",
       }}
-      title={isBooked ? `Room ${room.number} — Tidak Tersedia` : `Room ${room.number}`}
     >
-      {/* Tipe kamar */}
-      <span style={{ fontSize: "22px", fontWeight: "700", lineHeight: 1 }}>
-        {isBooked ? "td" : room.roomType}
-      </span>
-      {/* Nomor kamar */}
-      <span style={{ fontSize: "10px", marginTop: "4px", opacity: 0.7, fontWeight: 500 }}>
-        {room.number}
+      {/* Angka tipe / td */}
+      <span style={{ fontSize: 20, fontWeight: 800, lineHeight: 1, letterSpacing: "-0.5px" }}>
+        {isUnavailable ? "td" : room.gridType}
       </span>
 
-      {/* Badge harga kalau ada rule */}
-      {room.pricing?.appliedRule && !isBooked && (
-        <span
-          style={{
-            position: "absolute",
-            top: "4px",
-            right: "4px",
-            width: "8px",
-            height: "8px",
-            borderRadius: "50%",
-            backgroundColor: "#ef4444",
-          }}
-        />
+      {/* Room ID */}
+      <span style={{ fontSize: 9, marginTop: 3, opacity: 0.65, fontWeight: 600, letterSpacing: "0.3px" }}>
+        {room.roomId}
+      </span>
+
+      {/* Nama tipe singkat */}
+      {!isUnavailable && room.roomTypeName && (
+        <span style={{ fontSize: 8, opacity: 0.6, marginTop: 1 }}>
+          {room.roomTypeName.split(" ")[0]}
+        </span>
+      )}
+
+      {/* Dot harga spesial */}
+      {!isUnavailable && room.pricing?.appliedRuleId && (
+        <span style={{
+          position: "absolute", top: 4, right: 4,
+          width: 7, height: 7, borderRadius: "50%", backgroundColor: "#ef4444",
+        }} />
+      )}
+
+      {/* Badge booked */}
+      {isBooked && (
+        <span style={{
+          position: "absolute", top: 4, right: 4, fontSize: 8,
+          background: "#fef2f2", color: "#ef4444", borderRadius: 4,
+          padding: "1px 3px", fontWeight: 700,
+        }}>
+          BOOKED
+        </span>
       )}
     </button>
   );
 }
 
-// ─── Detail Panel ─────────────────────────────────────────────────────────────
-
 function DetailPanel({
   room,
+  floor,
   onBook,
   onClose,
 }: {
   room: Room;
-  onBook: (room: Room) => void;
+  floor: Floor;
+  onBook: () => void;
   onClose: () => void;
 }) {
-  const p = room.pricing!;
+  const colors = getTypeColor(room.gridType);
+  const p = room.pricing;
 
   return (
-    <div
-      style={{
-        background: "#fff",
-        border: "1px solid #e2e8f0",
-        borderRadius: "16px",
-        padding: "20px",
-        width: "260px",
-        boxShadow: "0 8px 30px rgba(0,0,0,0.1)",
-        position: "relative",
-      }}
-    >
-      {/* Close */}
-      <button
-        onClick={onClose}
-        style={{
-          position: "absolute",
-          top: "12px",
-          right: "12px",
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          fontSize: "18px",
-          color: "#94a3b8",
-          lineHeight: 1,
-        }}
-      >
-        ×
-      </button>
+    <div style={{
+      background: "#fff", border: "1px solid #e2e8f0", borderRadius: 16,
+      padding: 20, width: 256, boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+      position: "relative",
+    }}>
+      <button onClick={onClose} style={{
+        position: "absolute", top: 10, right: 12, background: "none", border: "none",
+        cursor: "pointer", fontSize: 20, color: "#94a3b8", lineHeight: 1,
+      }}>×</button>
 
       {/* Header */}
-      <div style={{ marginBottom: "16px" }}>
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            background: typeColors[room.roomType].bg,
-            border: `1px solid ${typeColors[room.roomType].border}`,
-            borderRadius: "8px",
-            padding: "4px 10px",
-            marginBottom: "8px",
-          }}
-        >
-          <span style={{ fontSize: "12px", fontWeight: "600", color: typeColors[room.roomType].text }}>
-            Tipe {room.roomType}
+      <div style={{ marginBottom: 14 }}>
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 6,
+          background: colors.bg, border: `1px solid ${colors.border}`,
+          borderRadius: 8, padding: "3px 10px", marginBottom: 8,
+        }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: colors.text }}>
+            {room.roomTypeName}
           </span>
         </div>
-        <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#0f172a" }}>
-          Room {room.number}
+        <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: "#0f172a" }}>
+          Room {room.roomId}
         </h3>
-        <p style={{ margin: "2px 0 0", fontSize: "12px", color: "#94a3b8" }}>
-          Lantai {room.floor}
+        <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8", fontWeight: 500 }}>
+          {floor.floorName} · Wing {room.wing} · {room.bedTypeName}
         </p>
       </div>
 
-      {/* Harga */}
-      <div
-        style={{
-          background: "#f8fafc",
-          borderRadius: "10px",
-          padding: "12px 14px",
-          marginBottom: "14px",
-        }}
-      >
-        {p.appliedRule && (
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-            <span style={{ fontSize: "12px", color: "#94a3b8" }}>Harga dasar</span>
-            <span style={{ fontSize: "12px", color: "#94a3b8", textDecoration: "line-through" }}>
-              {formatRupiah(p.basePrice)}
+      {/* Pricing */}
+      {p ? (
+        <div style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+          {p.appliedRuleId && (
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+              <span style={{ fontSize: 11, color: "#94a3b8" }}>Harga dasar</span>
+              <span style={{ fontSize: 11, color: "#94a3b8", textDecoration: "line-through" }}>
+                {formatRp(p.basePrice)}
+              </span>
+            </div>
+          )}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 11, color: "#64748b", fontWeight: 500 }}>Per malam</span>
+            <span style={{ fontSize: 17, fontWeight: 800, color: "#0f172a" }}>
+              {formatRp(p.effectivePrice)}
             </span>
           </div>
-        )}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: "12px", color: "#64748b", fontWeight: 500 }}>Per malam</span>
-          <span style={{ fontSize: "18px", fontWeight: "700", color: "#0f172a" }}>
-            {formatRupiah(p.effectivePrice)}
-          </span>
+          {p.appliedRuleId && (
+            <div style={{
+              marginTop: 8, padding: "4px 8px", background: "#fef2f2",
+              borderRadius: 6, fontSize: 10, color: "#ef4444", fontWeight: 600,
+            }}>
+              🔥 {p.appliedRuleName}
+            </div>
+          )}
+          {p.nights > 1 && (
+            <div style={{
+              display: "flex", justifyContent: "space-between",
+              marginTop: 10, paddingTop: 10, borderTop: "1px solid #e2e8f0",
+            }}>
+              <span style={{ fontSize: 11, color: "#64748b" }}>{p.nights} malam</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>
+                {formatRp(p.totalPrice)}
+              </span>
+            </div>
+          )}
         </div>
-        {p.appliedRule && (
-          <div
-            style={{
-              marginTop: "8px",
-              padding: "4px 8px",
-              background: "#fef2f2",
-              borderRadius: "6px",
-              fontSize: "11px",
-              color: "#ef4444",
-              fontWeight: 500,
-            }}
-          >
-            🔥 Harga {p.appliedRule === "WEEKEND" ? "Weekend" : p.appliedRule === "DATE_RANGE" ? "Spesial" : "Khusus"}
-          </div>
-        )}
-        {p.nights > 1 && (
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px", paddingTop: "10px", borderTop: "1px solid #e2e8f0" }}>
-            <span style={{ fontSize: "12px", color: "#64748b" }}>{p.nights} malam</span>
-            <span style={{ fontSize: "14px", fontWeight: "700", color: "#0f172a" }}>
-              {formatRupiah(p.totalPrice)}
-            </span>
-          </div>
-        )}
-      </div>
+      ) : (
+        <div style={{
+          background: "#f8fafc", borderRadius: 10, padding: "12px 14px",
+          marginBottom: 14, fontSize: 12, color: "#94a3b8", textAlign: "center",
+        }}>
+          Harga belum tersedia
+        </div>
+      )}
 
-      {/* CTA */}
       <button
-        onClick={() => onBook(room)}
+        onClick={onBook}
         style={{
-          width: "100%",
-          padding: "12px",
-          borderRadius: "10px",
-          border: "none",
-          background: "#0f172a",
-          color: "#fff",
-          fontSize: "14px",
-          fontWeight: "600",
-          cursor: "pointer",
-          transition: "background 0.15s",
+          width: "100%", padding: 11, borderRadius: 10, border: "none",
+          background: "#0f172a", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer",
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.background = "#1e293b")}
-        onMouseLeave={(e) => (e.currentTarget.style.background = "#0f172a")}
+        onMouseEnter={e => (e.currentTarget.style.background = "#334155")}
+        onMouseLeave={e => (e.currentTarget.style.background = "#0f172a")}
       >
         Pilih Kamar Ini
       </button>
@@ -301,39 +213,149 @@ function DetailPanel({
   );
 }
 
-// ─── Legend ───────────────────────────────────────────────────────────────────
+function Legend({ typeMapping }: { typeMapping: TypeMapping[] }) {
+  return (
+    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 20 }}>
+      {typeMapping.map((t) => {
+        const c = getTypeColor(t.gridType);
+        return (
+          <div key={t.gridType} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <div style={{ width: 12, height: 12, borderRadius: 3, background: c.bg, border: `1.5px solid ${c.border}` }} />
+            <span style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>
+              {t.roomTypeName}
+            </span>
+          </div>
+        );
+      })}
+      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+        <div style={{ width: 12, height: 12, borderRadius: 3, background: "#f8fafc", border: "1.5px solid #e2e8f0" }} />
+        <span style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>Tidak Tersedia / Booked</span>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+        <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#ef4444" }} />
+        <span style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>Harga Spesial</span>
+      </div>
+    </div>
+  );
+}
 
-function Legend() {
-  const items = [
-    { label: "Tipe 1", ...typeColors[1] },
-    { label: "Tipe 2", ...typeColors[2] },
-    { label: "Tipe 3", ...typeColors[3] },
-    { label: "Tipe 4", ...typeColors[4] },
-    { label: "Tidak Tersedia", ...typeColors[0] },
-  ];
+function FloorGrid({
+  floor,
+  gridMeta,
+  selectedId,
+  onSelect,
+}: {
+  floor: Floor;
+  gridMeta: GridMeta;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+}) {
+  // Build grid 2D dari gridRow/gridCol yang sudah ada di response API
+  const grid = useMemo(() => {
+    const g: (Room | SpecialCell | null)[][] = Array.from(
+      { length: gridMeta.rows },
+      () => Array(gridMeta.cols).fill(null),
+    );
+
+    // Isi special cells dulu (LIFT, dll)
+    for (const sc of floor.specialCells) {
+      g[sc.gridRow][sc.gridCol] = sc;
+    }
+
+    // Isi rooms
+    for (const room of floor.rooms) {
+      if (room.gridRow >= 0 && room.gridCol >= 0) {
+        g[room.gridRow][room.gridCol] = room;
+      }
+    }
+
+    return g;
+  }, [floor, gridMeta]);
+
+  const isSpecialCell = (cell: Room | SpecialCell | null): cell is SpecialCell =>
+    !!cell && "label" in cell;
 
   return (
-    <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "24px" }}>
-      {items.map((item) => (
-        <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <div
-            style={{
-              width: "14px",
-              height: "14px",
-              borderRadius: "4px",
-              backgroundColor: item.bg,
-              border: `1.5px solid ${item.border}`,
-            }}
-          />
-          <span style={{ fontSize: "12px", color: "#64748b", fontWeight: 500 }}>
-            {item.label}
-          </span>
+    <div style={{ overflowX: "auto" }}>
+      {/* Col labels atas */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 6, paddingLeft: 28 }}>
+        {gridMeta.colLabels.map((l, i) => (
+          <div key={i} style={{ width: 88, textAlign: "center", fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>
+            {l}
+          </div>
+        ))}
+      </div>
+
+      {/* Rows */}
+      {grid.map((row, rowIdx) => (
+        <div key={rowIdx} style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "center" }}>
+          {/* Row label kanan */}
+          <div style={{ width: 22, fontSize: 11, fontWeight: 700, color: "#94a3b8", textAlign: "right", flexShrink: 0 }}>
+            {gridMeta.rowRightLabels[rowIdx as 0 | 1 | 2 | 3] ?? ""}
+          </div>
+
+          {row.map((cell, colIdx) => {
+            if (!cell) {
+              return <div key={colIdx} style={{ width: 88, height: 78 }} />;
+            }
+
+            if (isSpecialCell(cell)) {
+              return (
+                <div key={colIdx} style={{
+                  width: 88, height: 78, borderRadius: 10, border: "2px dashed #e2e8f0",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 10, color: "#cbd5e1", fontWeight: 700, background: "#fafafa",
+                }}>
+                  {cell.label}
+                </div>
+              );
+            }
+
+            return (
+              <RoomCell
+                key={cell.roomId}
+                room={cell}
+                isSelected={selectedId === cell.roomId}
+                onClick={() => onSelect(cell.roomId)}
+              />
+            );
+          })}
         </div>
       ))}
-      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-        <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#ef4444" }} />
-        <span style={{ fontSize: "12px", color: "#64748b", fontWeight: 500 }}>Harga spesial</span>
+
+      {/* Row labels bawah */}
+      <div style={{ display: "flex", gap: 8, marginTop: 4, paddingLeft: 28 }}>
+        {gridMeta.rowBottomLabels.map((l, i) => (
+          <div key={i} style={{ width: 88, textAlign: "center", fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>
+            {l}
+          </div>
+        ))}
       </div>
+    </div>
+  );
+}
+
+function SkeletonGrid() {
+  return (
+    <div style={{ padding: "22px 24px" }}>
+      {Array.from({ length: 4 }).map((_, rowIdx) => (
+        <div key={rowIdx} style={{ display: "flex", gap: 8, marginBottom: 8, paddingLeft: 30 }}>
+          {Array.from({ length: 5 }).map((_, colIdx) => (
+            <div key={colIdx} style={{
+              width: 88, height: 78, borderRadius: 10,
+              background: "linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%)",
+              backgroundSize: "200% 100%",
+              animation: "shimmer 1.5s infinite",
+            }} />
+          ))}
+        </div>
+      ))}
+      <style>{`
+        @keyframes shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -341,177 +363,199 @@ function Legend() {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function RoomMap() {
+  const today = toDateStr(new Date());
+  const tomorrow = toDateStr(new Date(Date.now() + 86_400_000));
+
+  const [checkIn, setCheckIn] = useState(today);
+  const [checkOut, setCheckOut] = useState(tomorrow);
+  const [activeFloorId, setActiveFloorId] = useState("01");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [bookedRoom, setBookedRoom] = useState<Room | null>(null);
 
-  const selectedRoom = selectedId ? roomMap[selectedId] : null;
+  // ── Fetch data dari API ──
+  const { data, isLoading, error, refetch } = usePublicRoomPlan(SITE_CODE, checkIn, checkOut);
 
-  const handleSelect = (id: string) => {
-    setSelectedId((prev) => (prev === id ? null : id));
-  };
+  const floors = data?.data.floors ?? [];
+  const gridMeta = data?.data.gridMeta;
+  const nights = data?.data.nights ?? 1;
 
-  const handleBook = (room: Room) => {
-    setBookedRoom(room);
+  const activeFloor = floors.find(f => f.floorId === activeFloorId) ?? floors[0];
+
+  // Flat map semua rooms untuk lookup selectedRoom
+  const allRoomsMap = useMemo(() => {
+    const map = new Map<string, { room: Room; floor: Floor }>();
+    for (const f of floors) {
+      for (const r of f.rooms) {
+        map.set(r.roomId, { room: r, floor: f });
+      }
+    }
+    return map;
+  }, [floors]);
+
+  const selectedEntry = selectedId ? allRoomsMap.get(selectedId) : null;
+
+  // ── Handlers ──
+  const handleDateChange = (field: "in" | "out", val: string) => {
     setSelectedId(null);
-    // TODO: pass room ke booking form
-    alert(`Room ${room.number} dipilih!\nTotal: ${formatRupiah(room.pricing!.totalPrice)}\n\nIntegrasikan dengan form booking.`);
+    if (field === "in") {
+      setCheckIn(val);
+      if (val >= checkOut) {
+        setCheckOut(toDateStr(new Date(new Date(val).getTime() + 86_400_000)));
+      }
+    } else {
+      setCheckOut(val);
+    }
   };
 
-  // Build grid — 4 rows x 5 cols
-  const grid: (string | "lift" | null)[][] = Array.from({ length: 4 }, () =>
-    Array(5).fill(null)
-  );
+  const handleFloorChange = (floorId: string) => {
+    setActiveFloorId(floorId);
+    setSelectedId(null);
+  };
 
-  floorLayout.forEach(({ row, col, id }) => {
-    grid[row][col] = id;
-  });
+  const handleBook = () => {
+    if (!selectedEntry) return;
+    const { room, floor } = selectedEntry;
+    // TODO: pass ke booking form / router
+    alert(
+      `✅ Room ${room.roomId} dipilih!\n` +
+      `${floor.floorName} · ${room.roomTypeName}\n` +
+      `${checkIn} → ${checkOut} (${nights} malam)\n` +
+      (room.pricing ? `Total: ${formatRp(room.pricing.totalPrice)}` : ""),
+    );
+    setSelectedId(null);
+  };
 
-  // Lift ada di row 1 col 3
-  grid[1][3] = "lift";
-
-  const colLabels = ["04", "05", "", "06", "07"];
-  const rowLabelMap: Record<number, string> = { 0: "", 1: "08", 2: "09", 3: "10" };
-
+  // ── Render ──
   return (
-    <div
-      style={{
-        fontFamily: "'Segoe UI', system-ui, sans-serif",
-        padding: "32px",
-        background: "#f8fafc",
-        minHeight: "100vh",
-      }}
-    >
+    <div style={{ fontFamily: "'Segoe UI', system-ui, sans-serif", padding: "28px 32px", background: "#f8fafc", minHeight: "100vh" }}>
+
       {/* Header */}
-      <div style={{ marginBottom: "28px" }}>
-        <h1 style={{ margin: 0, fontSize: "24px", fontWeight: "800", color: "#0f172a" }}>
-          Denah Kamar
-        </h1>
-        <p style={{ margin: "4px 0 0", fontSize: "14px", color: "#94a3b8" }}>
-          Klik kamar untuk melihat detail & harga
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: "#0f172a" }}>Denah Kamar</h1>
+        <p style={{ margin: "3px 0 0", fontSize: 13, color: "#94a3b8" }}>
+          Pilih tanggal, lantai, lalu klik kamar untuk detail
         </p>
       </div>
 
-      <Legend />
+      {/* Date Picker */}
+      <div style={{
+        display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap",
+        background: "#fff", borderRadius: 14, padding: "14px 18px",
+        border: "1px solid #e2e8f0", marginBottom: 22,
+        boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
+      }}>
+        <div>
+          <label style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.06em", display: "block", marginBottom: 4 }}>
+            CHECK-IN
+          </label>
+          <input
+            type="date" value={checkIn} min={today}
+            onChange={e => handleDateChange("in", e.target.value)}
+            style={{ border: "1.5px solid #e2e8f0", borderRadius: 8, padding: "7px 10px", fontSize: 13, fontWeight: 600, color: "#0f172a", outline: "none", cursor: "pointer" }}
+          />
+        </div>
+        <div style={{ fontSize: 18, color: "#cbd5e1", alignSelf: "flex-end", paddingBottom: 2 }}>→</div>
+        <div>
+          <label style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.06em", display: "block", marginBottom: 4 }}>
+            CHECK-OUT
+          </label>
+          <input
+            type="date" value={checkOut} min={checkIn}
+            onChange={e => handleDateChange("out", e.target.value)}
+            style={{ border: "1.5px solid #e2e8f0", borderRadius: 8, padding: "7px 10px", fontSize: 13, fontWeight: 600, color: "#0f172a", outline: "none", cursor: "pointer" }}
+          />
+        </div>
+        <div style={{ marginLeft: 8, padding: "6px 14px", background: "#f1f5f9", borderRadius: 8 }}>
+          <span style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>{nights} malam</span>
+        </div>
 
-      <div style={{ display: "flex", gap: "32px", alignItems: "flex-start" }}>
-        {/* Floor Map */}
-        <div
-          style={{
-            background: "#fff",
-            borderRadius: "20px",
-            padding: "24px",
-            boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
-            border: "1px solid #e2e8f0",
-          }}
-        >
-          {/* Col labels atas */}
-          <div style={{ display: "flex", gap: "8px", marginBottom: "8px", paddingLeft: "32px" }}>
-            {colLabels.map((label, i) => (
-              <div
-                key={i}
-                style={{
-                  width: "90px",
-                  textAlign: "center",
-                  fontSize: "12px",
-                  fontWeight: "600",
-                  color: "#94a3b8",
-                  letterSpacing: "0.05em",
-                }}
-              >
-                {label}
-              </div>
-            ))}
+        {/* Refetch indicator */}
+        {isLoading && (
+          <div style={{ marginLeft: "auto", fontSize: 11, color: "#94a3b8", display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{
+              display: "inline-block", width: 12, height: 12, borderRadius: "50%",
+              border: "2px solid #e2e8f0", borderTopColor: "#64748b",
+              animation: "spin 0.8s linear infinite",
+            }} />
+            Memuat...
           </div>
+        )}
+      </div>
 
-          {/* Grid */}
-          {grid.map((row, rowIdx) => (
-            <div
-              key={rowIdx}
-              style={{ display: "flex", gap: "8px", marginBottom: "8px", alignItems: "center" }}
+      {/* Error State */}
+      {error && (
+        <div style={{
+          background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 12,
+          padding: "14px 18px", marginBottom: 22, display: "flex", alignItems: "center",
+          justifyContent: "space-between",
+        }}>
+          <span style={{ fontSize: 13, color: "#dc2626", fontWeight: 500 }}>
+            Gagal memuat data kamar
+          </span>
+          <button
+            onClick={() => refetch()}
+            style={{
+              fontSize: 12, fontWeight: 700, color: "#dc2626", background: "none",
+              border: "1px solid #fca5a5", borderRadius: 6, padding: "4px 12px", cursor: "pointer",
+            }}
+          >
+            Coba lagi
+          </button>
+        </div>
+      )}
+
+      {/* Floor Tabs */}
+      {!isLoading && floors.length > 0 && (
+        <div style={{ display: "flex", gap: 6, marginBottom: 20 }}>
+          {floors.map(f => (
+            <button
+              key={f.floorId}
+              onClick={() => handleFloorChange(f.floorId)}
+              style={{
+                padding: "8px 18px", borderRadius: 10,
+                border: `1.5px solid ${activeFloorId === f.floorId ? "#0f172a" : "#e2e8f0"}`,
+                background: activeFloorId === f.floorId ? "#0f172a" : "#fff",
+                color: activeFloorId === f.floorId ? "#fff" : "#64748b",
+                fontSize: 13, fontWeight: 700, cursor: "pointer",
+                transition: "all 0.12s ease",
+              }}
             >
-              {/* Row label kanan */}
-              <div
-                style={{
-                  width: "24px",
-                  fontSize: "12px",
-                  fontWeight: "600",
-                  color: "#94a3b8",
-                  textAlign: "right",
-                  flexShrink: 0,
-                }}
-              >
-                {rowLabelMap[rowIdx]}
-              </div>
-
-              {row.map((cellId, colIdx) => {
-                if (cellId === null) {
-                  return (
-                    <div key={colIdx} style={{ width: "90px", height: "80px" }} />
-                  );
-                }
-
-                if (cellId === "lift") {
-                  return (
-                    <div
-                      key={colIdx}
-                      style={{
-                        width: "90px",
-                        height: "80px",
-                        borderRadius: "12px",
-                        border: "2px dashed #cbd5e1",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "11px",
-                        color: "#94a3b8",
-                        fontWeight: 600,
-                        letterSpacing: "0.05em",
-                        background: "#f8fafc",
-                      }}
-                    >
-                      LIFT
-                    </div>
-                  );
-                }
-
-                const room = roomMap[cellId];
-                return (
-                  <RoomCell
-                    key={cellId}
-                    room={room}
-                    isSelected={selectedId === cellId}
-                    onClick={() => handleSelect(cellId)}
-                  />
-                );
-              })}
-            </div>
+              {f.floorName}
+            </button>
           ))}
+        </div>
+      )}
 
-          {/* Row labels bawah */}
-          <div style={{ display: "flex", gap: "8px", marginTop: "8px", paddingLeft: "32px" }}>
-            {["03", "02", "01", "12", "11"].map((label, i) => (
-              <div
-                key={i}
-                style={{
-                  width: "90px",
-                  textAlign: "center",
-                  fontSize: "12px",
-                  fontWeight: "600",
-                  color: "#94a3b8",
-                  letterSpacing: "0.05em",
-                }}
-              >
-                {i < 3 ? label : ""}
-              </div>
-            ))}
-          </div>
+      {/* Legend */}
+      {activeFloor && <Legend typeMapping={activeFloor.typeMapping} />}
+
+      {/* Main Content */}
+      <div style={{ display: "flex", gap: 28, alignItems: "flex-start" }}>
+        {/* Grid */}
+        <div style={{
+          background: "#fff", borderRadius: 18,
+          boxShadow: "0 2px 14px rgba(0,0,0,0.06)", border: "1px solid #e2e8f0",
+          minWidth: 540,
+        }}>
+          {isLoading || !activeFloor || !gridMeta ? (
+            <SkeletonGrid />
+          ) : (
+            <div style={{ padding: "22px 24px" }}>
+              <FloorGrid
+                floor={activeFloor}
+                gridMeta={gridMeta}
+                selectedId={selectedId}
+                onSelect={(id) => setSelectedId(prev => prev === id ? null : id)}
+              />
+            </div>
+          )}
         </div>
 
         {/* Detail Panel */}
-        {selectedRoom && selectedRoom.isAvailable && (
-          <div style={{ position: "sticky", top: "32px" }}>
+        {selectedEntry && selectedEntry.room.status === "AVAILABLE" && (
+          <div style={{ position: "sticky", top: 28 }}>
             <DetailPanel
-              room={selectedRoom}
+              room={selectedEntry.room}
+              floor={selectedEntry.floor}
               onBook={handleBook}
               onClose={() => setSelectedId(null)}
             />
@@ -519,38 +563,11 @@ export default function RoomMap() {
         )}
       </div>
 
-      {/* Info kamar terpilih */}
-      {bookedRoom && (
-        <div
-          style={{
-            marginTop: "24px",
-            padding: "14px 18px",
-            background: "#f0fdf4",
-            border: "1px solid #86efac",
-            borderRadius: "12px",
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            maxWidth: "400px",
-          }}
-        >
-          <span style={{ fontSize: "18px" }}>✅</span>
-          <div>
-            <p style={{ margin: 0, fontSize: "13px", fontWeight: "600", color: "#166534" }}>
-              Room {bookedRoom.number} dipilih
-            </p>
-            <p style={{ margin: 0, fontSize: "12px", color: "#4ade80" }}>
-              {formatRupiah(bookedRoom.pricing!.totalPrice)} · {bookedRoom.pricing!.nights} malam
-            </p>
-          </div>
-          <button
-            onClick={() => setBookedRoom(null)}
-            style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "#86efac", fontSize: "16px" }}
-          >
-            ×
-          </button>
-        </div>
-      )}
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
