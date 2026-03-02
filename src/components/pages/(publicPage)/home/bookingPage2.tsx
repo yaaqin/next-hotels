@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import mbs1 from '../../../../../public/img/mbs2.jpg'
+import mbs1 from '../../../../../public/img/geloo.webp'
 import Navbar2 from '@/src/components/organisms/layouts/navbars/navbarPublic'
 import Amenities from '@/src/components/organisms/home/amenities'
 export default function BookingPage2() {
