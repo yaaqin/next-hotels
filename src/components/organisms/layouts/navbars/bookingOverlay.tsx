@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Calendar01Icon } from "hugeicons-react";
 
 interface BookingOverlayProps {
   isOpen: boolean;
@@ -9,17 +15,15 @@ interface BookingOverlayProps {
 }
 
 export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
-  const [checkin, setCheckin] = useState("");
+  const [checkin, setCheckin] = useState<Date | undefined>(undefined);
   const [adults, setAdults] = useState("");
 
   const handleBook = () => {
     if (!checkin) return;
-    const params = new URLSearchParams({ checkin });
+    const params = new URLSearchParams({ checkin: format(checkin, "yyyy-MM-dd") });
     if (adults) params.set("adult", adults);
     window.location.href = `/booking?${params.toString()}`;
   };
-
-  const today = new Date().toISOString().split("T")[0];
 
   return (
     <AnimatePresence>
@@ -49,7 +53,6 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
             >
-              {/* Replace src with your actual image */}
               <img
                 src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&q=80"
                 alt="Resort"
@@ -84,13 +87,30 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
                 <label className="block text-xs tracking-widest uppercase text-gray-400 mb-2">
                   Check-in Date <span className="text-blue-400">*</span>
                 </label>
-                <input
-                  type="date"
-                  min={today}
-                  value={checkin}
-                  onChange={(e) => setCheckin(e.target.value)}
-                  className="w-full border border-blue-200 rounded-xl px-4 py-3 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition"
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal border border-blue-200 rounded-xl px-4 py-3 h-auto text-sm hover:bg-transparent focus:ring-2 focus:ring-blue-300 focus:border-transparent",
+                        !checkin && "text-gray-400"
+                      )}
+                    >
+                      <Calendar01Icon className="mr-2 h-4 w-4 text-blue-400" />
+                      {checkin ? format(checkin, "PPP") : "Pilih tanggal check-in"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 z-[200]" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={checkin}
+                      onSelect={setCheckin}
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      initialFocus
+                      className="rounded-lg border"
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* Adults */}
@@ -117,10 +137,9 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
                 onClick={handleBook}
                 disabled={!checkin}
                 className={`w-full py-4 rounded-xl text-sm tracking-widest uppercase font-medium transition-all duration-300
-                  ${
-                    checkin
-                      ? "bg-blue-500 text-white hover:bg-blue-600 shadow-lg shadow-blue-200 hover:shadow-blue-300"
-                      : "bg-gray-100 text-gray-300 cursor-not-allowed"
+                  ${checkin
+                    ? "bg-blue-500 text-white hover:bg-blue-600 shadow-lg shadow-blue-200 hover:shadow-blue-300"
+                    : "bg-gray-100 text-gray-300 cursor-not-allowed"
                   }
                 `}
               >
