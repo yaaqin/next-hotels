@@ -8,6 +8,7 @@ export interface roomListAvailableState {
   roomTypeId: string
   name: string
   description: string
+  imageUrl?: string
   availability: Availability
   pricing: Pricing
 }

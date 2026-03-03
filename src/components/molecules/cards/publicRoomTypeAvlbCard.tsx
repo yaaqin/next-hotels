@@ -60,7 +60,7 @@ export default function RoomAvlbCard({
   onViewPackage,
 }: RoomCardProps) {
   return (
-    <div className="border bg-[#d7d6cf] p-6">
+    <div className="border bg-[#d7d6cf] p-6 rounded-xl">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* IMAGE */}
@@ -73,7 +73,7 @@ export default function RoomAvlbCard({
           <img
             src={image}
             alt={title}
-            className="w-full h-[280px] object-cover"
+            className="w-full h-120 object-cover rounded-xl"
           />
         </div>
 
@@ -113,7 +113,7 @@ export default function RoomAvlbCard({
         </div>
 
         {/* PRICE */}
-        <div className="lg:col-span-3 bg-[#cfcfc4] p-6 flex flex-col justify-between">
+        <div className="lg:col-span-3 bg-[#cfcfc4] p-6 flex flex-col justify-between rounded-xl">
           <div>
             <p className="text-sm mb-2">Dari</p>
             <h3 className="text-3xl font-light">
@@ -130,7 +130,7 @@ export default function RoomAvlbCard({
 
           <button
             onClick={onViewPackage}
-            className="mt-6 bg-black text-white py-3 uppercase tracking-[0.2em] text-sm hover:opacity-90 transition"
+            className="mt-6 bg-black text-white py-3 uppercase tracking-[0.2em] text-sm hover:opacity-90 transition rounded-md"
           >
             Lihat Paket
           </button>

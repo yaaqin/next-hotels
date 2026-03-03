@@ -151,7 +151,7 @@ export default function BookingPublicPage() {
                     data?.data?.map((roomType, key) => (
                         <RoomAvlbCard
                             key={roomType.roomTypeId ?? key}
-                            image="https://id.marinabaysands.com/content/dam/marinabaysands/hotel/sands-premiere-room/gallery/sands-premier-room-no-view-1.jpg"
+                            image={roomType.imageUrl || ''}
                             collectionLabel={roomType.name ?? "—"}
                             title={roomType.name ?? "—"}
                             floorLabel={roomType.description ?? ""}
