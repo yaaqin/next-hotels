@@ -12,6 +12,7 @@ import {
   ArrowDown01Icon,
 } from 'hugeicons-react'
 import { useBookingStore } from '@/src/stores/booking'
+import { useCreateBooking } from '@/src/hooks/mutation/booking/create'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -96,6 +97,32 @@ export default function ReservationPage() {
     setSelectedVA(method)
     setVaOpen(false)
     setPaymentMethod(method.replace('va_', '') as any)
+  }
+
+
+  const { mutate, isPending, isSuccess, data, error } =
+    useCreateBooking()
+
+  const handleBooking = () => {
+    mutate({
+      siteCode: 'MERAK',
+      checkInDate: '2026-03-16',
+      checkOutDate: '2026-03-17',
+      paymentMethod: 'qris',
+      contact: {
+        fullName: 'Temennya anaknya sudarso',
+        email: 'tasu@gmail.com',
+        phone: '081234567890',
+        idType: 'KTP',
+        idNumber: '3201234567890001',
+      },
+      items: [
+        {
+          roomId: 'MERAK01004',
+          roomTypeId: '6021ad0f-ed26-4e9c-86f7-9f52eb00c767',
+        },
+      ],
+    })
   }
 
   return (
