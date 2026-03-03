@@ -61,13 +61,10 @@ const refreshAccessToken = async (): Promise<string | null> => {
     const newRefreshToken = response.data?.refreshToken
 
     if (newAccessToken) {
-      // Update tokens in storage
       setCookie('accessToken', newAccessToken)
-      
       if (newRefreshToken) {
         setCookie('refreshToken', newRefreshToken)
       }
-
       return newAccessToken
     }
 
@@ -107,11 +104,10 @@ axiosPrivate.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
     const status = error.response?.status
+    const message = (error.response?.data as { message?: string })?.message || 'Terjadi kesalahan'
 
-    // Only handle 401 errors
     if (status === 401 && originalRequest && !originalRequest._retry) {
       if (isRefreshing) {
-        // If already refreshing, queue this request
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject })
         })
@@ -131,19 +127,16 @@ axiosPrivate.interceptors.response.use(
         const newToken = await refreshAccessToken()
 
         if (newToken) {
-          // Token refresh successful
           processQueue(null, newToken)
-          
+
           if (originalRequest.headers) {
             originalRequest.headers.Authorization = `Bearer ${newToken}`
           }
-          
+
           return axiosPrivate(originalRequest)
         } else {
-          // Refresh token expired or invalid
           processQueue(error, null)
-          
-          // Clear all tokens
+
           deleteCookie('accessToken')
           deleteCookie('refreshToken')
           if (isBrowser) {
@@ -153,7 +146,6 @@ axiosPrivate.interceptors.response.use(
           toast.error('Sesi kamu sudah habis, silakan login ulang')
 
           if (isBrowser) {
-            // Redirect to login after a short delay
             setTimeout(() => {
               window.location.href = '/login'
             }, 1500)
@@ -163,8 +155,7 @@ axiosPrivate.interceptors.response.use(
         }
       } catch (refreshError) {
         processQueue(error, null)
-        
-        // Clear all tokens
+
         deleteCookie('accessToken')
         deleteCookie('refreshToken')
         if (isBrowser) {
@@ -185,7 +176,16 @@ axiosPrivate.interceptors.response.use(
       }
     }
 
-    // For other errors, just reject
+    // ─── Handle 400-500 errors ────────────────────────────────────────
+    if (status && status >= 400 && status !== 401) {
+      if (status >= 500) {
+        toast.error(`Server error: ${message}`)
+      } else {
+        toast.error(`${message}`)
+      }
+    }
+    // ──────────────────────────────────────────────────────────────────
+
     return Promise.reject(error)
   }
 )
@@ -213,8 +213,12 @@ axiosPublic.interceptors.response.use(
     const status = error.response?.status
     const message = (error.response?.data as { message?: string })?.message || 'Terjadi kesalahan'
 
-    if (status) {
-      toast.error(`Error ${status}: ${message}`)
+    if (status && status >= 400) {
+      if (status >= 500) {
+        toast.error(`Server error: ${message}`)
+      } else {
+        toast.error(`${message}`)
+      }
     }
 
     return Promise.reject(error)
