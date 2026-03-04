@@ -18,6 +18,7 @@ export interface bookingDetailState {
   items: Item[]
   statusLogs: StatusLog[]
   site: Site
+  payment: Payment
 }
 
 export interface Contact {
@@ -47,6 +48,7 @@ export interface Item {
 
 export interface RoomType {
   id: string
+  imageId: string
   createdAt: string
   createdBy: string
   translations: Translation[]
@@ -88,4 +90,14 @@ export interface Site {
   nama: string
   lokasi: string
   sitecode: string
+}
+
+export interface Payment {
+  method: string
+  status: string
+  expiredAt: string
+  paidAt: any
+  type: string
+  vaNumber: string
+  vaBank: string
 }
