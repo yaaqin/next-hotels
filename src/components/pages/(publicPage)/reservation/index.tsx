@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Building01Icon,
   Calendar01Icon,
@@ -13,6 +13,10 @@ import {
 } from 'hugeicons-react'
 import { useBookingStore } from '@/src/stores/booking'
 import { useCreateBooking } from '@/src/hooks/mutation/booking/create'
+import { roomNumberListState } from '@/src/models/public/roomAvailibility/listRoomNumber'
+import { usePublicRoomNumberAvailibility } from '@/src/hooks/query/roomAvailibility/publicRoomNumberList'
+import { BookingPayload } from '@/src/models/bookings/create'
+import { useRouter } from 'next/navigation'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -63,31 +67,45 @@ function Divider() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ReservationPage() {
-  const { payload, setContact, setPaymentMethod, isReadyToSubmit } = useBookingStore()
-
-  console.log('data yang ada ==>', payload)
-
+  const { payload, setContact, setPaymentMethod, setRoomId, isReadyToSubmit } = useBookingStore()
   const { checkInDate, checkOutDate, items, contact } = payload
 
+  // ── Hydration fix ──
+  const [isHydrated, setIsHydrated] = useState(false)
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
+
+  // Ambil dari items[0] — single order
+  const roomTypeId = items[0]?.roomTypeId ?? ''
+  const roomImageUrl = items[0]?.imageUrl
+
+  // ── Query room list ──
+  const { data: roomData, isLoading: roomLoading } = usePublicRoomNumberAvailibility(
+    checkInDate,
+    checkOutDate,
+    roomTypeId
+  )
+
+  // ── Selected room state ──
+  const [selectedRoom, setSelectedRoom] = useState<roomNumberListState | null>(null)
+  const [roomOpen, setRoomOpen] = useState(false)
+
+  const handleSelectRoom = (room: roomNumberListState) => {
+    setSelectedRoom(room)
+    setRoomOpen(false)
+    setRoomId(roomTypeId, room.id, roomImageUrl ?? '')
+  }
+
+  // ── Display room — pakai selectedRoom, fallback ke room pertama yang available ──
+  const firstAvailableRoom = roomData?.data?.find((r) => r.isAvailable)
+  const displayRoom = selectedRoom ?? firstAvailableRoom
+  const pricing = displayRoom?.pricing
+
+  // ── Payment ──
   const [paymentCategory, setPaymentCategory] = useState<PaymentCategory | null>(null)
   const [selectedVA, setSelectedVA] = useState<PaymentMethod | null>(null)
   const [vaOpen, setVaOpen] = useState(false)
-
-  // Mock data — nanti dari store / props
-  const room = {
-    type: items[0]?.roomTypeId ? 'Standard' : '—',
-    floor: '01',
-    number: items[0]?.roomId ?? '—',
-    image: items[0]?.imageUrl,
-    pricePerNight: 229000,
-    nights: checkInDate && checkOutDate
-      ? Math.max(1, Math.ceil((new Date(checkOutDate).getTime() - new Date(checkInDate).getTime()) / 86400000))
-      : 1,
-  }
-
-  const totalPrice = room.pricePerNight * room.nights
-  const tax = Math.round(totalPrice * 0.11)
-  const grandTotal = totalPrice + tax
 
   const handleSelectPayment = (cat: PaymentCategory) => {
     setPaymentCategory(cat)
@@ -102,30 +120,27 @@ export default function ReservationPage() {
     setPaymentMethod(method.replace('va_', '') as any)
   }
 
+  const { mutate, isPending } = useCreateBooking()
+  const { reset } = useBookingStore()
+  const router = useRouter()
 
-  const { mutate, isPending, isSuccess, data, error } =
-    useCreateBooking()
 
   const handleBooking = () => {
-    mutate({
-      siteCode: 'MERAK',
-      checkInDate: '2026-03-16',
-      checkOutDate: '2026-03-17',
-      paymentMethod: 'qris',
-      contact: {
-        fullName: 'Temennya anaknya sudarso',
-        email: 'tasu@gmail.com',
-        phone: '081234567890',
-        idType: 'KTP',
-        idNumber: '3201234567890001',
-      },
-      items: [
-        {
-          roomId: 'MERAK01004',
-          roomTypeId: '6021ad0f-ed26-4e9c-86f7-9f52eb00c767',
+    if (!isReadyToSubmit()) return
+
+    const { items, ...rest } = payload
+    mutate(
+      {
+        ...rest,
+        items: items.map(({ imageUrl, ...item }) => item),
+      } as BookingPayload,
+      {
+        onSuccess: (res) => {
+          reset()
+          router.push(`/reservation/${res?.data?.booking?.bookingCode}`)
         },
-      ],
-    })
+      }
+    )
   }
 
   return (
@@ -165,23 +180,66 @@ export default function ReservationPage() {
 
               <Divider />
 
+              {/* Room Section */}
               <div className="flex items-center gap-2 mb-5">
                 <Building01Icon size={16} className="text-blue-400" />
                 <span className="text-xs tracking-widest uppercase text-gray-400">Room</span>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-4 mb-4">
                 <div>
                   <Label>Room Type</Label>
-                  <Field>{room.type}</Field>
+                  <Field>{displayRoom?.roomType.name ?? '—'}</Field>
                 </div>
                 <div>
                   <Label>Floor</Label>
-                  <Field>{room.floor}</Field>
+                  {/* Floor ngikut room yang di-select */}
+                  <Field>{selectedRoom?.floor ?? '—'}</Field>
                 </div>
                 <div>
-                  <Label>Room Number</Label>
-                  <Field>{room.number}</Field>
+                  <Label>Bed Type</Label>
+                  <Field>{displayRoom?.bedType.name ?? '—'}</Field>
+                </div>
+              </div>
+
+              {/* Room Number Dropdown */}
+              <div>
+                <Label>Room Number</Label>
+                <div className="relative mt-1">
+                  <button
+                    onClick={() => setRoomOpen(!roomOpen)}
+                    disabled={roomLoading || !roomData?.data?.length}
+                    className="w-full flex items-center justify-between px-4 py-3 border border-gray-200 rounded-xl text-sm hover:border-blue-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className={selectedRoom ? 'text-gray-900' : 'text-gray-300'}>
+                      {roomLoading
+                        ? 'Memuat kamar...'
+                        : selectedRoom
+                          ? `Room ${selectedRoom.number}`
+                          : 'Pilih nomor kamar...'}
+                    </span>
+                    <ArrowDown01Icon
+                      size={14}
+                      className={`text-gray-400 transition-transform duration-200 ${roomOpen ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+
+                  {roomOpen && roomData?.data && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-100 rounded-xl shadow-lg z-10 overflow-hidden max-h-52 overflow-y-auto">
+                      {roomData.data
+                        .filter((r) => r.isAvailable)
+                        .map((room) => (
+                          <button
+                            key={room.id}
+                            onClick={() => handleSelectRoom(room)}
+                            className={`w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-gray-50 transition text-left
+                              ${selectedRoom?.id === room.id ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}
+                          >
+                            <span>Room {room.number} · Lantai {room.floor}</span>
+                          </button>
+                        ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -194,7 +252,6 @@ export default function ReservationPage() {
               </div>
 
               <div className="space-y-4">
-                {/* Full Name */}
                 <div className="relative">
                   <UserIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
                   <input
@@ -207,7 +264,6 @@ export default function ReservationPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  {/* Email */}
                   <div className="relative">
                     <Mail01Icon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
                     <input
@@ -218,8 +274,6 @@ export default function ReservationPage() {
                       className="w-full pl-9 pr-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent transition placeholder:text-gray-300"
                     />
                   </div>
-
-                  {/* Phone */}
                   <div className="relative">
                     <SmartPhone01Icon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
                     <input
@@ -232,7 +286,6 @@ export default function ReservationPage() {
                   </div>
                 </div>
 
-                {/* ID (optional) */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="relative">
                     <IdIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
@@ -265,7 +318,6 @@ export default function ReservationPage() {
                 <span className="text-xs tracking-widest uppercase text-gray-400">Payment</span>
               </div>
 
-              {/* Payment Category Tabs */}
               <div className="flex gap-2 mb-4">
                 {(['va', 'qris', 'gopay'] as PaymentCategory[]).map((cat) => (
                   <button
@@ -282,7 +334,6 @@ export default function ReservationPage() {
                 ))}
               </div>
 
-              {/* VA Bank Dropdown */}
               {paymentCategory === 'va' && (
                 <div className="relative mt-2">
                   <button
@@ -290,9 +341,7 @@ export default function ReservationPage() {
                     className="w-full flex items-center justify-between px-4 py-3 border border-gray-200 rounded-xl text-sm text-gray-700 hover:border-blue-300 transition"
                   >
                     <span className={selectedVA ? 'text-gray-900' : 'text-gray-300'}>
-                      {selectedVA
-                        ? VA_BANKS.find((b) => b.value === selectedVA)?.label
-                        : 'Pilih bank...'}
+                      {selectedVA ? VA_BANKS.find((b) => b.value === selectedVA)?.label : 'Pilih bank...'}
                     </span>
                     <ArrowDown01Icon
                       size={14}
@@ -339,52 +388,58 @@ export default function ReservationPage() {
           <div className="lg:w-72 space-y-4">
             <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-6">
 
-              {/* Room image */}
               <div className="w-full h-36 rounded-xl overflow-hidden mb-5 bg-gray-100">
-                <img
-                  src={room.image}
-                  alt="Room"
-                  className="w-full h-full object-cover"
-                />
+                {roomImageUrl && (
+                  <img src={roomImageUrl} alt="Room" className="w-full h-full object-cover" />
+                )}
               </div>
 
               <p className="text-xs tracking-widest uppercase text-gray-400 mb-1">Price Summary</p>
-              <p className="text-base font-semibold text-gray-900 mb-4">{room.type}</p>
+              <p className="text-base font-semibold text-gray-900 mb-4">
+                {displayRoom?.roomType.name ?? '—'}
+              </p>
 
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between text-gray-500">
-                  <span>{formatCurrency(room.pricePerNight)} × {room.nights} malam</span>
-                  <span className="text-gray-900">{formatCurrency(totalPrice)}</span>
+              {pricing ? (
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between text-gray-500">
+                    <span>{formatCurrency(pricing.price)} × {pricing.nights} malam</span>
+                    <span className="text-gray-900">{formatCurrency(pricing.totalPrice)}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-gray-500">
-                  <span>Pajak (11%)</span>
-                  <span className="text-gray-900">{formatCurrency(tax)}</span>
-                </div>
-              </div>
+              ) : (
+                <p className="text-xs text-gray-300 text-center py-2">
+                  Memuat harga...
+                </p>
+              )}
 
               <div className="border-t border-dashed border-gray-200 my-4" />
 
               <div className="flex justify-between items-center">
                 <span className="text-xs tracking-widest uppercase text-gray-400">Total</span>
-                <span className="text-lg font-bold text-gray-900">{formatCurrency(grandTotal)}</span>
+                <span className="text-lg font-bold text-gray-900">
+                  {pricing ? formatCurrency(pricing.totalPrice) : '—'}
+                </span>
               </div>
 
+              {/* ── Hydration-safe button ── */}
               <button
-                disabled={!isReadyToSubmit()}
+                onClick={handleBooking}
+                disabled={!isHydrated || !isReadyToSubmit() || isPending}
                 className={`w-full mt-5 py-3.5 rounded-xl text-sm tracking-widest uppercase font-medium transition-all duration-300
-                  ${isReadyToSubmit()
+                  ${isHydrated && isReadyToSubmit() && !isPending
                     ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-md shadow-blue-100'
                     : 'bg-gray-100 text-gray-300 cursor-not-allowed'
                   }`}
               >
-                Confirm & Pay
+                {isPending ? 'Processing...' : 'Confirm & Pay'}
               </button>
 
-              {!isReadyToSubmit() && (
+              {isHydrated && !isReadyToSubmit() && (
                 <p className="text-center text-[10px] text-gray-300 mt-2 tracking-wide">
                   Lengkapi semua data untuk melanjutkan
                 </p>
               )}
+
             </div>
           </div>
 

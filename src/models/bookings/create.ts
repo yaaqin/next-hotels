@@ -19,8 +19,25 @@ export interface BookingPayload {
 export interface BookingResponse {
   success: boolean
   message: string
-  data?: {
-    bookingId: string
-    paymentUrl?: string
+  data: {
+    booking: {
+      id: string
+      bookingCode: string
+      siteCode: string
+      checkInDate: string
+      checkOutDate: string
+      totalAmount: number
+      status: string
+      createdAt: string
+    }
+    payment: {
+      type: string
+      qrCodeUrl: string | null
+      vaNumber: string | null
+      billerCode: string | null
+      billKey: string | null
+      transactionId: string
+      expiryTime: string
+    }
   }
 }
