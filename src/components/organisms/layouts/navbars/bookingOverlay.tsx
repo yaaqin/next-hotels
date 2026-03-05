@@ -45,10 +45,11 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
           </button>
 
           {/* Inner Content */}
-          <div className="w-full max-w-5xl mx-auto px-8 h-[75vh] flex gap-6">
-            {/* Left — Image / Mood */}
+          <div className="w-full max-w-5xl mx-auto px-4 md:px-8 flex gap-6">
+
+            {/* Left — Image / Mood — hidden on mobile */}
             <motion.div
-              className="w-1/2 rounded-3xl overflow-hidden relative bg-gray-100 flex items-end"
+              className="hidden md:flex w-1/2 h-[75vh] rounded-3xl overflow-hidden relative bg-gray-100 items-end"
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
@@ -70,7 +71,7 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
 
             {/* Right — Form */}
             <motion.div
-              className="w-1/2 rounded-3xl border border-blue-100 flex flex-col justify-center px-10 py-12"
+              className="w-full md:w-1/2 rounded-3xl border border-blue-100 flex flex-col justify-center px-6 md:px-10 py-10 md:py-12"
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.25, duration: 0.5 }}

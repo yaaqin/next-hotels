@@ -42,8 +42,8 @@ function CopyButton({ text }: { text: string }) {
         <button
             onClick={handleCopy}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 border ${copied
-                    ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
-                    : 'bg-white border-gray-200 text-gray-600 hover:border-green-400 hover:text-green-700'
+                ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
+                : 'bg-white border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600'
                 }`}
         >
             {copied ? (
@@ -65,32 +65,41 @@ function CopyButton({ text }: { text: string }) {
     )
 }
 
-// ─── Payment Info Panel (Left) ────────────────────────────────────────────────
+// ─── Payment Info Panel ───────────────────────────────────────────────────────
 
 function PaymentInfoPanel({ payment, totalAmount }: { payment: Payment; totalAmount: number }) {
     if (payment.type === 'VIRTUAL_ACCOUNT') {
         return (
             <div className="flex flex-col gap-5">
-                <div>
-                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Bank</p>
-                    <span className="text-lg font-bold text-gray-800">🏦 {payment.vaBank}</span>
+                {/* Bank */}
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                        <span className="text-lg">🏦</span>
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Bank</p>
+                        <p className="text-sm font-bold text-gray-800">{payment.vaBank}</p>
+                    </div>
                 </div>
 
+                {/* VA Number */}
                 <div>
-                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">VA Number</p>
-                    <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
-                        <span className="font-mono text-lg font-bold tracking-widest text-gray-800 flex-1">
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Nomor Virtual Account</p>
+                    <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+                        <span className="font-mono text-base md:text-lg font-bold tracking-widest text-gray-800 flex-1 break-all">
                             {payment.vaNumber}
                         </span>
                         <CopyButton text={payment.vaNumber} />
                     </div>
                 </div>
 
-                <div>
-                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Total Pembayaran</p>
+                {/* Total */}
+                <div className="bg-green-50 border border-green-100 rounded-xl px-4 py-3">
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Total Pembayaran</p>
                     <p className="text-2xl font-bold text-green-600">{formatRupiah(totalAmount)}</p>
                 </div>
 
+                {/* Expiry */}
                 <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
                     <svg className="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -105,8 +114,9 @@ function PaymentInfoPanel({ payment, totalAmount }: { payment: Payment; totalAmo
 
     return (
         <div className="flex flex-col gap-5">
+            {/* QR */}
             <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">QR Code</p>
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">QR Code</p>
                 <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex flex-col items-center gap-3">
                     {(payment as any).qrisUrl ? (
                         <img src={(payment as any).qrisUrl} alt="QRIS" className="w-40 h-40 object-contain rounded-lg" />
@@ -115,23 +125,16 @@ function PaymentInfoPanel({ payment, totalAmount }: { payment: Payment; totalAmo
                             <p className="text-xs text-gray-400">QR tidak tersedia</p>
                         </div>
                     )}
-                    {(payment as any).qrisUrl && (
-                        <div className="w-full">
-                            <p className="text-xs text-gray-400 mb-1.5 text-center">QR Image URL</p>
-                            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2">
-                                <span className="font-mono text-xs text-gray-500 flex-1 truncate">{(payment as any).qrisUrl}</span>
-                                <CopyButton text={(payment as any).qrisUrl} />
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
 
-            <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Total Pembayaran</p>
+            {/* Total */}
+            <div className="bg-green-50 border border-green-100 rounded-xl px-4 py-3">
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Total Pembayaran</p>
                 <p className="text-2xl font-bold text-green-600">{formatRupiah(totalAmount)}</p>
             </div>
 
+            {/* Expiry */}
             <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
                 <svg className="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -144,17 +147,17 @@ function PaymentInfoPanel({ payment, totalAmount }: { payment: Payment; totalAmo
     )
 }
 
-// ─── Payment Link Panel (Right) ───────────────────────────────────────────────
+// ─── Payment Link Panel ───────────────────────────────────────────────────────
 
 function PaymentLinkPanel({ payment }: { payment: Payment }) {
     const paymentUrl = getPaymentUrl(payment)
     return (
         <div className="flex flex-col gap-5 h-full">
             <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">
                     {payment.type === 'VIRTUAL_ACCOUNT' ? `Simulasi VA ${payment.vaBank}` : 'Simulasi QRIS'}
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 leading-relaxed">
                     {payment.type === 'VIRTUAL_ACCOUNT'
                         ? `Gunakan link berikut untuk simulasi pembayaran VA ${payment.vaBank} di sandbox Midtrans.`
                         : 'Gunakan link berikut untuk simulasi pembayaran QRIS di sandbox Midtrans.'}
@@ -162,7 +165,7 @@ function PaymentLinkPanel({ payment }: { payment: Payment }) {
             </div>
 
             <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
-                <p className="text-xs text-gray-400 mb-1">Payment URL</p>
+                <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Payment URL</p>
                 <p className="font-mono text-xs text-gray-600 break-all">{paymentUrl}</p>
             </div>
 
@@ -170,7 +173,7 @@ function PaymentLinkPanel({ payment }: { payment: Payment }) {
                 href={paymentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-700 text-white font-semibold text-sm px-4 py-3 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
+                className="flex items-center justify-center gap-2 w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold text-sm px-4 py-3.5 rounded-xl transition-all duration-200 shadow-sm shadow-blue-100 hover:shadow-blue-200"
             >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -179,7 +182,7 @@ function PaymentLinkPanel({ payment }: { payment: Payment }) {
             </a>
 
             <div className="mt-auto pt-4 border-t border-gray-100">
-                <p className="text-xs text-gray-400 text-center">
+                <p className="text-xs text-gray-400 text-center leading-relaxed">
                     Halaman ini akan otomatis update setelah pembayaran berhasil
                 </p>
             </div>
@@ -199,17 +202,14 @@ export default function PaymentStatus() {
 
     useEffect(() => {
         if (!status) return
-        if (status === 'PAID') {
-            router.push(`/booking/success/${bookingCode}`)
-        } else if (status === 'EXPIRED') {
-            router.push(`/booking/expired/${bookingCode}`)
-        }
+        if (status === 'PAID') router.push(`/booking/success/${bookingCode}`)
+        else if (status === 'EXPIRED') router.push(`/booking/expired/${bookingCode}`)
     }, [status])
 
     if (isLoading) {
         return (
             <div className="flex items-center justify-center py-20">
-                <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin" />
+                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
             </div>
         )
     }
@@ -219,32 +219,43 @@ export default function PaymentStatus() {
     if (booking.status !== 'PENDING') return null
 
     return (
-        <div className="w-full">
-            <div className="mb-4 flex items-center justify-between">
+        <div className="w-full max-w-4xl mx-auto px-4 md:px-8 py-6 md:py-10">
+
+            {/* Header */}
+            <div className="mb-5 flex items-start justify-between gap-3">
                 <div>
-                    <p className="text-xs text-gray-400 font-mono">{booking.bookingCode}</p>
-                    <h1 className="text-xl font-bold text-gray-800">Selesaikan Pembayaran</h1>
+                    <p className="text-xs text-gray-400 font-mono mb-0.5">{booking.bookingCode}</p>
+                    <h1 className="text-lg md:text-xl font-bold text-gray-800">Selesaikan Pembayaran</h1>
                 </div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold whitespace-nowrap">
                     <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
                     Menunggu Pembayaran
                 </span>
             </div>
 
+            {/* Card — stack on mobile, side by side on desktop */}
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                <div className="grid grid-cols-2 divide-x divide-gray-100">
-                    <div className="p-6">
-                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-5">
-                            Payment Information
+                <div className="flex flex-col md:grid md:grid-cols-2 md:divide-x divide-gray-100">
+
+                    {/* Payment Info */}
+                    <div className="p-5 md:p-6">
+                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-5">
+                            Informasi Pembayaran
                         </p>
                         <PaymentInfoPanel payment={booking.payment} totalAmount={booking.totalAmount} />
                     </div>
-                    <div className="p-6">
-                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-5">
-                            Link to Payment
+
+                    {/* Divider mobile only */}
+                    <div className="block md:hidden h-px bg-gray-100 mx-5" />
+
+                    {/* Payment Link */}
+                    <div className="p-5 md:p-6">
+                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-5">
+                            Link Pembayaran
                         </p>
                         <PaymentLinkPanel payment={booking.payment} />
                     </div>
+
                 </div>
             </div>
         </div>

@@ -6,13 +6,18 @@ export default function BookingPage2() {
   return (
     <>
       <section className='h-screen w-full relative'>
-        <Image src={mbs1} alt={'mbs'} width={1000} height={1000} className='z-0 absolute h-screen w-full'/>
-        <Navbar2/>
+        <Image
+          src={mbs1}
+          alt={'mbs'}
+          fill
+          className='z-0 object-cover'
+        />       
+         <Navbar2 />
       </section>
       <section className='h-screen w-full bg-black'></section>
       <section className='h-screen w-full'></section>
       <section className='h-screen w-full bg-black'></section>
-      <Amenities/>
+      <Amenities />
     </>
   )
 }

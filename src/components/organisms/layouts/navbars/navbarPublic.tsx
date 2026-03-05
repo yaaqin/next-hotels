@@ -29,24 +29,24 @@ export default function Navbar({
     <>
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out
-          ${scrolled
+    ${scrolled
             ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100"
             : "bg-transparent"
           }`}
       >
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
           {isMain && (
             <button
-              className={`text-sm font-medium tracking-widest uppercase transition-colors duration-500 ease-in-out
-              ${scrolled ? "text-gray-900" : "text-white"}`}
+              className={`text-xs md:text-sm font-medium tracking-widest uppercase transition-colors duration-500 ease-in-out
+          ${scrolled ? "text-gray-900" : "text-white"}`}
             >
               Menu
             </button>
           )}
 
           <span
-            className={`text-4xl font-semibold tracking-[0.2em] uppercase transition-colors duration-500 ease-in-out
-              ${scrolled ? "text-gray-900" : "text-white"}`}
+            className={`text-2xl md:text-4xl font-semibold tracking-[0.2em] uppercase transition-colors duration-500 ease-in-out
+        ${scrolled ? "text-gray-900" : "text-white"}`}
           >
             Taberna
           </span>
@@ -54,8 +54,8 @@ export default function Navbar({
           {isMain && (
             <button
               onClick={() => setBookingOpen(true)}
-              className={`text-sm font-medium cursor-pointer tracking-widest uppercase transition-colors duration-500 ease-in-out
-                  ${scrolled ? "text-gray-900" : "text-white"}`}
+              className={`text-xs md:text-sm font-medium cursor-pointer tracking-widest uppercase transition-colors duration-500 ease-in-out
+          ${scrolled ? "text-gray-900" : "text-white"}`}
             >
               Booking
             </button>
