@@ -76,6 +76,7 @@ export default function BookingPublicPage() {
 
     const handleSelectRoom = useCallback(
         (roomType: roomListAvailableState) => {
+            console.log('url gambarnya berikut ==>', roomType.imageUrl)
             // 1. Set tanggal & siteCode ke store
             setStay({
                 siteCode: 'MERAK', // ganti dengan siteCode dari config / env
@@ -86,6 +87,7 @@ export default function BookingPublicPage() {
             // 2. Set roomTypeId — roomId akan dipilih user di halaman /reservation
             setItem({
                 roomTypeId: roomType.roomTypeId,
+                imageUrl: roomType.imageUrl || ''
             })
 
             // 3. Simpan detail harga & nama buat ditampilkan di summary

@@ -64,6 +64,9 @@ function Divider() {
 
 export default function ReservationPage() {
   const { payload, setContact, setPaymentMethod, isReadyToSubmit } = useBookingStore()
+
+  console.log('data yang ada ==>', payload)
+
   const { checkInDate, checkOutDate, items, contact } = payload
 
   const [paymentCategory, setPaymentCategory] = useState<PaymentCategory | null>(null)
@@ -75,7 +78,7 @@ export default function ReservationPage() {
     type: items[0]?.roomTypeId ? 'Standard' : '—',
     floor: '01',
     number: items[0]?.roomId ?? '—',
-    image: 'https://id.marinabaysands.com/content/dam/marinabaysands/hotel/sands-premiere-room/gallery/sands-premier-room-no-view-1.jpg',
+    image: items[0]?.imageUrl,
     pricePerNight: 229000,
     nights: checkInDate && checkOutDate
       ? Math.max(1, Math.ceil((new Date(checkOutDate).getTime() - new Date(checkInDate).getTime()) / 86400000))

@@ -132,7 +132,7 @@ export default function RoomAvlbCard({
             onClick={onViewPackage}
             className="mt-6 bg-black text-white py-3 uppercase tracking-[0.2em] text-sm hover:opacity-90 transition rounded-md"
           >
-            Lihat Paket
+            Reservation
           </button>
         </div>
 
