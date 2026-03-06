@@ -85,6 +85,12 @@ export const NAVIGATION: NavItem[] = [
             path: '/dashboard/facility',
             parentKey: 'facility',
           },
+          {
+            key: 'facility-group',
+            label: 'Facility group',
+            path: '/dashboard/facility/group',
+            parentKey: 'facility',
+          },
         ],
       },
     ],

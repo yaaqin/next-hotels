@@ -77,7 +77,7 @@ export const facilityGroupColumns: ColumnDef<facilityGroupListState>[] = [
       return (
         <div className="flex gap-2">
           <Link
-            href={`/dashboard/facility-group/${item.id}`}
+            href={`/dashboard/facility/group/${item.id}`}
             className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200 flex items-center gap-1"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
