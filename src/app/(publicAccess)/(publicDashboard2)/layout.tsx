@@ -1,6 +1,7 @@
 'use client'
 import Footer from "@/src/components/organisms/layouts/footers/publicFooter";
 import TopLanguageNavbar from "@/src/components/organisms/layouts/navbars/topNavbarLang";
+import { SessionProvider } from "next-auth/react";
 import { Suspense } from "react";
 
 export default function RootLayout({
@@ -15,9 +16,9 @@ export default function RootLayout({
                 <h2 className="text-4xl font-bold">MBS</h2>
             </section>
             <Suspense>
-                {children}
+                <SessionProvider>{children}</SessionProvider>
             </Suspense>
-            <Footer/>
+            <Footer />
         </section>
     );
 }
