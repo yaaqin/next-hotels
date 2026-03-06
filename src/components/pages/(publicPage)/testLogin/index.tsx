@@ -6,9 +6,6 @@ import { useSession } from "next-auth/react"
 
 export default function UserSession() {
     const { data: session } = useSession()
-
-    console.log('gambar ==>', session?.user?.image)
-
     if (!session) {
         return <p>Belum login</p>
     }
