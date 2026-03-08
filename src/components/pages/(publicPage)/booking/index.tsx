@@ -3,9 +3,12 @@
 import RoomAvlbCard from "@/src/components/molecules/cards/publicRoomTypeAvlbCard"
 import { usePublicRoomTypeAvailibility } from "@/src/hooks/query/roomAvailibility/publicRoomTypeAvailibility"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useCallback, useMemo, useRef } from "react"
+import { useCallback, useMemo } from "react"
 import { roomListAvailableState } from "@/src/models/public/roomAvailibility/listRoomType"
 import { useBookingStore } from "@/src/stores/booking"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { format } from "date-fns"
 
 // ─── Date Utilities ───────────────────────────────────────────────────────────
 
@@ -40,7 +43,6 @@ export default function BookingPublicPage() {
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
-    const dateInputRef = useRef<HTMLInputElement>(null)
 
     const { setStay, setItem, setRoomDetail } = useBookingStore()
 
@@ -62,7 +64,9 @@ export default function BookingPublicPage() {
     const { data, isLoading } = usePublicRoomTypeAvailibility(checkin, checkout)
 
     const handleChangeDate = useCallback(
-        (value: string) => {
+        (date: Date | undefined) => {
+            if (!date) return
+            const value = formatInputDate(date)
             const params = new URLSearchParams(searchParams.toString())
             params.set("checkin", value)
             router.replace(`${pathname}?${params.toString()}`, { scroll: false })
@@ -70,35 +74,23 @@ export default function BookingPublicPage() {
         [router, pathname, searchParams],
     )
 
-    const openDatePicker = useCallback(() => {
-        dateInputRef.current?.showPicker?.()
-    }, [])
-
     const handleSelectRoom = useCallback(
         (roomType: roomListAvailableState) => {
-            console.log('url gambarnya berikut ==>', roomType.imageUrl)
-            // 1. Set tanggal & siteCode ke store
             setStay({
-                siteCode: 'MERAK', // ganti dengan siteCode dari config / env
+                siteCode: 'MERAK',
                 checkInDate: checkin,
                 checkOutDate: checkout,
             })
-
-            // 2. Set roomTypeId — roomId akan dipilih user di halaman /reservation
             setItem({
                 roomTypeId: roomType.roomTypeId,
                 imageUrl: roomType.imageUrl || ''
             })
-
-            // 3. Simpan detail harga & nama buat ditampilkan di summary
             setRoomDetail({
                 roomTypeName: roomType.name,
                 pricePerNight: roomType.pricing.price,
                 nights: roomType.pricing.nights,
                 totalPrice: roomType.pricing.totalPrice,
             })
-
-            // 4. Redirect
             router.push('/reservation')
         },
         [checkin, checkout, setStay, setItem, setRoomDetail, router],
@@ -108,29 +100,30 @@ export default function BookingPublicPage() {
         <div className="min-h-screen bg-white">
             {/* ── Date Bar ── */}
             <div className="relative bg-[#d9d9d4] px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                <button
-                    onClick={openDatePicker}
-                    className="text-sm md:text-base font-medium tracking-[0.2em] uppercase text-gray-800 hover:text-gray-600 transition-colors text-left"
-                >
-                    {formatDisplayDate(checkinDate)}
-                    <span className="mx-3 text-gray-400">→</span>
-                    {formatDisplayDate(checkoutDate)}
-                </button>
+                
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <button className="text-sm md:text-base font-medium tracking-[0.2em] uppercase text-gray-800 hover:text-gray-600 transition-colors text-left">
+                            {formatDisplayDate(checkinDate)}
+                            <span className="mx-3 text-gray-400">→</span>
+                            {formatDisplayDate(checkoutDate)}
+                        </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 z-[200]" align="start">
+                        <Calendar
+                            mode="single"
+                            selected={checkinDate}
+                            onSelect={handleChangeDate}
+                            disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                            initialFocus
+                            className="rounded-lg border"
+                        />
+                    </PopoverContent>
+                </Popover>
 
                 <p className="text-xs tracking-[0.3em] uppercase text-gray-500">
                     1 Malam · 1 Kamar
                 </p>
-
-                <input
-                    ref={dateInputRef}
-                    type="date"
-                    value={checkin}
-                    min={formatInputDate(new Date())}
-                    onChange={(e) => handleChangeDate(e.target.value)}
-                    className="absolute opacity-0 pointer-events-none w-0 h-0"
-                    tabIndex={-1}
-                    aria-hidden
-                />
             </div>
 
             {/* ── Room List ── */}

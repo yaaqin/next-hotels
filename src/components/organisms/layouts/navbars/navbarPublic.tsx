@@ -48,7 +48,7 @@ export default function Navbar({
             className={`text-2xl md:text-4xl font-semibold tracking-[0.2em] uppercase transition-colors duration-500 ease-in-out
         ${scrolled ? "text-gray-900" : "text-white"}`}
           >
-            Taberna
+            MBS
           </span>
 
           {isMain && (

@@ -33,7 +33,7 @@ const amenities = [
 
 export default function Amenities() {
   return (
-    <section className="w-full py-16 px-8 bg-white">
+    <section className="w-full py-16 px-8 bg-white relative" style={{ zIndex: 3 }}>
       <h2 className="text-center text-3xl font-bold tracking-[0.25em] uppercase text-gray-900 mb-12">
         Amenities
       </h2>
