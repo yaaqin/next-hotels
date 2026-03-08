@@ -69,6 +69,12 @@ export const NAVIGATION: NavItem[] = [
         parentKey: 'site',
       },
       {
+        key: 'price proposal',
+        label: 'Price Proposal',
+        path: '/dashboard/price-proposal',
+        parentKey: 'site',
+      },
+      {
         key: 'facility',
         label: 'Facility',
         parentKey: 'site',

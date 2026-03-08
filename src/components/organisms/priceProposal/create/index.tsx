@@ -6,6 +6,28 @@ import PriceItemCard from "./priceItemCard";
 import Buttons from "@/src/components/atoms/buttons";
 import { useCreatePriceProposal } from "@/src/hooks/mutation/priceProposal/create";
 import { useRouter } from "next/navigation";
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { CalendarIcon } from "lucide-react"
+
+function formatInputDate(date: Date): string {
+    const yyyy = date.getFullYear()
+    const mm = String(date.getMonth() + 1).padStart(2, "0")
+    const dd = String(date.getDate()).padStart(2, "0")
+    return `${yyyy}-${mm}-${dd}`
+}
+
+function parseInputDate(str: string): Date | undefined {
+    if (!str) return undefined
+    const [y, m, d] = str.split("-").map(Number)
+    return new Date(y, m - 1, d)
+}
+
+function formatDisplay(str: string): string {
+    if (!str) return "Pick a date"
+    const date = parseInputDate(str)
+    return date?.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }) ?? "Pick a date"
+}
 
 interface CreatePriceProposalFormProps {
     onSubmit?: (payload: CreatePriceProposalPayload) => void | Promise<void>;
@@ -14,7 +36,7 @@ interface CreatePriceProposalFormProps {
 
 export default function CreatePriceProposalForm({
     onSubmit,
-    isLoading = false,
+    // isLoading = false,
 }: CreatePriceProposalFormProps) {
     const {
         form,
@@ -26,9 +48,9 @@ export default function CreatePriceProposalForm({
         getPayload,
         reset,
     } = usePriceProposalStore();
-    
+
     const router = useRouter();
-    const { mutate } = useCreatePriceProposal()
+    const { mutate, isPending } = useCreatePriceProposal()
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -85,30 +107,55 @@ export default function CreatePriceProposalForm({
                         />
                     </div>
 
+                    {/* Start Date */}
                     <div className="flex flex-col gap-1">
                         <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                             Start Date <span className="text-red-500">*</span>
                         </label>
-                        <input
-                            type="date"
-                            required
-                            value={form.start_date}
-                            onChange={(e) => setStartDate(e.target.value)}
-                            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <button className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2 text-sm text-left hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                                    <CalendarIcon className="w-4 h-4 text-gray-400 shrink-0" />
+                                    <span className={form.start_date ? "text-gray-800" : "text-gray-400"}>
+                                        {formatDisplay(form.start_date)}
+                                    </span>
+                                </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 z-[200]" align="start">
+                                <Calendar
+                                    mode="single"
+                                    selected={parseInputDate(form.start_date)}
+                                    onSelect={(date) => date && setStartDate(formatInputDate(date))}
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
                     </div>
 
+                    {/* End Date */}
                     <div className="flex flex-col gap-1">
                         <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                             End Date <span className="text-red-500">*</span>
                         </label>
-                        <input
-                            type="date"
-                            required
-                            value={form.end_date}
-                            onChange={(e) => setEndDate(e.target.value)}
-                            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <button className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2 text-sm text-left hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                                    <CalendarIcon className="w-4 h-4 text-gray-400 shrink-0" />
+                                    <span className={form.end_date ? "text-gray-800" : "text-gray-400"}>
+                                        {formatDisplay(form.end_date)}
+                                    </span>
+                                </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 z-[200]" align="start">
+                                <Calendar
+                                    mode="single"
+                                    selected={parseInputDate(form.end_date)}
+                                    onSelect={(date) => date && setEndDate(formatInputDate(date))}
+                                    disabled={(date) => form.start_date ? date < parseInputDate(form.start_date)! : false}
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
                     </div>
                 </div>
             </div>
@@ -148,8 +195,8 @@ export default function CreatePriceProposalForm({
                 />
                 <Buttons
                     onClick={handleSubmit}
-                    label={isLoading ? 'Submitting...' : 'Create Proposal'}
-                    disable={isLoading}
+                    label={isPending ? 'Submitting...' : 'Create Proposal'}
+                    disable={isPending}
                     className="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-colors"
                 />
             </div>
