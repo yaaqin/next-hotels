@@ -1,5 +1,6 @@
 "use client";
 
+import { useCreateFacilityGroup } from "@/src/hooks/mutation/facility/useCreateGorup";
 import { useFacilityItemList } from "@/src/hooks/query/facilities/listItems";
 import { forwardRef, useState, useCallback, type InputHTMLAttributes } from "react";
 
@@ -298,19 +299,16 @@ export default function HotelFacilitiesForm() {
         });
     };
 
+    const { mutate: create, isPending } = useCreateFacilityGroup()
+
+
     const handleSubmit = () => {
         if (!title.trim()) {
             setTitleError("Judul tidak boleh kosong");
             return;
         }
         setTitleError("");
-        const result = {
-            title: title.trim(),
-            facilityIds: Array.from(selected),
-        };
-        console.log("Form submitted:", result);
-        setSubmitted(true);
-        setTimeout(() => setSubmitted(false), 2500);
+        create({ note: title.trim(), facility: Array.from(selected) });
     };
 
     return (
@@ -468,17 +466,30 @@ export default function HotelFacilitiesForm() {
                 <div className="mt-8 pt-6 border-t border-gray-200">
                     <button
                         onClick={handleSubmit}
+                        disabled={isPending}
                         className={`w-full py-3.5 rounded-2xl text-sm font-bold transition-all duration-200 ${submitted
                             ? "bg-green-500 text-white"
-                            : "bg-gray-900 text-white hover:bg-gray-800 active:scale-[0.99]"
+                            : isPending
+                                ? "bg-gray-400 text-white cursor-not-allowed"
+                                : "bg-gray-900 text-white hover:bg-gray-800 active:scale-[0.99]"
                             }`}
                         style={{ fontFamily: "'Sora', sans-serif", letterSpacing: "0.01em" }}
                     >
-                        {submitted
-                            ? "✓ Tersimpan!"
-                            : `Simpan${selected.size > 0 ? ` (${selected.size} fasilitas)` : ""} →`}
+                        {submitted ? (
+                            "✓ Tersimpan!"
+                        ) : isPending ? (
+                            <span className="flex items-center justify-center gap-2">
+                                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" />
+                                </svg>
+                                Menyimpan...
+                            </span>
+                        ) : (
+                            `Simpan${selected.size > 0 ? ` (${selected.size} fasilitas)` : ""} →`
+                        )}
                     </button>
-                    {selected.size === 0 && !submitted && (
+                    {selected.size === 0 && !submitted && !isPending && (
                         <p className="text-center text-xs text-gray-400 mt-2">Belum ada fasilitas yang dipilih</p>
                     )}
                 </div>
