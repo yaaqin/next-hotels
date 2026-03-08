@@ -9,9 +9,7 @@ export interface roomListState {
   siteCode: string
   number: string
   floorId: string
-  roomTypeId: string
-  bedTypeId: string
-  facilityGroupId: string
+  galleryId: string
   createdAt: string
   createdBy: string
   site: Site
@@ -34,14 +32,6 @@ export interface Site {
 export interface RoomType {
   id: string
   createdAt: string
-  createdBy: string
-  translations: Translation[]
-}
-
-export interface Translation {
-  id: string
-  roomTypeId: string
-  lang: string
   name: string
   desk: string
 }
@@ -49,21 +39,9 @@ export interface Translation {
 export interface BedType {
   id: string
   code: string
-  createdBy: string
   createdAt: string
-  updatedAt: string
-  translations: Translation2[]
-}
-
-export interface Translation2 {
-  id: string
-  bedTypeId: string
-  lang: string
   name: string
   size: string
-  description: string
-  createdAt: string
-  updatedAt: string
 }
 
 export interface FacilityGroup {

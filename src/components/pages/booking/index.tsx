@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from 'react'
 import BookingTable from '../../organisms/booking/table'
 import { Calendar } from '@/components/ui/calendar'
 import { Calendar01Icon } from 'hugeicons-react'
+import Loading from '../../organisms/loading'
 
 export default function BookingPage() {
     const [selectedDate, setSelectedDate] = useState<string>(getToday())
@@ -31,7 +32,7 @@ export default function BookingPage() {
         setOpen(false) // auto close setelah pilih
     }
 
-    const { data } = useBookingList(selectedDate)
+    const { data, isLoading } = useBookingList(selectedDate)
 
     return (
         <div className="p-6 space-y-4">
@@ -61,7 +62,9 @@ export default function BookingPage() {
                 </div>
             </div>
 
-            {data && (
+            {isLoading ? (
+                <Loading />
+            ) : data && (
                 <BookingTable data={data?.data.bookings} />
             )}
         </div>
