@@ -253,6 +253,58 @@ axiosUpload.interceptors.response.use(
   }
 )
 
+// src/libs/instance.ts — tambah di bawah axiosPublic
+
+export const axiosUser: AxiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: 30_000,
+})
+
+axiosUser.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    const lang = getLanguage()
+
+    // Baca backendToken dari cookie
+    const token = getCookie('userToken') as string | null
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+
+    config.headers['x-lang'] = lang
+    return config
+  },
+  (error) => Promise.reject(error)
+)
+
+axiosUser.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    const status = error.response?.status
+    const message = (error.response?.data as { message?: string })?.message || 'Terjadi kesalahan'
+
+    if (status === 401) {
+      // Token user expired — arahkan ke login
+      toast.error('Sesi kamu sudah habis, silakan login ulang')
+      if (isBrowser) {
+        setTimeout(() => {
+          window.location.href = '/login'
+        }, 1500)
+      }
+      return Promise.reject(error)
+    }
+
+    if (status && status >= 400) {
+      toast.error(status >= 500 ? `Server error: ${message}` : message)
+    }
+
+    return Promise.reject(error)
+  }
+)
+
 /**
  * ===============================
  * Helper: build query string

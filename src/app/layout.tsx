@@ -4,6 +4,7 @@ import "./globals.css";
 import { saira } from "./fonts";
 import Providers from "../components/organisms/providers/query";
 import { Suspense } from "react";
+import SyncUserToken from "../components/organisms/layouts/SyncUserToken";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${saira.className} antialiased`}
       >
         <Providers>
+          <SyncUserToken/>
           <Suspense fallback={<div>Loading...</div>}>
             {children}
           </Suspense>

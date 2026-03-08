@@ -163,6 +163,12 @@ export default function ReservationPage() {
     )
   }
 
+  // useEffect (() => {
+  //   if (items.length === 0) {
+  //     router.push('/')
+  //   }
+  // }, [items])
+
   return (
     <div className="min-h-screen bg-[#f5f4f0] py-10 px-4">
       <div className="max-w-4xl mx-auto">
