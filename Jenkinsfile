@@ -2,28 +2,38 @@ pipeline {
     agent any
 
     stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Deploy') {
             steps {
-            sh '''
-            set -e
+                sh '''
+                set -e
 
-            echo "===> Build & deploy from Jenkins workspace"
-            cd /var/lib/jenkins/workspace/net-BE
+                echo "Workspace:"
+                pwd
 
-            echo "===> Stop containers"
-            docker compose down --remove-orphans || true
+                echo "Files:"
+                ls -la
 
-            echo "===> Build image without cache"
-            docker compose build --no-cache
+                echo "Stop containers"
+                docker compose down --remove-orphans || true
 
-            echo "===> Run containers"
-            docker compose up -d
+                echo "Build image"
+                docker compose build --no-cache
 
-            echo "===> Cleanup unused images"
-            docker image prune -f
-            '''
-    }
-}
+                echo "Run containers"
+                docker compose up -d
+
+                echo "Cleanup images"
+                docker image prune -f
+                '''
+            }
+        }
     }
 
     post {
