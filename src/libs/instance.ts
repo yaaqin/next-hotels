@@ -288,12 +288,12 @@ axiosUser.interceptors.response.use(
 
     if (status === 401) {
       // Token user expired — arahkan ke login
-      toast.error('Sesi kamu sudah habis, silakan login ulang')
-      if (isBrowser) {
-        setTimeout(() => {
-          window.location.href = '/login'
-        }, 1500)
-      }
+      // toast.error('Sesi kamu sudah habis, silakan login ulang')
+      // if (isBrowser) {
+      //   setTimeout(() => {
+      //     window.location.href = '/login'
+      //   }, 1500)
+      // }
       return Promise.reject(error)
     }
 
