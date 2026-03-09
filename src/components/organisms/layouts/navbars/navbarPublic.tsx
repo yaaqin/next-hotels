@@ -43,7 +43,7 @@ export default function Navbar({
               className={`text-xs md:text-sm font-medium tracking-widest uppercase transition-colors duration-500 ease-in-out
           ${scrolled ? "text-gray-900" : "text-white"}`}
             >
-              Menu
+              Menus
             </button>
           )}
 
