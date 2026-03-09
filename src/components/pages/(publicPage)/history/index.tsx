@@ -248,7 +248,7 @@ function BookingDrawer({
   const nights = getNights(booking.checkInDate, booking.checkOutDate);
   const roomName = getRoomName(booking);
   const firstItem = booking.items?.[0];
-  const imageId = firstItem?.roomType?.imageId;
+  const imageUrl = firstItem?.roomType?.image?.url ?? null;
 
   return (
     <AnimatePresence>
@@ -269,8 +269,8 @@ function BookingDrawer({
             transition={{ type: "spring", stiffness: 90, damping: 22 }}
           >
             <div className="relative h-56 overflow-hidden shrink-0 bg-gray-100">
-              {imageId ? (
-                <img src={`/api/images/${imageId}`} alt={roomName} className="w-full h-full object-cover" />
+              {imageUrl ? (
+                <img src={imageUrl} alt={roomName} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
                   <span className="text-5xl opacity-30">🏨</span>
@@ -426,7 +426,7 @@ function BookingCard({
   const cfg = getStatusCfg(booking.status);
   const nights = getNights(booking.checkInDate, booking.checkOutDate);
   const roomName = getRoomName(booking);
-  const imageId = booking.items?.[0]?.roomType?.imageId;
+  const imageUrl = booking.items?.[0]?.roomType?.image?.url ?? null;
 
   return (
     <motion.article
@@ -438,9 +438,9 @@ function BookingCard({
       className="group flex rounded-2xl border border-gray-100 bg-white overflow-hidden cursor-pointer hover:shadow-xl hover:shadow-blue-50 hover:-translate-y-0.5 transition-all duration-300"
     >
       <div className="relative w-36 h-24 shrink-0 overflow-hidden bg-gray-100">
-        {imageId ? (
+        {imageUrl ? (
           <img
-            src={`/api/images/${imageId}`}
+            src={imageUrl}
             alt={roomName}
             className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />

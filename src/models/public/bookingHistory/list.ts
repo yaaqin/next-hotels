@@ -53,10 +53,19 @@ export interface Room {
 
 export interface RoomType {
   id: string
-  imageId: string
+  imageId: string | null
   createdAt: string
   createdBy: string
   translations: Translation[]
+  // ✅ image object sekarang ikut di-return dari API
+  image: RoomImage | null
+}
+
+// ✅ type baru untuk image
+export interface RoomImage {
+  id: string
+  url: string
+  name: string
 }
 
 export interface Translation {
