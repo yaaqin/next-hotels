@@ -1,47 +1,39 @@
 pipeline {
-    agent any
+  agent any
 
-    stages {
+  stages {
 
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
+    stage('Deploy') {
+      steps {
+        sh '''
+        set -e
 
-        stage('Deploy') {
-            steps {
-                sh '''
-                set -e
+        echo "Go to project directory"
+        cd /home/yaaqin/apps/next-hotels
 
-                echo "Workspace:"
-                pwd
+        echo "Pull latest code"
+        git pull origin main
 
-                echo "Files:"
-                ls -la
+        echo "Stop old container"
+        docker compose down || true
 
-                echo "Stop containers"
-                docker compose down --remove-orphans || true
+        echo "Build image"
+        docker compose build
 
-                echo "Build image"
-                docker compose build --no-cache
-
-                echo "Run containers"
-                docker compose up -d
-
-                echo "Cleanup images"
-                docker image prune -f
-                '''
-            }
-        }
+        echo "Start container"
+        docker compose up -d
+        '''
+      }
     }
 
-    post {
-        success {
-            echo '✅ Deploy success'
-        }
-        failure {
-            echo '❌ Deploy failed'
-        }
+  }
+
+  post {
+    success {
+      echo "✅ Deploy success"
     }
+    failure {
+      echo "❌ Deploy failed"
+    }
+  }
 }
