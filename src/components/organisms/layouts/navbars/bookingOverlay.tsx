@@ -64,7 +64,7 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
                   Marina Bay Suites
                 </p>
                 <h2 className="text-white text-2xl font-semibold leading-tight">
-                  Your perfect stay <br /> starts here.
+                  Your perfect stay <br /> start here.
                 </h2>
               </div>
             </motion.div>
