@@ -1,9 +1,17 @@
-import React from 'react'
+'use client'
+import { useDailyMatrix } from "@/src/hooks/query/finance/dailyMatrix"
+import { DailyMetricsCard } from "../../organisms/home/dailyMatrix"
+import Loading from "../../organisms/loading"
 
 export default function DashboardAdmin() {
+  const { data, isLoading } = useDailyMatrix()
   return (
-    <div className='w-full h-screen flex text-center justify-center items-center bg-gray-100'>
-      <h1 className='capitalize text-5xl'>Dashboard</h1>
-    </div>
+    <>
+      {isLoading ? (
+        <Loading />
+      ) : data && (
+        <DailyMetricsCard data={data?.data} />
+      )}
+    </>
   )
 }
