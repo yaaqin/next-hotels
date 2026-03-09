@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { BookingOverlay } from "./bookingOverlay";
+import { MenuOverlay } from "./menuCard";
 
 interface NavbarProps {
   isMain?: boolean
@@ -11,6 +12,7 @@ export default function Navbar({
 }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,6 +39,7 @@ export default function Navbar({
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
           {isMain && (
             <button
+              onClick={() => setMenuOpen(true)}
               className={`text-xs md:text-sm font-medium tracking-widest uppercase transition-colors duration-500 ease-in-out
           ${scrolled ? "text-gray-900" : "text-white"}`}
             >
@@ -67,6 +70,7 @@ export default function Navbar({
         isOpen={bookingOpen}
         onClose={() => setBookingOpen(false)}
       />
+      <MenuOverlay isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
     </>
   );
 }
