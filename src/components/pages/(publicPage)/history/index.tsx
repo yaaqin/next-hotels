@@ -414,6 +414,7 @@ function BookingDrawer({
 }
 
 // ── Booking Card ───────────────────────────────────────────────────────────
+// ── Booking Card ───────────────────────────────────────────────────────────
 function BookingCard({
   booking,
   index,
@@ -435,52 +436,77 @@ function BookingCard({
       exit={{ opacity: 0, y: -12 }}
       transition={{ delay: index * 0.07, duration: 0.4, ease: "easeOut" }}
       onClick={onClick}
-      className="group flex rounded-2xl border border-gray-100 bg-white overflow-hidden cursor-pointer hover:shadow-xl hover:shadow-blue-50 hover:-translate-y-0.5 transition-all duration-300"
+      className="group flex flex-col rounded-2xl border border-gray-100 bg-white overflow-hidden cursor-pointer hover:shadow-xl hover:shadow-blue-50 hover:-translate-y-0.5 transition-all duration-300"
     >
-      <div className="relative w-36 h-24 shrink-0 overflow-hidden bg-gray-100">
-        {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt={roomName}
-            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-            <span className="text-2xl opacity-30">🏨</span>
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10" />
-      </div>
-
-      <div className="flex-1 px-5 py-4 flex flex-col justify-between min-w-0">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <p className="text-xs text-gray-400 tracking-widest uppercase truncate">
-              {booking.site?.nama ?? booking.siteCode} · {booking.bookingCode}
-            </p>
-            <h3 className="text-sm font-semibold text-gray-900 truncate mt-0.5">{roomName}</h3>
-          </div>
-          <span className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium ${cfg.badge} ${cfg.text}`}>
-            <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
-            {cfg.label}
-          </span>
+      {/* ── Top row: image + info ── */}
+      <div className="flex">
+        <div className="relative w-36 h-24 shrink-0 overflow-hidden bg-gray-100">
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt={roomName}
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+              <span className="text-2xl opacity-30">🏨</span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10" />
         </div>
 
-        <div className="flex items-end justify-between mt-3">
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <span>{formatDate(booking.checkInDate)}</span>
-            <span className="text-gray-300">→</span>
-            <span>{formatDate(booking.checkOutDate)}</span>
-            <span className="text-gray-300">·</span>
-            <span className="text-gray-400">{nights}n</span>
+        <div className="flex-1 px-5 py-4 flex flex-col justify-between min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-xs text-gray-400 tracking-widest uppercase truncate">
+                {booking.site?.nama ?? booking.siteCode} · {booking.bookingCode}
+              </p>
+              <h3 className="text-sm font-semibold text-gray-900 truncate mt-0.5">{roomName}</h3>
+            </div>
+            <span className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium ${cfg.badge} ${cfg.text}`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
+              {cfg.label}
+            </span>
           </div>
-          <p className="text-sm font-bold text-blue-600 shrink-0">{formatPrice(booking.totalAmount)}</p>
+
+          <div className="flex items-end justify-between mt-3">
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <span>{formatDate(booking.checkInDate)}</span>
+              <span className="text-gray-300">→</span>
+              <span>{formatDate(booking.checkOutDate)}</span>
+              <span className="text-gray-300">·</span>
+              <span className="text-gray-400">{nights}n</span>
+            </div>
+            <p className="text-sm font-bold text-blue-600 shrink-0">{formatPrice(booking.totalAmount)}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center pr-4 text-gray-200 group-hover:text-blue-400 transition-colors text-lg shrink-0">
+          →
         </div>
       </div>
 
-      <div className="flex items-center pr-4 text-gray-200 group-hover:text-blue-400 transition-colors text-lg shrink-0">
-        →
-      </div>
+      {/* ── Check-in button ── */}
+      {booking.allowCheckIn !== undefined && (
+        <div
+          className="px-4 pb-4 pt-1"
+          onClick={(e) => e.stopPropagation()} // biar ga trigger drawer
+        >
+          <button
+            disabled={!booking.allowCheckIn}
+            onClick={() => {
+              console.log('bookingId:', booking.id)
+            }}
+            className={`w-full py-2.5 rounded-xl text-xs font-medium tracking-widest uppercase transition-all duration-200
+              ${booking.allowCheckIn
+                ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-md shadow-blue-100'
+                : 'bg-gray-100 text-gray-300 cursor-not-allowed'
+              }`}
+          >
+            Check In
+          </button>
+        </div>
+      )}
     </motion.article>
   );
 }
