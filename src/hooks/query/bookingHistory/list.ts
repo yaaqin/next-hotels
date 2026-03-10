@@ -1,7 +1,7 @@
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { bookingHistoryListProps } from "@/src/models/public/bookingHistory/list";
-import { bookingHistoryList } from "@/src/services/bookingHistory/list";
+import { bookingHistoryList } from "@/src/services/bookingUser/hystoryList";
 
 export const useBookingHistoryList = () => {
     const searchParams = useSearchParams();

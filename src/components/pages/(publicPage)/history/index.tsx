@@ -6,6 +6,7 @@ import { useSession, signIn } from "next-auth/react";
 import { useBookingHistoryList } from "@/src/hooks/query/bookingHistory/list";
 import { bookingHistoryListState } from "@/src/models/public/bookingHistory/list";
 import { useRouter } from "next/navigation";
+import { useCheckIn } from "@/src/hooks/mutation/userBooking/checkIn";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type BookingStatus = "confirmed" | "checked_in" | "completed" | "cancelled" | "pending";
@@ -99,7 +100,6 @@ function GoogleLoginGate() {
     >
       <div className="w-full max-w-sm">
         <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-          {/* Top strip */}
           <div className="relative h-36 bg-gradient-to-br from-blue-400 to-blue-600 overflow-hidden">
             <div className="absolute inset-0 opacity-10">
               {[...Array(5)].map((_, i) => (
@@ -166,7 +166,6 @@ function EmptyBookingState() {
       className="flex flex-col items-center justify-center py-16 px-4 text-center"
     >
       <div className="w-full max-w-xs">
-        {/* Stacked card illustration */}
         <div className="relative mx-auto w-40 h-40 mb-8">
           <div className="absolute inset-0 rounded-3xl bg-blue-50 rotate-6" />
           <div className="absolute inset-0 rounded-3xl bg-blue-100 -rotate-3" />
@@ -390,7 +389,7 @@ function BookingDrawer({
 
               {booking.statusLogs?.length > 0 && (
                 <div className="space-y-2 pt-2">
-                  <p className="text-xs text-gray-400 tracking-widest uppercase">Activity Log</p>
+                  <p className="text-xs text-gray-400 tracking-widests uppercase">Activity Log</p>
                   <div className="relative pl-4 border-l-2 border-gray-100 space-y-4">
                     {booking.statusLogs.map((log) => (
                       <div key={log.id} className="relative">
@@ -414,15 +413,18 @@ function BookingDrawer({
 }
 
 // ── Booking Card ───────────────────────────────────────────────────────────
-// ── Booking Card ───────────────────────────────────────────────────────────
 function BookingCard({
   booking,
   index,
   onClick,
+  onCheckIn,         // ← terima handler dari parent
+  isCheckingIn,      // ← loading state dari parent
 }: {
   booking: bookingHistoryListState;
   index: number;
   onClick: () => void;
+  onCheckIn: (bookingCode: string) => void;
+  isCheckingIn: boolean;
 }) {
   const cfg = getStatusCfg(booking.status);
   const nights = getNights(booking.checkInDate, booking.checkOutDate);
@@ -490,20 +492,18 @@ function BookingCard({
       {booking.allowCheckIn !== undefined && (
         <div
           className="px-4 pb-4 pt-1"
-          onClick={(e) => e.stopPropagation()} // biar ga trigger drawer
+          onClick={(e) => e.stopPropagation()}
         >
           <button
-            disabled={!booking.allowCheckIn}
-            onClick={() => {
-              console.log('bookingId:', booking.id)
-            }}
+            disabled={!booking.allowCheckIn || isCheckingIn}
+            onClick={() => onCheckIn(booking.bookingCode)}
             className={`w-full py-2.5 rounded-xl text-xs font-medium tracking-widest uppercase transition-all duration-200
-              ${booking.allowCheckIn
+              ${booking.allowCheckIn && !isCheckingIn
                 ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-md shadow-blue-100'
                 : 'bg-gray-100 text-gray-300 cursor-not-allowed'
               }`}
           >
-            Check In
+            {isCheckingIn ? 'Processing...' : 'Check In'}
           </button>
         </div>
       )}
@@ -515,14 +515,12 @@ function BookingCard({
 export default function BookingHistoryPage() {
   const { data: session, status: authStatus } = useSession();
   const { data, isLoading, error, refetch } = useBookingHistoryList();
+  const { mutate: checkIn, isPending: isCheckingIn, variables: checkingInCode } = useCheckIn(); 
 
   const [activeFilter, setActiveFilter] = useState<BookingStatus | "all">("all");
   const [selected, setSelected] = useState<bookingHistoryListState | null>(null);
 
-  // ── Auth loading ──
   if (authStatus === "loading") return <AuthSkeleton />;
-
-  // ── Not logged in ──
   if (authStatus === "unauthenticated" || !session) return <GoogleLoginGate />;
 
   const bookings = data?.data?.bookings ?? [];
@@ -548,7 +546,6 @@ export default function BookingHistoryPage() {
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          {/* User info */}
           <div className="flex items-center gap-3 mb-5">
             {session.user?.image && (
               <img
@@ -614,14 +611,12 @@ export default function BookingHistoryPage() {
         {/* List area */}
         <div className="flex flex-col gap-3">
 
-          {/* Loading skeleton */}
           {isLoading && (
             <div className="flex flex-col gap-3">
               {[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}
             </div>
           )}
 
-          {/* Error */}
           {error && !isLoading && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -639,12 +634,8 @@ export default function BookingHistoryPage() {
             </motion.div>
           )}
 
-          {/* Empty — no bookings at all */}
-          {!isLoading && !error && bookings.length === 0 && (
-            <EmptyBookingState />
-          )}
+          {!isLoading && !error && bookings.length === 0 && <EmptyBookingState />}
 
-          {/* Empty — filter has no match but bookings exist */}
           {!isLoading && !error && bookings.length > 0 && filtered.length === 0 && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -662,7 +653,6 @@ export default function BookingHistoryPage() {
             </motion.div>
           )}
 
-          {/* Cards */}
           <AnimatePresence mode="popLayout">
             {!isLoading && !error &&
               filtered.map((booking, i) => (
@@ -671,6 +661,8 @@ export default function BookingHistoryPage() {
                   booking={booking}
                   index={i}
                   onClick={() => setSelected(booking)}
+                  onCheckIn={(bookingCode) => checkIn(bookingCode)}                    // ← pasang handler
+                  isCheckingIn={isCheckingIn && checkingInCode === booking.bookingCode} // ← loading per card
                 />
               ))}
           </AnimatePresence>
