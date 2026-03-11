@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import NeedConfirmSection from "../../organisms/operational/needConfirm";
+import CheckInOperationalSection from "../../organisms/operational/checkinOperational";
+import DueCheckoutOperationalSection from "../../organisms/operational/checkoutOperational";
 
 type Tab = {
   id: string;
@@ -54,9 +56,9 @@ export default function OperationalPage() {
         {active === 'confirm' ? (
           <NeedConfirmSection />
         ) : active === 'checkin' ? (
-          <p>checkin</p>
+          <CheckInOperationalSection />
         ) : active === 'checkout' && (
-          <p>checkout</p>
+          <DueCheckoutOperationalSection />
         )}
       </section>
     </>

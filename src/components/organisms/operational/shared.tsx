@@ -1,13 +1,74 @@
 "use client";
 
-import { useNeedConfirmList } from '@/src/hooks/query/operational/confirmList'
-import { needConfirmListState } from '@/src/models/operational/confirmList'
+// src/components/operational/shared.tsx
+// BookingCard dan BookingModal yang dipakai bersama oleh semua section operational
+
 import { AnimatePresence, motion } from 'framer-motion'
-import React, { useState } from 'react'
+import React from 'react'
+
+// ── Shared interface ───────────────────────────────────────────────────────
+// Semua model operational (needConfirm, checkIn, dueCheckout) punya shape yang sama
+// jadi kita pakai interface shared ini biar BookingCard & BookingModal bisa reuse
+
+export interface BookingItemShared {
+    id: string
+    bookingCode: string
+    siteCode: string
+    checkInDate: string
+    checkOutDate: string
+    totalAmount: number
+    status: string
+    createdAt: string
+    createdBy: any
+    userId: string
+    contact: {
+        fullName: string
+        phone: string
+        email: string
+    }
+    items: {
+        id: string
+        bookingId: string
+        roomTypeId: string
+        roomId: string
+        pricePerNight: number
+        nights: number
+        subtotal: number
+        room: {
+            id: string
+            number: string
+            floorId: string
+        }
+        roomType: {
+            id: string
+            imageId: string
+            createdAt: string
+            createdBy: string
+            translations: {
+                id: string
+                roomTypeId: string
+                lang: string
+                name: string
+                desk: string
+            }[]
+            image: {
+                id: string
+                url: string
+                name: string
+            }
+        }
+    }[]
+    site: {
+        sitecode: string
+        nama: string
+    }
+}
+
+export type ModalVariant = 'detail' | 'action'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-function formatPrice(price: number) {
+export function formatPrice(price: number) {
     return new Intl.NumberFormat('id-ID', {
         style: 'currency',
         currency: 'IDR',
@@ -15,33 +76,30 @@ function formatPrice(price: number) {
     }).format(price)
 }
 
-function getRoomName(booking: needConfirmListState) {
-    const t = booking.items?.[0]?.roomType?.translations?.[0]
-    return t?.name ?? '—'
+function getRoomName(booking: BookingItemShared) {
+    return booking.items?.[0]?.roomType?.translations?.[0]?.name ?? '—'
 }
 
-function getRoomNumber(booking: needConfirmListState) {
+function getRoomNumber(booking: BookingItemShared) {
     return booking.items?.[0]?.room?.number ?? '—'
 }
 
-function getFloor(booking: needConfirmListState) {
+function getFloor(booking: BookingItemShared) {
     return booking.items?.[0]?.room?.floorId ?? '—'
 }
 
-function getImageUrl(booking: needConfirmListState) {
+function getImageUrl(booking: BookingItemShared) {
     return booking.items?.[0]?.roomType?.image?.url ?? null
 }
 
-// ── Modal ──────────────────────────────────────────────────────────────────
-
-export type ModalVariant = 'detail' | 'action'
+// ── BookingModal ───────────────────────────────────────────────────────────
 
 interface BookingModalProps {
-    booking: needConfirmListState | null
+    booking: BookingItemShared | null
     variant: ModalVariant
     onClose: () => void
     actionLabel?: string
-    onAction?: (booking: needConfirmListState) => void
+    onAction?: (booking: BookingItemShared) => void
     isActionLoading?: boolean
 }
 
@@ -62,7 +120,6 @@ export function BookingModal({
         <AnimatePresence>
             {booking && (
                 <>
-                    {/* Backdrop */}
                     <motion.div
                         className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
                         initial={{ opacity: 0 }}
@@ -70,8 +127,6 @@ export function BookingModal({
                         exit={{ opacity: 0 }}
                         onClick={onClose}
                     />
-
-                    {/* Modal */}
                     <motion.div
                         className="fixed z-50 inset-x-4 bottom-0 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-full sm:max-w-sm bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden"
                         initial={{ y: '100%', opacity: 0 }}
@@ -79,7 +134,6 @@ export function BookingModal({
                         exit={{ y: '100%', opacity: 0 }}
                         transition={{ type: 'spring', stiffness: 100, damping: 20 }}
                     >
-                        {/* Image */}
                         <div className="relative h-40 bg-gray-100">
                             {imageUrl ? (
                                 <img src={imageUrl} alt={roomName} className="w-full h-full object-cover" />
@@ -101,9 +155,7 @@ export function BookingModal({
                             </div>
                         </div>
 
-                        {/* Content */}
                         <div className="px-5 py-5 space-y-4">
-                            {/* Room info */}
                             <div className="grid grid-cols-3 gap-2">
                                 {[
                                     { label: 'Room', value: getRoomNumber(booking) },
@@ -117,7 +169,6 @@ export function BookingModal({
                                 ))}
                             </div>
 
-                            {/* Guest email */}
                             <div className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3">
                                 <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
                                     <span className="text-xs">👤</span>
@@ -128,13 +179,11 @@ export function BookingModal({
                                 </div>
                             </div>
 
-                            {/* Price */}
                             <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-4 py-3">
                                 <p className="text-xs text-blue-400 uppercase tracking-widest">Total</p>
                                 <p className="text-base font-bold text-blue-600">{formatPrice(booking.totalAmount)}</p>
                             </div>
 
-                            {/* Action button — hanya muncul di variant 'action' */}
                             {variant === 'action' && actionLabel && onAction && (
                                 <button
                                     disabled={isActionLoading}
@@ -156,10 +205,10 @@ export function BookingModal({
     )
 }
 
-// ── Booking Card ───────────────────────────────────────────────────────────
+// ── BookingCard ────────────────────────────────────────────────────────────
 
 interface BookingCardProps {
-    booking: needConfirmListState
+    booking: BookingItemShared
     index: number
     onClick: () => void
 }
@@ -176,7 +225,6 @@ export function BookingCard({ booking, index, onClick }: BookingCardProps) {
             onClick={onClick}
             className="flex items-center gap-3 bg-white border border-gray-100 rounded-2xl p-3 cursor-pointer hover:shadow-lg hover:shadow-blue-50 hover:-translate-y-0.5 transition-all duration-200"
         >
-            {/* Image */}
             <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 shrink-0">
                 {imageUrl ? (
                     <img src={imageUrl} alt={roomName} className="w-full h-full object-cover" />
@@ -187,7 +235,6 @@ export function BookingCard({ booking, index, onClick }: BookingCardProps) {
                 )}
             </div>
 
-            {/* Info */}
             <div className="flex-1 min-w-0">
                 <p className="text-xs text-gray-400 truncate">{booking.bookingCode}</p>
                 <p className="text-sm font-semibold text-gray-800 truncate mt-0.5">{roomName}</p>
@@ -196,7 +243,6 @@ export function BookingCard({ booking, index, onClick }: BookingCardProps) {
                 </p>
             </div>
 
-            {/* Status + price */}
             <div className="text-right shrink-0">
                 <span className="inline-block px-2 py-0.5 rounded-full bg-blue-50 text-blue-500 text-xs font-medium border border-blue-100">
                     {booking.status}
@@ -207,73 +253,17 @@ export function BookingCard({ booking, index, onClick }: BookingCardProps) {
     )
 }
 
-// ── Main Section ───────────────────────────────────────────────────────────
+// ── Skeleton ───────────────────────────────────────────────────────────────
 
-interface NeedConfirmSectionProps {
-    // optional — kalau tidak dikirim, modal tampil versi detail only
-    actionLabel?: string
-    onAction?: (booking: needConfirmListState) => void
-    isActionLoading?: boolean
-}
-
-export default function NeedConfirmSection({
-    actionLabel,
-    onAction,
-    isActionLoading,
-}: NeedConfirmSectionProps) {
-    const { data, isLoading } = useNeedConfirmList()
-    const [selected, setSelected] = useState<needConfirmListState | null>(null)
-
-    const bookings = data?.data?.bookings ?? []
-    const modalVariant: ModalVariant = actionLabel && onAction ? 'action' : 'detail'
-
+export function BookingCardSkeleton() {
     return (
-        <div className="space-y-3">
-            {/* Loading skeleton */}
-            {isLoading && (
-                <>
-                    {[...Array(3)].map((_, i) => (
-                        <div key={i} className="flex items-center gap-3 bg-white border border-gray-100 rounded-2xl p-3 animate-pulse">
-                            <div className="w-16 h-16 rounded-xl bg-gray-100 shrink-0" />
-                            <div className="flex-1 space-y-2">
-                                <div className="h-3 bg-gray-100 rounded w-1/3" />
-                                <div className="h-4 bg-gray-100 rounded w-2/3" />
-                                <div className="h-3 bg-gray-100 rounded w-1/2" />
-                            </div>
-                        </div>
-                    ))}
-                </>
-            )}
-
-            {/* Empty */}
-            {!isLoading && bookings.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <p className="text-3xl mb-3 opacity-20">📋</p>
-                    <p className="text-sm text-gray-400">Tidak ada data</p>
-                </div>
-            )}
-
-            {/* Cards */}
-            <AnimatePresence>
-                {!isLoading && bookings.map((booking, i) => (
-                    <BookingCard
-                        key={booking.id}
-                        booking={booking}
-                        index={i}
-                        onClick={() => setSelected(booking)}
-                    />
-                ))}
-            </AnimatePresence>
-
-            {/* Modal */}
-            <BookingModal
-                booking={selected}
-                variant={modalVariant}
-                onClose={() => setSelected(null)}
-                actionLabel={actionLabel}
-                onAction={onAction}
-                isActionLoading={isActionLoading}
-            />
+        <div className="flex items-center gap-3 bg-white border border-gray-100 rounded-2xl p-3 animate-pulse">
+            <div className="w-16 h-16 rounded-xl bg-gray-100 shrink-0" />
+            <div className="flex-1 space-y-2">
+                <div className="h-3 bg-gray-100 rounded w-1/3" />
+                <div className="h-4 bg-gray-100 rounded w-2/3" />
+                <div className="h-3 bg-gray-100 rounded w-1/2" />
+            </div>
         </div>
     )
 }

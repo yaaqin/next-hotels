@@ -1,4 +1,4 @@
-export interface checkinOprProps {
+export interface dueCHeckOutProps {
   success: boolean
   message: string
   data: Data
@@ -6,10 +6,11 @@ export interface checkinOprProps {
 
 export interface Data {
   total: number
-  bookings: checkinOprState[]
+  date: string
+  bookings: dueCHeckOutState[]
 }
 
-export interface checkinOprState {
+export interface dueCHeckOutState {
   id: string
   bookingCode: string
   siteCode: string
