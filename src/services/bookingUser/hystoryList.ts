@@ -11,3 +11,5 @@ export const bookingHistoryList = async (): Promise<bookingHistoryListProps> => 
   const data = await res.data
   return data
 }
+
+//harusnya bakal gadipake karen udah dipisah module
