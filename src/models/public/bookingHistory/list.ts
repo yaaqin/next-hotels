@@ -26,6 +26,7 @@ export interface bookingHistoryListState {
   payment: Payment
   statusLogs: StatusLog[]
   allowCheckIn: boolean
+  allowCheckOut: boolean
 }
 
 export interface Contact {

@@ -4,6 +4,7 @@ import { useState } from "react";
 import NeedConfirmSection from "../../organisms/operational/needConfirm";
 import CheckInOperationalSection from "../../organisms/operational/checkinOperational";
 import DueCheckoutOperationalSection from "../../organisms/operational/checkoutOperational";
+import { useConfirmBooking } from "@/src/hooks/mutation/booking/confirm";
 
 type Tab = {
   id: string;
@@ -18,6 +19,8 @@ const TABS: Tab[] = [
 
 export default function OperationalPage() {
   const [active, setActive] = useState("confirm");
+
+  const { mutate: confirm, isPending: isConfirming, variables: confirmingCode } = useConfirmBooking()
 
   return (
     <>
@@ -54,7 +57,11 @@ export default function OperationalPage() {
       </div>
       <section className="mt-4">
         {active === 'confirm' ? (
-          <NeedConfirmSection />
+          <NeedConfirmSection
+            actionLabel="Confirm Booking"
+            onAction={(booking) => confirm(booking.bookingCode)}
+            isActionLoading={isConfirming}
+          />
         ) : active === 'checkin' ? (
           <CheckInOperationalSection />
         ) : active === 'checkout' && (

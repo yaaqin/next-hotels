@@ -12,7 +12,7 @@ export const useNeedConfirmList = () => {
         error,
         refetch,
     } = useQuery<needConfirmListProps>({
-        queryKey: ["need-confirm-list", ],
+        queryKey: ["need-confirm-list"],
         queryFn: () => getListConfirm(),
         enabled: !!page,
     });
