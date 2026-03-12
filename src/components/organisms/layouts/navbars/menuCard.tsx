@@ -12,8 +12,14 @@ const MENU_ITEMS = [
     path: "/profile",
   },
   {
+    label: "Recent Activity",
+    description: "View your Booking activity ",
+    icon: Clock01Icon,
+    path: "/recent-activity",
+  },
+  {
     label: "History",
-    description: "View your booking & activity history",
+    description: "View your booking history",
     icon: Clock01Icon,
     path: "/history",
   },
