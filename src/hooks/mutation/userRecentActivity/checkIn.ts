@@ -1,4 +1,4 @@
-import { bookingCheckIn } from '@/src/services/bookingUser/checkIn'
+import { bookingCheckIn } from '@/src/services/userRecentActivity/checkIn'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 export const useCheckIn = () => {
