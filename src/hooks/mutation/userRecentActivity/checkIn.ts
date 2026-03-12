@@ -7,7 +7,7 @@ export const useCheckIn = () => {
     return useMutation({
         mutationFn: (bookingCode: string) => bookingCheckIn(bookingCode),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['booking-history'] })
+            queryClient.invalidateQueries({ queryKey: ['recent-activity-list'] })
         },
     })
 }

@@ -6,7 +6,7 @@ import { useSession, signIn } from "next-auth/react";
 import { useBookingHistoryList } from "@/src/hooks/query/bookingHistory/list";
 import { bookingHistoryListState } from "@/src/models/public/bookingHistory/list";
 import { useRouter } from "next/navigation";
-import { useCheckIn } from "@/src/hooks/mutation/userBooking/checkIn";
+import { useCheckIn } from "@/src/hooks/mutation/userRecentActivity/checkIn";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type BookingStatus = "confirmed" | "checked_in" | "completed" | "cancelled" | "pending";
