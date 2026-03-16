@@ -2,7 +2,8 @@
 
 import { motion } from "framer-motion";
 import { userRecentActivityListState } from "@/src/models/userRecentActivity/list";
-import { formatDate, formatPrice, getNights, getRoomName, getStatusCfg } from "./drawer";
+import { formatDate, formatPrice, getNights, getRoomName } from "./drawer";
+import { BookingStatusBadge } from "../../molecules/cards/badgeStatusBookingUserCard";
 
 interface RecentActivityCardProps {
   booking: userRecentActivityListState;
@@ -11,7 +12,7 @@ interface RecentActivityCardProps {
 }
 
 export function RecentActivityCard({ booking, index, onClick }: RecentActivityCardProps) {
-  const cfg = getStatusCfg(booking.status);
+  const cfg = booking.status;
   const nights = getNights(booking.checkInDate, booking.checkOutDate);
   const roomName = getRoomName(booking);
   const imageUrl = booking.items?.[0]?.roomType?.image?.url ?? null;
@@ -48,10 +49,7 @@ export function RecentActivityCard({ booking, index, onClick }: RecentActivityCa
             </p>
             <h3 className="text-sm font-semibold text-gray-900 truncate mt-0.5">{roomName}</h3>
           </div>
-          <span className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium ${cfg.badge} ${cfg.text}`}>
-            <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
-            {cfg.label}
-          </span>
+          <BookingStatusBadge status={booking.status}/>
         </div>
 
         <div className="flex items-end justify-between mt-3">

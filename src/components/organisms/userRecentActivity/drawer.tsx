@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { userRecentActivityListState } from "@/src/models/userRecentActivity/list";
+import { BookingStatusBadge } from "../../molecules/cards/badgeStatusBookingUserCard";
 
 type BookingStatus = "confirmed" | "checked_in" | "completed" | "cancelled" | "pending";
 
@@ -33,9 +34,9 @@ export function getRoomName(booking: userRecentActivityListState, lang = "eng") 
   );
 }
 
-export function getStatusCfg(status: string) {
-  return STATUS_CONFIG[status as BookingStatus] ?? STATUS_CONFIG["pending"];
-}
+// export function getStatusCfg(status: string) {
+//   return STATUS_CONFIG[status as BookingStatus] ?? STATUS_CONFIG["pending"];
+// }
 
 interface RecentActivityDrawerProps {
   booking: userRecentActivityListState | null;
@@ -56,7 +57,7 @@ export function RecentActivityDrawer({
 }: RecentActivityDrawerProps) {
   if (!booking) return null;
 
-  const cfg = getStatusCfg(booking.status);
+  // const cfg = getStatusCfg(booking.status);
   const nights = getNights(booking.checkInDate, booking.checkOutDate);
   const roomName = getRoomName(booking);
   const firstItem = booking.items?.[0];
@@ -101,10 +102,7 @@ export function RecentActivityDrawer({
             <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5">
               {/* Status + code */}
               <div className="flex items-center justify-between">
-                <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium ${cfg.badge} ${cfg.text}`}>
-                  <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
-                  {cfg.label}
-                </div>
+                <BookingStatusBadge status={booking.status}/>
                 <span className="text-xs font-mono text-gray-400">{booking.bookingCode}</span>
               </div>
 

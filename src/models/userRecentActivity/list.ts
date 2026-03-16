@@ -9,14 +9,23 @@ export interface Data {
   bookings: userRecentActivityListState[]
 }
 
+export type BookingStatus =
+  | 'PENDING'
+  | 'PAID'
+  | 'CONFIRMED'
+  | 'CHECKED_IN'
+  | 'CHECKED_OUT'
+  | 'CANCELLED'
+  | 'EXPIRED'
+
 export interface userRecentActivityListState {
   id: string
   bookingCode: string
   siteCode: string
   checkInDate: string
   checkOutDate: string
-  totalAmount: number
-  status: string
+  totalAmount: number 
+  status: BookingStatus
   createdAt: string
   createdBy: any
   userId: string

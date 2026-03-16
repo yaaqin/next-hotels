@@ -12,14 +12,22 @@ import { RecentActivityCard } from "@/src/components/organisms/userRecentActivit
 import { useCheckOut } from "@/src/hooks/mutation/userRecentActivity/checkOut";
 
 // ── Types ──────────────────────────────────────────────────────────────────
-type ActivityStatus = "pending" | "confirmed" | "checked_in";
+type ActivityStatus =
+  'all'
+  | 'PENDING'
+  | 'PAID'
+  | 'CONFIRMED'
+  | 'CHECKED_IN'
+  | 'CHECKED_OUT'
+  | 'CANCELLED'
+  | 'EXPIRED';
 
 // ── Filters ────────────────────────────────────────────────────────────────
 const FILTERS: { label: string; value: ActivityStatus | "all" }[] = [
-  { label: "All",        value: "all"        },
-  { label: "Pending",    value: "pending"    },
-  { label: "Confirmed",  value: "confirmed"  },
-  { label: "Checked In", value: "checked_in" },
+  { label: "All", value: "all" },
+  { label: "Pending", value: "PENDING" },
+  { label: "Confirmed", value: "CONFIRMED" },
+  { label: "Checked In", value: "CHECKED_IN" },
 ];
 
 // ── Google Login Gate ──────────────────────────────────────────────────────
@@ -151,8 +159,8 @@ export default function RecentActivityPage() {
   const filtered = activeFilter === "all" ? bookings : bookings.filter((b) => b.status === activeFilter);
 
   const total = bookings.length;
-  const checkedIn = bookings.filter((b) => b.status === "checked_in").length;
-  const totalActive = bookings.filter((b) => b.status !== "cancelled" && b.status !== "expired").length;
+  const checkedIn = bookings.filter((b) => b.status === "CHECKED_IN").length;
+  const totalActive = bookings.filter((b) => b.status !== "CANCELLED" && b.status !== "EXPIRED").length;
 
   return (
     <div className="min-h-screen bg-gray-50/60">
@@ -184,8 +192,8 @@ export default function RecentActivityPage() {
         >
           {[
             { label: "Active Bookings", value: isLoading ? "—" : total },
-            { label: "Checked In",      value: isLoading ? "—" : checkedIn },
-            { label: "Total Active",    value: isLoading ? "—" : totalActive },
+            { label: "Checked In", value: isLoading ? "—" : checkedIn },
+            { label: "Total Active", value: isLoading ? "—" : totalActive },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-2xl border border-gray-100 px-4 py-4 text-center">
               <p className="text-lg font-bold text-gray-900">{s.value}</p>
