@@ -8,7 +8,6 @@ export type IdType = 'KTP' | 'PASSPORT' | 'SIM'
 
 export interface BookingContact {
   fullName: string
-  email: string
   phone: string
   idType?: IdType
   idNumber?: string
@@ -62,7 +61,6 @@ const initialPayload: BookingPayload = {
   paymentMethod: null,
   contact: {
     fullName: '',
-    email: '',
     phone: '',
     idType: undefined,
     idNumber: undefined,
@@ -121,10 +119,10 @@ export const useBookingStore = create<BookingStore>()(
       setRoomDetail: (detail) => set({ displayDetail: detail }),
 
       isContactValid: () => {
-        const { fullName, email, phone } = get().payload.contact
+        const { fullName, phone } = get().payload.contact
         return (
           fullName.trim().length > 0 &&
-          /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
+          // /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
           phone.trim().length > 0
         )
       },

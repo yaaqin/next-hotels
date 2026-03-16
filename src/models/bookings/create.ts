@@ -5,7 +5,6 @@ export interface BookingPayload {
   paymentMethod: string
   contact: {
     fullName: string
-    email: string
     phone: string
     idType: string
     idNumber: string
