@@ -8,7 +8,7 @@ import {
   ArrowRight01Icon,
 } from 'hugeicons-react'
 import { useRouter } from 'next/navigation'
-import { useUserProfile } from '@/src/hooks/query/userProfile/inde'
+import { useUserProfile } from '@/src/hooks/query/userProfile'
 import { GoogleLoginGate } from '../recentActivity'
 import Image from 'next/image'
 import Images from '@/src/components/atoms/images'
