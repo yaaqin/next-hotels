@@ -7,6 +7,9 @@ import { CancelPreviewModal } from "./CancelPreviewModal";
 import { useState } from "react";
 import { useCancelPreview } from "@/src/hooks/query/recentActivity/cancelPreview";
 import { useCancelConfirm } from "@/src/hooks/mutation/userRecentActivity/cancelConfirm";
+import { RefundModal } from "./RefundModal";
+import { RefundType } from "@/src/services/userRecentActivity/refund";
+import { useRefund } from "@/src/hooks/mutation/userRecentActivity/refund";
 
 type BookingStatus = "confirmed" | "checked_in" | "completed" | "cancelled" | "pending";
 
@@ -61,9 +64,17 @@ export function RecentActivityDrawer({
 }: RecentActivityDrawerProps) {
   if (!booking) return null;
   const [cancelBookingCode, setCancelBookingCode] = useState<string | null>(null)
-  // const [isConfirming, setIsConfirming] = useState(false)
+
+  const [refundBookingCode, setRefundBookingCode] = useState<string | null>(null)
+  const [refundTotalAmount, setRefundTotalAmount] = useState(0)
 
   const { mutate: cancelConfirm, isPending: isConfirming } = useCancelConfirm()
+  const { mutate: submitRefund, isPending: isRefunding } = useRefund()
+
+  const handleRefundClick = (bookingCode: string, totalAmount: number) => {
+    setRefundBookingCode(bookingCode)
+    setRefundTotalAmount(totalAmount)
+  }
 
   const {
     data: cancelPreviewRes,
@@ -95,6 +106,21 @@ export function RecentActivityDrawer({
     )
   }
 
+  const handleRefundConfirm = (bookingCode: string, refundType: RefundType, reason: string) => {
+    submitRefund(
+      { bookingCode, payload: { refundType, reason } },
+      {
+        onSuccess: () => {
+          setRefundBookingCode(null)
+          onClose()
+        },
+        onError: () => {
+          alert('Gagal mengajukan refund, silakan coba lagi')
+        },
+      }
+    )
+  }
+
   // const cfg = getStatusCfg(booking.status);
   const nights = getNights(booking.checkInDate, booking.checkOutDate);
   const roomName = getRoomName(booking);
@@ -111,6 +137,13 @@ export function RecentActivityDrawer({
             onClose={handleCancelClose}
             onConfirm={handleCancelConfirm}
             isConfirming={isConfirming}
+          />
+          <RefundModal
+            bookingCode={refundBookingCode}
+            totalAmount={refundTotalAmount}
+            onClose={() => setRefundBookingCode(null)}
+            onConfirm={handleRefundConfirm}
+            isConfirming={isRefunding}
           />
           <motion.div
             className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
@@ -240,7 +273,7 @@ export function RecentActivityDrawer({
                   disabled={!booking.allowCheckIn || isCheckingIn}
                   onClick={() => onCheckIn(booking.bookingCode)}
                   className={`w-full py-3.5 rounded-xl text-sm font-medium tracking-widest uppercase transition-all duration-200
-      ${booking.allowCheckIn && !isCheckingIn
+                     ${booking.allowCheckIn && !isCheckingIn
                       ? "bg-blue-500 text-white hover:bg-blue-600 shadow-lg shadow-blue-100"
                       : "bg-gray-100 text-gray-300 cursor-not-allowed"
                     }`}
@@ -277,7 +310,7 @@ export function RecentActivityDrawer({
               {/* Refund — hanya tampil kalau status CANCELLED */}
               {booking.status === 'CANCELLED' && (
                 <button
-                  onClick={() => alert(`Ajukan refund untuk booking ${booking.bookingCode}?`)}
+                  onClick={() => handleRefundClick(booking.bookingCode, booking.totalAmount)}
                   className="w-full py-3.5 rounded-xl text-sm font-medium tracking-widest uppercase transition-all duration-200 bg-orange-50 border border-orange-200 text-orange-500 hover:bg-orange-100"
                 >
                   Request Refund
