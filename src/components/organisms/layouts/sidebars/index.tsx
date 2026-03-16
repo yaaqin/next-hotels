@@ -3,7 +3,7 @@ import Tooltips from '@/src/components/atoms/tooltips'
 import { useMenuList } from '@/src/hooks/query/menu/list';
 import { useNavigationStore } from '@/src/stores/layouts/useNavigationStore';
 import { sidebarMap } from '@/src/utils/menu';
-import { Building03Icon, DashboardCircleIcon, Logout01Icon, MarketAnalysisIcon, Monocle01Icon, Pizza01Icon } from 'hugeicons-react'
+import { Building03Icon, ComputerUserIcon, DashboardCircleIcon, Logout01Icon, MarketAnalysisIcon, Monocle01Icon, Pizza01Icon } from 'hugeicons-react'
 import Link from 'next/link';
 
 export default function Sidebars() {
@@ -24,6 +24,8 @@ export default function Sidebars() {
                             <Building03Icon />
                         ) : menu.code === 'USER' ? (
                             <Monocle01Icon />
+                        ) : menu.code === 'OPERATIONAL' ? (
+                            <ComputerUserIcon />
                         ) : menu.code === 'FOOD' ? (
                             <Pizza01Icon />
                         ) : menu.code === 'FINANCE' && (

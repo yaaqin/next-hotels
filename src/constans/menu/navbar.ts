@@ -32,7 +32,6 @@ export const NAVIGATION: NavItem[] = [
       },
     ],
   },
-
   {
     key: 'site',
     label: 'Site',
@@ -101,7 +100,6 @@ export const NAVIGATION: NavItem[] = [
       },
     ],
   },
-
   {
     key: 'user',
     label: 'User Management',
@@ -120,14 +118,19 @@ export const NAVIGATION: NavItem[] = [
         parentKey: 'user',
       },
       {
+        key: 'refund',
+        label: 'Refund',
+        path: '/dashboard/refund',
+        parentKey: 'user',
+      },
+      {
         key: 'menu',
         label: 'Menu',
-        path: '/user/menu',
+        path: '/dashboard/menu',
         parentKey: 'user',
       },
     ],
   },
-
   {
     key: 'food',
     label: 'Food',
@@ -153,7 +156,6 @@ export const NAVIGATION: NavItem[] = [
       },
     ],
   },
-
   {
     key: 'finance',
     label: 'Finance',
