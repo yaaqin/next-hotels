@@ -162,6 +162,12 @@ export const NAVIGATION: NavItem[] = [
     path: '/finance',
     children: [
       {
+        key: 'refund',
+        label: 'Refund',
+        path: '/dashboard/refund',
+        parentKey: 'finance',
+      },
+      {
         key: 'price-plan',
         label: 'Price Plan',
         path: '/finance/price-plan',
