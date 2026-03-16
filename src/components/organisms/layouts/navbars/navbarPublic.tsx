@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { BookingOverlay } from "./bookingOverlay";
 import { MenuOverlay } from "./menuCard";
+import Link from "next/link";
 
 interface NavbarProps {
   isMain?: boolean
@@ -47,12 +48,13 @@ export default function Navbar({
             </button>
           )}
 
-          <span
-            className={`text-2xl md:text-4xl font-semibold tracking-[0.2em] uppercase transition-colors duration-500 ease-in-out
-        ${scrolled ? "text-gray-900" : "text-white"}`}
+          <Link
+            href={'/'}
+            className={`text-2xl cursor-pointer md:text-4xl font-semibold tracking-[0.2em] uppercase transition-colors duration-500 ease-in-out
+            ${scrolled ? "text-gray-900" : "text-white"}`}
           >
             MBS
-          </span>
+          </Link>
 
           {isMain && (
             <button

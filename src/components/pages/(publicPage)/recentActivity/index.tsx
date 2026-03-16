@@ -23,7 +23,7 @@ const FILTERS: { label: string; value: ActivityStatus | "all" }[] = [
 ];
 
 // ── Google Login Gate ──────────────────────────────────────────────────────
-function GoogleLoginGate() {
+export function GoogleLoginGate() {
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
