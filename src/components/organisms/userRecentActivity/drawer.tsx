@@ -3,15 +3,19 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { userRecentActivityListState } from "@/src/models/userRecentActivity/list";
 import { BookingStatusBadge } from "../../molecules/cards/badgeStatusBookingUserCard";
+import { CancelPreviewModal } from "./CancelPreviewModal";
+import { useState } from "react";
+import { useCancelPreview } from "@/src/hooks/query/recentActivity/cancelPreview";
+import { useCancelConfirm } from "@/src/hooks/mutation/userRecentActivity/cancelConfirm";
 
 type BookingStatus = "confirmed" | "checked_in" | "completed" | "cancelled" | "pending";
 
 const STATUS_CONFIG: Record<BookingStatus, { label: string; dot: string; badge: string; text: string }> = {
-  pending:    { label: "Pending",    dot: "bg-amber-400",   badge: "bg-amber-50 border-amber-200",     text: "text-amber-600"   },
-  confirmed:  { label: "Confirmed",  dot: "bg-blue-400",    badge: "bg-blue-50 border-blue-200",       text: "text-blue-600"    },
+  pending: { label: "Pending", dot: "bg-amber-400", badge: "bg-amber-50 border-amber-200", text: "text-amber-600" },
+  confirmed: { label: "Confirmed", dot: "bg-blue-400", badge: "bg-blue-50 border-blue-200", text: "text-blue-600" },
   checked_in: { label: "Checked In", dot: "bg-emerald-400", badge: "bg-emerald-50 border-emerald-200", text: "text-emerald-600" },
-  completed:  { label: "Completed",  dot: "bg-gray-400",    badge: "bg-gray-50 border-gray-200",       text: "text-gray-500"    },
-  cancelled:  { label: "Cancelled",  dot: "bg-rose-400",    badge: "bg-rose-50 border-rose-200",       text: "text-rose-500"    },
+  completed: { label: "Completed", dot: "bg-gray-400", badge: "bg-gray-50 border-gray-200", text: "text-gray-500" },
+  cancelled: { label: "Cancelled", dot: "bg-rose-400", badge: "bg-rose-50 border-rose-200", text: "text-rose-500" },
 };
 
 export function formatDate(dateStr: string) {
@@ -56,6 +60,40 @@ export function RecentActivityDrawer({
   isCheckingOut,
 }: RecentActivityDrawerProps) {
   if (!booking) return null;
+  const [cancelBookingCode, setCancelBookingCode] = useState<string | null>(null)
+  // const [isConfirming, setIsConfirming] = useState(false)
+
+  const { mutate: cancelConfirm, isPending: isConfirming } = useCancelConfirm()
+
+  const {
+    data: cancelPreviewRes,
+    isLoading: isLoadingPreview,
+  } = useCancelPreview(cancelBookingCode)
+
+  const handleCancelClick = (bookingCode: string) => {
+    setCancelBookingCode(bookingCode)
+  }
+
+  const handleCancelClose = () => {
+    setCancelBookingCode(null)
+  }
+
+  const handleCancelConfirm = (previewToken: string) => {
+    if (!cancelBookingCode) return
+    cancelConfirm(
+      { bookingCode: cancelBookingCode, previewToken },
+      {
+        onSuccess: () => {
+          setCancelBookingCode(null)
+          onClose() // tutup drawer sekalian
+        },
+        onError: (err) => {
+          alert('Gagal membatalkan booking, silakan coba lagi')
+          console.error(err)
+        },
+      }
+    )
+  }
 
   // const cfg = getStatusCfg(booking.status);
   const nights = getNights(booking.checkInDate, booking.checkOutDate);
@@ -67,6 +105,13 @@ export function RecentActivityDrawer({
     <AnimatePresence>
       {booking && (
         <>
+          <CancelPreviewModal
+            data={cancelPreviewRes?.data ?? null}
+            isLoading={isLoadingPreview}
+            onClose={handleCancelClose}
+            onConfirm={handleCancelConfirm}
+            isConfirming={isConfirming}
+          />
           <motion.div
             className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -102,7 +147,7 @@ export function RecentActivityDrawer({
             <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5">
               {/* Status + code */}
               <div className="flex items-center justify-between">
-                <BookingStatusBadge status={booking.status}/>
+                <BookingStatusBadge status={booking.status} />
                 <span className="text-xs font-mono text-gray-400">{booking.bookingCode}</span>
               </div>
 
@@ -117,10 +162,10 @@ export function RecentActivityDrawer({
               {/* Dates */}
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { label: "Check-in",  value: formatDate(booking.checkInDate)  },
+                  { label: "Check-in", value: formatDate(booking.checkInDate) },
                   { label: "Check-out", value: formatDate(booking.checkOutDate) },
-                  { label: "Nights",    value: `${nights} night${nights > 1 ? "s" : ""}` },
-                  { label: "Rooms",     value: `${booking.items?.length ?? 1} room${(booking.items?.length ?? 1) > 1 ? "s" : ""}` },
+                  { label: "Nights", value: `${nights} night${nights > 1 ? "s" : ""}` },
+                  { label: "Rooms", value: `${booking.items?.length ?? 1} room${(booking.items?.length ?? 1) > 1 ? "s" : ""}` },
                 ].map((item) => (
                   <div key={item.label} className="bg-gray-50 rounded-xl px-4 py-3">
                     <p className="text-xs text-gray-400 tracking-wide uppercase mb-1">{item.label}</p>
@@ -195,7 +240,7 @@ export function RecentActivityDrawer({
                   disabled={!booking.allowCheckIn || isCheckingIn}
                   onClick={() => onCheckIn(booking.bookingCode)}
                   className={`w-full py-3.5 rounded-xl text-sm font-medium tracking-widest uppercase transition-all duration-200
-                    ${booking.allowCheckIn && !isCheckingIn
+      ${booking.allowCheckIn && !isCheckingIn
                       ? "bg-blue-500 text-white hover:bg-blue-600 shadow-lg shadow-blue-100"
                       : "bg-gray-100 text-gray-300 cursor-not-allowed"
                     }`}
@@ -210,12 +255,32 @@ export function RecentActivityDrawer({
                   disabled={!booking.allowCheckOut || isCheckingOut}
                   onClick={() => onCheckOut(booking.bookingCode)}
                   className={`w-full py-3.5 rounded-xl text-sm font-medium tracking-widest uppercase transition-all duration-200
-                    ${booking.allowCheckOut && !isCheckingOut
+      ${booking.allowCheckOut && !isCheckingOut
                       ? "bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-100"
                       : "bg-gray-100 text-gray-300 cursor-not-allowed"
                     }`}
                 >
                   {isCheckingOut ? "Processing..." : "Check Out"}
+                </button>
+              )}
+
+              {/* Cancel — hanya tampil kalau allowCancel true, status bukan CANCELLED */}
+              {booking.allowCancel && booking.status !== 'CANCELLED' && (
+                <button
+                  onClick={() => handleCancelClick(booking.bookingCode)}
+                  className="w-full py-3.5 rounded-xl text-sm font-medium tracking-widest uppercase transition-all duration-200 border border-red-200 text-red-400 hover:bg-red-50"
+                >
+                  Cancel Booking
+                </button>
+              )}
+
+              {/* Refund — hanya tampil kalau status CANCELLED */}
+              {booking.status === 'CANCELLED' && (
+                <button
+                  onClick={() => alert(`Ajukan refund untuk booking ${booking.bookingCode}?`)}
+                  className="w-full py-3.5 rounded-xl text-sm font-medium tracking-widest uppercase transition-all duration-200 bg-orange-50 border border-orange-200 text-orange-500 hover:bg-orange-100"
+                >
+                  Request Refund
                 </button>
               )}
 

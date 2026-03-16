@@ -24,7 +24,7 @@ export interface userRecentActivityListState {
   siteCode: string
   checkInDate: string
   checkOutDate: string
-  totalAmount: number 
+  totalAmount: number
   status: BookingStatus
   createdAt: string
   createdBy: any
@@ -36,6 +36,8 @@ export interface userRecentActivityListState {
   statusLogs: StatusLog[]
   allowCheckIn: boolean
   allowCheckOut: boolean
+  allowCancel: boolean
+  allowRefund: boolean
 }
 
 export interface Contact {
