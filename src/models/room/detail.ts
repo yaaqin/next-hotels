@@ -15,6 +15,7 @@ export interface detailRoomState {
   roomType: RoomType
   bedType: BedType
   facilityGroup: FacilityGroup
+  gallery: Gallery | null  // ← tambah ini
 }
 
 export interface Site {

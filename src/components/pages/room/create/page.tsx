@@ -70,13 +70,12 @@ export default function CreateRoomPage({
     <div>
       <h6>Create Room</h6>
 
-      <section className="flex flex-wrap gap-4">
+      <section className="grid grid-cols-2 gap-4">
         {siteList && (
           <Selects
             label="Site Code"
             value={siteCode}
             onChange={setSiteCode}
-            containerClassName="w-1/2"
             options={mapSiteToOptions(siteList, { useSiteCode: true })}
           />
         )}
@@ -85,7 +84,6 @@ export default function CreateRoomPage({
           label="Room Number"
           value={number}
           onChange={setNumber}
-          containerClassName="w-1/2"
         />
 
         {roomTypeList && (
@@ -93,7 +91,6 @@ export default function CreateRoomPage({
             label="Room Type"
             value={roomTypeId}
             onChange={setRoomTypeId}
-            containerClassName="w-1/2"
             options={mapRoomTypeToOptions(roomTypeList)}
           />
         )}
@@ -103,7 +100,6 @@ export default function CreateRoomPage({
             label="Bed Type"
             value={bedTypeId}
             onChange={setBedTypeId}
-            containerClassName="w-1/2"
             options={mapBedTypeToOptions(bedTypeList)}
           />
         )}
@@ -113,16 +109,15 @@ export default function CreateRoomPage({
             label="Facility Group"
             value={facilityGroupId}
             onChange={setFacilityGroupId}
-            containerClassName="w-1/2"
             options={mapFacilityGroupToOptions(fg.data)}
           />
         )}
+
         {gallery && (
           <Selects
             label="Gallery"
             value={galleryId}
             onChange={setGalleryId}
-            containerClassName="w-1/2"
             options={mapGalleryToOptions(gallery.data)}
           />
         )}

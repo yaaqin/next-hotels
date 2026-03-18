@@ -5,7 +5,7 @@ import { getCookie, deleteCookie, setCookie } from 'cookies-next'
 import { getAccessTokenClient } from '../utils/auth/token'
 import { getLanguage } from '../utils'
 
-console.log('ENV ==>', process.env.NEXT_PUBLIC_API_BASE_URL)
+console.log('ENV ==>', process.env.NEXT_PUBLIC_API_BASE_URL) 
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://mbsc-be.yaaqin.xyz'
 const isBrowser = typeof window !== 'undefined'

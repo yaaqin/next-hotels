@@ -1,6 +1,7 @@
 'use client'
 import Loading from '@/src/components/organisms/loading';
 import { useRoomDetail } from '@/src/hooks/query/rooms/detail'
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 export default function DetailRoomPage() {
   const params = useParams<{ id: string }>();
@@ -25,9 +26,18 @@ export default function DetailRoomPage() {
           </h1>
           <p className="text-sm text-gray-500 mt-1">{room.id}</p>
         </div>
-        <span className="px-3 py-1 text-xs font-medium tracking-widest uppercase bg-gray-100 text-gray-600 rounded-full">
-          {room.siteCode}
-        </span>
+
+        <div className="flex items-center gap-2">
+          <span className="px-3 py-1 text-xs font-medium tracking-widest uppercase bg-gray-100 text-gray-600 rounded-full">
+            {room.siteCode}
+          </span>
+          <Link
+            href={`/dashboard/room/${room.id}/update`}
+            className="px-3 py-1 text-xs font-medium tracking-widest uppercase bg-gray-900 text-white rounded-full hover:bg-gray-700 transition-colors"
+          >
+            Edit
+          </Link>
+        </div>
       </div>
 
       <hr className="border-gray-100" />
@@ -72,8 +82,8 @@ export default function DetailRoomPage() {
           <div>
             <p className="text-gray-400 text-xs mb-0.5">Status</p>
             <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${room.site.isActive
-                ? 'bg-green-50 text-green-600'
-                : 'bg-red-50 text-red-500'
+              ? 'bg-green-50 text-green-600'
+              : 'bg-red-50 text-red-500'
               }`}>
               {room.site.isActive ? 'Active' : 'Inactive'}
             </span>
