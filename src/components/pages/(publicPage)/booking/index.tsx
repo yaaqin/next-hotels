@@ -96,6 +96,10 @@ export default function BookingPublicPage() {
         [checkin, checkout, setStay, setItem, setRoomDetail, router],
     )
 
+    const handleViewDetail = (id: string) => {
+        router.push(`/booking/${id}?checkIn=${checkin}&checkout=${checkout}`)
+    }
+
     return (
         <div className="min-h-screen bg-white">
             {/* ── Date Bar ── */}
@@ -159,7 +163,7 @@ export default function BookingPublicPage() {
                             ]}
                             price={roomType.pricing.totalPrice}
                             bedInfo="2 Tempat Tidur Queen & Tempat Tidur King tersedia"
-                            onViewDetail={() => console.log("detail", roomType.roomTypeId)}
+                            onViewDetail={() => handleViewDetail(roomType.roomTypeId)}
                             onViewPackage={() => handleSelectRoom(roomType)}
                         />
                     ))}

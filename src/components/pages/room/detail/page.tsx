@@ -12,7 +12,7 @@ export default function DetailRoomPage() {
   if (isLoading) return <Loading />
   if (!room) return <div className="text-center py-24 text-gray-400">Room not found</div>
 
-  return (
+  return ( 
     <div className="w-full mx-auto space-y-6 p-6">
 
       {/* Header */}
