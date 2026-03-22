@@ -4,8 +4,9 @@ import qs from 'qs'
 import { getCookie, deleteCookie, setCookie } from 'cookies-next'
 import { getAccessTokenClient } from '../utils/auth/token'
 import { getLanguage } from '../utils'
+import { getSession } from 'next-auth/react'
 
-console.log('ENV ==>', process.env.NEXT_PUBLIC_API_BASE_URL) 
+console.log('ENV ==>', process.env.NEXT_PUBLIC_API_BASE_URL)
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://mbsc-be.yaaqin.xyz'
 const isBrowser = typeof window !== 'undefined'
@@ -264,17 +265,24 @@ export const axiosUser: AxiosInstance = axios.create({
 })
 
 axiosUser.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
+  async (config: InternalAxiosRequestConfig) => {
     const lang = getLanguage()
+    config.headers['x-lang'] = lang
 
-    // Baca backendToken dari cookie
-    const token = getCookie('userToken') as string | null
+    // Ambil session dari NextAuth
+    const session = await getSession()
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+    if (session?.accessToken) {
+      config.headers.Authorization = `Bearer ${session.accessToken}`
     }
 
-    config.headers['x-lang'] = lang
+    // Kalau session ada error — token expired
+    if (session?.error === 'RefreshTokenExpired') {
+      // optional: redirect ke login atau signOut
+      // signOut({ callbackUrl: '/login' })
+      return Promise.reject(new Error('Session expired'))
+    }
+
     return config
   },
   (error) => Promise.reject(error)
@@ -282,18 +290,17 @@ axiosUser.interceptors.request.use(
 
 axiosUser.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
     const status = error.response?.status
     const message = (error.response?.data as { message?: string })?.message || 'Terjadi kesalahan'
 
     if (status === 401) {
-      // Token user expired — arahkan ke login
-      // toast.error('Sesi kamu sudah habis, silakan login ulang')
-      // if (isBrowser) {
-      //   setTimeout(() => {
-      //     window.location.href = '/login'
-      //   }, 1500)
-      // }
+      // Access token rejected BE — signOut paksa
+      if (isBrowser) {
+        const { signOut } = await import('next-auth/react')
+        toast.error('Sesi kamu sudah habis, silakan login ulang')
+        setTimeout(() => signOut({ callbackUrl: '/login' }), 1500)
+      }
       return Promise.reject(error)
     }
 

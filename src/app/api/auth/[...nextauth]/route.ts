@@ -9,10 +9,25 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ user, account }) {
-      if (account?.provider === "google") {
+    async signIn({ account }) {
+      return account?.provider === "google"
+    },
+
+    async jwt({ token, user, account }) {
+      console.log("ENV CHECK:", {
+        BE_URL: process.env.BE_URL,
+        hasClientId: !!process.env.CLIENT_ID,
+      })
+      // Login pertama
+      if (account?.provider === "google" && user) {
+        console.log("🔑 JWT login pertama")
+        console.log("BE_URL:", process.env.BE_URL)
+
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google`, {
+          const url = `${process.env.BE_URL}/auth/google`
+          console.log("Fetch ke:", url)
+
+          const res = await fetch(url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -23,33 +38,64 @@ const handler = NextAuth({
             }),
           })
 
+          console.log("Response status:", res.status)
           const data = await res.json()
-          if (!res.ok) return false
+          console.log("Response data:", JSON.stringify(data))
 
-          // Tempel ke user object — akan diterusin ke jwt callback
-          user.backendToken = data.data.token
-          user.backendUserId = data.data.userId
+          if (!res.ok) throw new Error(`BE login failed: ${res.status}`)
+
+          token.accessToken = data.data.accessToken
+          token.refreshToken = data.data.refreshToken
+          token.backendUserId = data.data.userId
+          token.accessTokenExpiry = Date.now() + 4 * 60 * 1000
+          token.error = undefined
+
+          console.log("✅ Token berhasil di-set")
         } catch (err) {
-          console.error("❌ Fetch ke BE gagal:", err)
-          return false
+          console.error("❌ BE login gagal:", err)
+          token.error = "BackendLoginFailed"
         }
+        return token
       }
-      return true
+
+      // Token masih valid
+      if (Date.now() < (token.accessTokenExpiry as number)) {
+        return token
+      }
+
+      // Access token expired — refresh
+      console.log("🔄 Access token expired, mencoba refresh...")
+      try {
+        const res = await fetch(`${process.env.BE_URL}/auth/user/refresh`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refreshToken: token.refreshToken }),
+        })
+
+        const data = await res.json()
+        console.log("Refresh response:", res.status, JSON.stringify(data))
+
+        if (!res.ok) throw new Error("Refresh failed")
+
+        console.log("✅ Refresh berhasil")
+        return {
+          ...token,
+          accessToken: data.data.accessToken,
+          refreshToken: data.data.refreshToken,
+          accessTokenExpiry: Date.now() + 4 * 60 * 1000,
+          error: undefined,
+        }
+      } catch {
+        console.error("❌ Refresh gagal")
+        return { ...token, error: "RefreshTokenExpired" }
+      }
     },
 
-    // ← Ini yang kurang — simpan token dari user ke JWT
-    async jwt({ token, user }) {
-      if (user?.backendToken) {
-        token.backendToken = user.backendToken
-        token.backendUserId = user.backendUserId
-      }
-      return token
-    },
-
-    // ← Ini yang kurang — expose ke session supaya bisa diakses di FE
     async session({ session, token }) {
-      session.backendToken = token.backendToken as string
+      session.accessToken = token.accessToken as string
+      session.refreshToken = token.refreshToken as string
       session.backendUserId = token.backendUserId as string
+      session.error = token.error as string | undefined
       return session
     },
   },
