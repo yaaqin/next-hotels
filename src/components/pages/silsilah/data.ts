@@ -157,7 +157,7 @@ export const familyData: FamilyMember = {
                 },
                 {
                     id: "Jojon",
-                    name: "Jojon",
+                    name: "Rahujaji",
                     spouse: 'Salamah',
                     children: [
                         {
@@ -214,7 +214,7 @@ export const familyData: FamilyMember = {
                 },
                 {
                     id: "Uwan",
-                    name: "Uwan",
+                    name: "Rahwan jayani",
                     spouse: 'iren',
                     children: [
                         {
