@@ -1,10 +1,19 @@
 {
+  "title": {
+    "listRoomType": "Room Type List"
+  },
   "label": {
+    "id": "身份",
     "name": "姓名",
     "email": "电子邮件",
     "phone": "电话号码",
+    "description": "描述",
     "address": "地址",
+    "create": "创造",
+    "createAt": "创建于",
+    "createBy": "创建者", 
     "date": "日期",
+    "detail": "详情",
     "status": "状态",
     "action": "操作",
     "search": "搜索",

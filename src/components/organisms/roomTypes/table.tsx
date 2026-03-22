@@ -26,7 +26,7 @@ export default function RoomTypeTable({ data }: RoomTypeTableProps) {
   const columns: ColumnDef<roomTypeListState>[] = [
     {
       accessorKey: 'id',
-      header: 'ID',
+      header: t('label.id'),
       cell: (info) => (
         <span className="font-mono text-xs">{info.getValue() as string}</span>
       ),
@@ -35,19 +35,19 @@ export default function RoomTypeTable({ data }: RoomTypeTableProps) {
       accessorKey: 'name',
       header: t('label.name'),
       cell: (info) => (
-        <span className="font-medium">{info.getValue() as string}</span>
+        <span className="font-medium">{truncateText(info.getValue() as string)}</span>
       ),
     },
     {
       accessorKey: 'desk',
-      header: 'Description',
+      header: t('label.description'),
       cell: (info) => (
-        <span className="text-gray-600">{truncateText(info.getValue() as string, 75)}</span>
+        <span className="text-gray-600">{truncateText(info.getValue() as string, 25)}</span>
       ),
     },
     {
       accessorKey: 'createdAt',
-      header: 'Created At',
+      header: t('label.createAt'),
       cell: (info) => {
         const date = new Date(info.getValue() as string);
         return (
@@ -65,14 +65,14 @@ export default function RoomTypeTable({ data }: RoomTypeTableProps) {
     },
     {
       accessorKey: 'createdBy',
-      header: 'Created By',
+      header: t('label.createBy'),
       cell: (info) => (
         <span className="text-sm text-gray-700">{info.getValue() as string}</span>
       ),
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('label.action'),
       cell: ({ row }) => {
         const roomType = row.original;
 
@@ -101,7 +101,7 @@ export default function RoomTypeTable({ data }: RoomTypeTableProps) {
                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                 />
               </svg>
-              Detail
+              {t('label.detail')}
             </Link>
 
             {/* <Link href={`/room-types/${roomType.id}/edit`}

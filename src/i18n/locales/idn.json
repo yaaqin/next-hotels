@@ -1,10 +1,16 @@
 {
   "label": {
+    "id": "ID",
     "name": "Nama",
     "email": "Email",
     "phone": "Nomor Telepon",
+    "description": "Deskripsi",
     "address": "Alamat",
+    "create": "Buat",
+    "createAt": "dibuat",
+    "createBy": "dibuat Oleh", 
     "date": "Tanggal",
+    "detail": "Detail",
     "status": "Status",
     "action": "Aksi",
     "search": "Cari",

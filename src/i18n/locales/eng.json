@@ -1,10 +1,16 @@
 {
   "label": {
+    "id": "ID",
     "name": "Name",
     "email": "Email",
     "phone": "Phone Number",
+    "description": "Description",
     "address": "Address",
+    "create": "create",
+    "createAt": "Create at",
+    "createBy": "Create by",
     "date": "Date",
+    "detail": "Detail",
     "status": "Status",
     "action": "Action",
     "search": "Search",

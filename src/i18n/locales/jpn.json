@@ -1,10 +1,16 @@
 {
   "label": {
+    "id": "アイディー / アイディ",
     "name": "名前",
     "email": "メール",
     "phone": "電話番号",
+    "description": "説明",
     "address": "住所",
+    "create": "作る",
+    "createAt": "作成日時", 
+    "createBy": "作成者",
     "date": "日付",
+    "detail": "詳細",
     "status": "ステータス",
     "action": "アクション",
     "search": "検索",
