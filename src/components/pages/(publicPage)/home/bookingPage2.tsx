@@ -6,6 +6,7 @@ import Amenities from '@/src/components/organisms/home/amenities'
 import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import Footer from '@/src/components/organisms/layouts/footers/publicFooter'
+import RoomTypeCarousel from '@/src/components/organisms/home/priceList'
 
 export default function BookingPage2() {
   const { scrollY } = useScroll()
@@ -138,6 +139,7 @@ export default function BookingPage2() {
         </div>
       </section> */}
 
+      <RoomTypeCarousel />
       <section className='relative h-screen w-full bg-black' style={{ zIndex: 2 }}></section>
       <Amenities />
       <section style={{ zIndex: 3 }} className='relative'>

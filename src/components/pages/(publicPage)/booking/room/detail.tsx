@@ -75,7 +75,7 @@ function RoomDetailContent({ room, checkin, checkout }: {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white relative">
 
       {/* ── Gallery ── */}
       {room.gallery?.images?.length > 0 ? (
@@ -215,7 +215,7 @@ function RoomDetailContent({ room, checkin, checkout }: {
       </div>
 
       {/* ── CTA Fixed Bottom ── */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-5 py-4 z-40">
+      <div className="sticky bottom-0 bg-white/95 backdrop-blur-sm border-t border-gray-100 px-5 py-4 z-40">
         {room.isAllowToCheckIn ? (
           <button
             onClick={handleReservasi}

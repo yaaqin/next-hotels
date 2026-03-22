@@ -24,4 +24,7 @@ export interface Pricing {
   checkOut: string
   nights: number
   totalPrice: number
+  isDiscounted: boolean
+  originalPrice: number | null
+  originalTotalPrice: number | null
 }
