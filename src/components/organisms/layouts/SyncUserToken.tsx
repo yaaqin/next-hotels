@@ -10,8 +10,8 @@ export default function SyncUserToken() {
   useEffect(() => {
     // console.log('🔵 backendToken:', session?.backendToken)
 
-    if (status === 'authenticated' && session?.backendToken) {
-      setCookie('userToken', session.backendToken, {
+    if (status === 'authenticated' && session?.accessToken) {
+      setCookie('userToken', session.accessToken, {
         maxAge: 60 * 60 * 24,
         path: '/',
       })
