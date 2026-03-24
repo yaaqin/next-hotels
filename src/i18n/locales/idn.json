@@ -27,5 +27,14 @@
     "loading": "Memuat",
     "noData": "Tidak Ada Data",
     "confirm": "Konfirmasi"
+  },
+  "text": {
+    "login": {
+      "welcome": "Selamat Datang Kembali",
+      "desk": "Silahkan masukan username dan password untuk masuk"
+    }
+  },
+  "title": {
+    "listRoomType": "List Tipe Ruangan"
   }
 }

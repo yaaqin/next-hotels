@@ -1,7 +1,4 @@
 {
-  "title": {
-    "listRoomType": "Room Type List"
-  },
   "label": {
     "id": "身份",
     "name": "姓名",
@@ -30,5 +27,14 @@
     "loading": "加载中",
     "noData": "暂无数据",
     "confirm": "确认"
+  },
+  "text": {
+    "login": {
+      "welcome": "欢迎回来",
+      "desk": "请输入您的详细信息以登录"
+    }
+  },
+  "title": {
+    "listRoomType": "房型列表"
   }
 }

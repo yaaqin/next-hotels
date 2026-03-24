@@ -3,12 +3,15 @@ import { useLoginPinMutation } from '@/src/hooks/mutation/useLoginPinMutation';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import Images from '../../atoms/images';
+import { useTranslation } from 'react-i18next';
 
 export default function LoginPage() {
     const router = useRouter()
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
+
+    const { t } = useTranslation()
 
     const { mutate, isPending, isError, error } = useLoginPinMutation();
 
@@ -50,8 +53,8 @@ export default function LoginPage() {
                         </div>
                     </div>
 
-                    <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h2>
-                    <p className="text-gray-500 mb-8">Please enter your details to sign in</p>
+                    <h2 className="text-3xl font-bold text-gray-800 mb-2">{t('text.login.welcome')}</h2>
+                    <p className="text-gray-500 mb-8">{t('text.login.desk')}</p>
 
                     <form onSubmit={handleLogin} className="space-y-5">
                         {/* Username Input */}

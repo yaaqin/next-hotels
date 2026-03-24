@@ -5,6 +5,7 @@ import { saira } from "./fonts";
 import Providers from "../components/organisms/providers/query";
 import { Suspense } from "react";
 import SyncUserToken from "../components/organisms/layouts/SyncUserToken";
+import I18nProvider from "../components/organisms/providers/I18nProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,12 +32,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${saira.className} antialiased`}
       >
-        <Providers>
-          <SyncUserToken/>
-          <Suspense fallback={<div>Loading...</div>}>
-            {children}
-          </Suspense>
-        </Providers>
+        <I18nProvider>
+          <Providers>
+            <SyncUserToken />
+            <Suspense fallback={<div>Loading...</div>}>
+              {children}
+            </Suspense>
+          </Providers>
+        </I18nProvider>
       </body>
     </html>
   );

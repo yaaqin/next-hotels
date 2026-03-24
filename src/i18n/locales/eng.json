@@ -27,5 +27,14 @@
     "loading": "Loading",
     "noData": "No Data",
     "confirm": "Confirm"
+  },
+  "text": {
+    "login": {
+      "welcome": "Welcome Back",
+      "desk": "Please enter your details to sign in"
+    }
+  },
+  "title": {
+    "listRoomType": "Room Type List"
   }
 }
