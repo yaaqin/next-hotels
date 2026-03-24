@@ -2,6 +2,7 @@
 import { useLoginPinMutation } from '@/src/hooks/mutation/useLoginPinMutation';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import Images from '../../atoms/images';
 
 export default function LoginPage() {
     const router = useRouter()
@@ -35,17 +36,17 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 p-4">
-            <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 bg-white rounded-3xl shadow-2xl overflow-hidden">
+        <div className="h-screen flex items-center justify-center">
+            <div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 bg-white rounded-3xl overflow-hidden">
 
                 {/* Left Side - Login Form */}
                 <div className="p-8 lg:p-12 flex flex-col justify-center">
                     <div className="mb-8">
                         <div className="flex items-center gap-2 mb-2">
-                            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                                <span className="text-white font-bold text-xl">W</span>
+                            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center p-2">
+                                <Images src='https://id.marinabaysands.com/content/dam/marinabaysands/secondary-navigation/logo-white-svg.svg' width={35} height={35} />
                             </div>
-                            <h1 className="text-2xl font-bold text-gray-800">WAYDEV</h1>
+                            <h1 className="text-2xl font-bold text-gray-800">MBS</h1>
                         </div>
                     </div>
 
@@ -86,8 +87,8 @@ export default function LoginPage() {
                         </div>
 
                         {/* Remember Me & Forgot Password */}
-                        <div className="flex items-center justify-between">
-                            <label className="flex items-center cursor-pointer">
+                        <div className="flex items-center justify-end">
+                            {/* <label className="flex items-center cursor-pointer">
                                 <input
                                     type="checkbox"
                                     checked={rememberMe}
@@ -95,7 +96,7 @@ export default function LoginPage() {
                                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                 />
                                 <span className="ml-2 text-sm text-gray-600">Remember me</span>
-                            </label>
+                            </label> */}
                             <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
                                 Forgot password?
                             </a>
@@ -110,17 +111,17 @@ export default function LoginPage() {
                         </button>
 
                         {/* Divider */}
-                        <div className="relative my-6">
+                        {/* <div className="relative my-6">
                             <div className="absolute inset-0 flex items-center">
                                 <div className="w-full border-t border-gray-300"></div>
                             </div>
                             <div className="relative flex justify-center text-sm">
                                 <span className="px-4 bg-white text-gray-500">Or continue with</span>
                             </div>
-                        </div>
+                        </div> */}
 
                         {/* Google Login Button */}
-                        <button
+                        {/* <button
                             type="button"
                             onClick={handleGoogleLogin}
                             className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition duration-200 group"
@@ -144,16 +145,16 @@ export default function LoginPage() {
                                 />
                             </svg>
                             <span className="text-gray-700 font-medium">Continue with Google</span>
-                        </button>
+                        </button> */}
                     </form>
 
                     {/* Sign Up Link */}
-                    <p className="mt-8 text-center text-sm text-gray-600">
+                    {/* <p className="mt-8 text-center text-sm text-gray-600">
                         Don't have an account?{' '}
                         <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">
                             Sign up now
                         </a>
-                    </p>
+                    </p> */}
                 </div>
 
                 {/* Right Side - Image/Dashboard Preview */}
