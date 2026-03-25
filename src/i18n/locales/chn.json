@@ -1,5 +1,9 @@
 {
   "label": {
+    "navbar": {
+      "menu": "菜单",
+      "booking": "预订"
+    },
     "id": "身份",
     "name": "姓名",
     "email": "电子邮件",
@@ -8,10 +12,12 @@
     "address": "地址",
     "create": "创造",
     "createAt": "创建于",
-    "createBy": "创建者", 
+    "createBy": "创建者",
     "date": "日期",
     "detail": "详情",
+    "password": "密码",
     "status": "状态",
+    "username": "用户名",
     "action": "操作",
     "search": "搜索",
     "filter": "筛选",
@@ -28,10 +34,37 @@
     "noData": "暂无数据",
     "confirm": "确认"
   },
+  "placeholder": {
+    "login": {
+      "username": "输入你的用户名",
+      "password": "输入你的密码"
+    }
+  },
   "text": {
     "login": {
       "welcome": "欢迎回来",
       "desk": "请输入您的详细信息以登录"
+    },
+    "footer": {
+      "follow": "关注我们",
+      "mbs": "滨海湾金沙",
+      "privacypol": "隐私政策"
+    },
+    "navbar": {
+      "menu": {
+        "yourAccount": "您的账户",
+        "yourWay": "你的方式",
+        "where": "去哪儿",
+        "navigate": "导航",
+        "profile": "个人资料",
+        "profileDesk": "管理你的个人信息",
+        "activity": "最近活动",
+        "activityDesk": "查看您的预订活动",
+        "history": "历史",
+        "historyDesk": "查看您的预订历史",
+        "setting": "设置",
+        "settingDesk": "偏好、安全与通知"
+      }
     }
   },
   "title": {

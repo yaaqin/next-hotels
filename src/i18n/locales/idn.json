@@ -1,5 +1,9 @@
 {
   "label": {
+    "navbar": {
+      "menu": "Menu",
+      "booking": "Pesan"
+    },
     "id": "ID",
     "name": "Nama",
     "email": "Email",
@@ -11,7 +15,9 @@
     "createBy": "dibuat Oleh", 
     "date": "Tanggal",
     "detail": "Detail",
+    "password": "Kata sandi",
     "status": "Status",
+    "username": "username",
     "action": "Aksi",
     "search": "Cari",
     "filter": "Filter",
@@ -28,10 +34,37 @@
     "noData": "Tidak Ada Data",
     "confirm": "Konfirmasi"
   },
+  "placeholder": {
+    "login": {
+      "username": "Masukkan nama pengguna Anda",
+      "password": "Masukan kata sandi anda"
+    }
+  },
   "text": {
     "login": {
       "welcome": "Selamat Datang Kembali",
       "desk": "Silahkan masukan username dan password untuk masuk"
+    },
+    "footer": {
+      "follow": "Ikuti Kami",
+      "mbs": "MARINA BAY SANDS",
+      "privacypol": "Kebijakan Privasi"
+    },
+    "navbar": {
+      "menu": {
+        "yourAccount": "Akun Anda",
+        "yourWay": "sesuai keinginanmu",
+        "where": "Mau kemana",
+        "navigate": "Pindah",
+        "profile": "Profile",
+        "profileDesk": "Kelola informasi pribadi Anda",
+        "activity": "Aktifitas Terkini",
+        "activityDesk": "Lihat Aktivitas Pemesanan Anda",
+        "history": "Riwayat",
+        "historyDesk": "lihat riwayat pemesanan Anda",
+        "setting": "Pengaturan",
+        "settingDesk": "preferensi, keamanan & notifikasi."
+      }
     }
   },
   "title": {

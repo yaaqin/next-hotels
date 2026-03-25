@@ -1,5 +1,6 @@
 'use client'
 import Footer from "@/src/components/organisms/layouts/footers/publicFooter";
+import Navbar from "@/src/components/organisms/layouts/navbars/navbarPublic";
 import TopLanguageNavbar from "@/src/components/organisms/layouts/navbars/topNavbarLang";
 import { SessionProvider } from "next-auth/react";
 import Link from "next/link";
@@ -16,6 +17,7 @@ export default function RootLayout({
             <section className="bg-white text-center w-full shadow-2xl min-h-4 py-3">
                 <Link href={'/'} className="cursor-pointer text-4xl font-bold">MBS</Link>
             </section>
+            {/* <Navbar/> */}
             <Suspense>
                 <SessionProvider>{children}</SessionProvider>
             </Suspense>

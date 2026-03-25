@@ -1,8 +1,12 @@
 "use client"
 
 import { Facebook01Icon, InstagramIcon, Mail01Icon, PhoneLockIcon } from "hugeicons-react"
+import { useTranslation } from "react-i18next"
 
 export default function Footer() {
+
+   const { t } = useTranslation()
+   
   return (
     <footer className="bg-[#b8b8ad] text-black">
       <div className="max-w-7xl mx-auto px-6 py-16">
@@ -10,7 +14,7 @@ export default function Footer() {
         {/* Logo */}
         <div className="text-center mb-14">
           <h2 className="text-2xl tracking-[0.4em] font-light">
-            MARINA BAY SANDS
+            {t('text.footer.mbs')}
           </h2>
           <p className="tracking-[0.5em] text-sm mt-2">SINGAPORE</p>
         </div>
@@ -72,7 +76,7 @@ export default function Footer() {
 
             <div>
               <h3 className="uppercase tracking-[0.2em] mb-4">
-                Ikuti Kami
+                {t('text.footer.follow')}
               </h3>
               <div className="flex gap-4 items-center">
                 <Facebook01Icon size={18} />
@@ -86,7 +90,7 @@ export default function Footer() {
 
         {/* Bottom */}
         <div className="text-center mt-16 text-xs tracking-[0.2em] uppercase">
-          <p className="mb-4">Kebijakan Privasi</p>
+          <p className="mb-4">{t('text.footer.privacypol')}</p>
           <p className="normal-case tracking-normal text-gray-700">
             © 2026 Marina Bay Sands. Hak Cipta Dilindungi Undang-Undang.
           </p>

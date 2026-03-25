@@ -1,5 +1,9 @@
 {
   "label": {
+    "navbar": {
+      "menu": "Menu",
+      "booking": "Booking"
+    },
     "id": "ID",
     "name": "Name",
     "email": "Email",
@@ -11,7 +15,9 @@
     "createBy": "Create by",
     "date": "Date",
     "detail": "Detail",
+    "password": "password",
     "status": "Status",
+    "username": "username",
     "action": "Action",
     "search": "Search",
     "filter": "Filter",
@@ -28,10 +34,37 @@
     "noData": "No Data",
     "confirm": "Confirm"
   },
+  "placeholder": {
+    "login": {
+      "username": "Enter your username",
+      "password": "Enter your password"
+    }
+  },
   "text": {
     "login": {
       "welcome": "Welcome Back",
       "desk": "Please enter your details to sign in"
+    },
+    "footer": {
+      "follow": "Follow us",
+      "mbs": "MARINA BAY SANDS",
+      "privacypol": "Privacy Policy"
+    },
+    "navbar": {
+      "menu": {
+        "yourAccount": "Your Account",
+        "yourWay": "Your Way",
+        "where": "Where To",
+        "navigate": "Navigate",
+        "profile": "Profile",
+        "profileDesk": "Manage your personal information",
+        "activity": "recent activity",
+        "activityDesk": "View your Booking Activity",
+        "history": "History",
+        "historyDesk": "view your booking history",
+        "setting": "Setting",
+        "settingDesk": "preference, security & notification"
+      }
     }
   },
   "title": {

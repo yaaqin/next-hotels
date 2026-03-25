@@ -1,8 +1,9 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { UserIcon, Clock01Icon, Settings01Icon } from "hugeicons-react";
+import { UserIcon, Clock01Icon, Settings01Icon, BookOpen02Icon } from "hugeicons-react";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 
 const MENU_ITEMS = [
   {
@@ -14,7 +15,7 @@ const MENU_ITEMS = [
   {
     label: "Recent Activity",
     description: "View your Booking activity ",
-    icon: Clock01Icon,
+    icon: BookOpen02Icon,
     path: "/recent-activity",
   },
   {
@@ -37,6 +38,34 @@ interface MenuOverlayProps {
 }
 
 export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
+  const { t } = useTranslation()
+
+  const MENU_ITEMS = [
+    {
+      label: t('text.navbar.menu.profile'),
+      description: t('text.navbar.menu.profileDesk'),
+      icon: UserIcon,
+      path: "/profile",
+    },
+    {
+      label: t('text.navbar.menu.activity'),
+      description: t('text.navbar.menu.activityDesk'),
+      icon: BookOpen02Icon,
+      path: "/recent-activity",
+    },
+    {
+      label: t('text.navbar.menu.history'),
+      description: t('text.navbar.menu.historyDesk'),
+      icon: Clock01Icon,
+      path: "/history",
+    },
+    {
+      label: t('text.navbar.menu.setting'),
+      description: t('text.navbar.menu.settingDesk'),
+      icon: Settings01Icon,
+      path: "/setting",
+    },
+  ];
   return (
     <AnimatePresence>
       {isOpen && (
@@ -67,16 +96,16 @@ export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
               transition={{ delay: 0.2, duration: 0.5 }}
             >
               <img
-                src="https://images.unsplash.com/photo-1560347876-aeef00ee58a1?w=800&q=80"
+                src="https://cdn.yaaqin.xyz/hotel/1774412241173-htol.jpg"
                 alt="Account"
                 className="absolute inset-0 w-full h-full object-cover"
               />
               <div className="relative z-10 p-8 bg-gradient-to-t from-black/60 to-transparent w-full">
                 <p className="text-white/70 text-xs tracking-widest uppercase mb-1">
-                  Marina Bay Suites
+                  Marina Bay Sand
                 </p>
                 <h2 className="text-white text-2xl font-semibold leading-tight">
-                  Your account, <br /> your way.
+                  {t('text.navbar.menu.yourAccount')}, <br /> {t('text.navbar.menu.yourWay')}
                 </h2>
               </div>
             </motion.div>
@@ -89,10 +118,10 @@ export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
               transition={{ delay: 0.25, duration: 0.5 }}
             >
               <p className="text-xs tracking-widest uppercase text-blue-400 mb-2">
-                Navigate
+                {t('text.navbar.menu.navigate')}
               </p>
               <h3 className="text-2xl font-semibold text-gray-900 mb-8">
-                Where to?
+                {t('text.navbar.menu.where')}?
               </h3>
 
               <div className="flex flex-col gap-3">

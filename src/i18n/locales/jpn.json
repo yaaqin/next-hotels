@@ -1,5 +1,9 @@
 {
   "label": {
+    "navbar": {
+      "menu": "メニュー",
+      "booking": "予約"
+    },
     "id": "アイディー / アイディ",
     "name": "名前",
     "email": "メール",
@@ -11,7 +15,9 @@
     "createBy": "作成者",
     "date": "日付",
     "detail": "詳細",
+    "password": "パスワード",
     "status": "ステータス",
+    "username": "ユーザー名",
     "action": "アクション",
     "search": "検索",
     "filter": "フィルター",
@@ -28,10 +34,37 @@
     "noData": "データなし",
     "confirm": "確認"
   },
+  "placeholder": {
+    "login": {
+      "username": "ユーザー名を入力してください",
+      "password": "パスワードを入力してください"
+    }
+  },
   "text": {
     "login": {
       "welcome": "おかえりなさい",
       "desk": "サインインするために詳細を入力してください"
+    },
+    "footer": {
+      "follow": "フォローしてください",
+      "mbs": "マリーナベイ・サンズ",
+      "privacypol": "プライバシーポリシー"
+    },
+    "navbar": {
+      "menu": {
+        "yourAccount": "あなたのアカウント",
+        "yourWay": "あなたの道",
+        "where": "どこへ",
+        "navigate": "ナビゲート",
+        "profile": "プロフィール",
+        "profileDesk": "個人情報を管理する",
+        "activity": "最近の活動",
+        "activityDesk": "予約活動を表示",
+        "history": "歴史",
+        "historyDesk": "予約履歴を確認する",
+        "setting": "設定",
+        "settingDesk": "設定、セキュリティ、通知"
+      }
     }
   },
   "title": {
