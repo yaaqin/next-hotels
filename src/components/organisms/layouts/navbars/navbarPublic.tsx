@@ -17,7 +17,7 @@ export default function Navbar({
   const [menuOpen, setMenuOpen] = useState(false);
 
   const { t } = useTranslation()
-  
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -47,7 +47,7 @@ export default function Navbar({
               className={`text-xs md:text-sm font-medium tracking-widest uppercase transition-colors duration-500 ease-in-out
           ${scrolled ? "text-gray-900" : "text-white"}`}
             >
-              Menu
+              {t("label.menu")}
             </button>
           )}
 

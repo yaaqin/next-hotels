@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import Footer from '@/src/components/organisms/layouts/footers/publicFooter'
 import RoomTypeCarousel from '@/src/components/organisms/home/priceList'
+import { useTranslation } from 'react-i18next'
 
 export default function BookingPage2() {
   const { scrollY } = useScroll()
@@ -17,6 +18,7 @@ export default function BookingPage2() {
   const opacity = useSpring(rawOpacity, { stiffness: 120, damping: 20, mass: 0.5 })
   const y = useSpring(rawY, { stiffness: 120, damping: 20, mass: 0.5 })
   const [blurVal, setBlurVal] = useState(0)
+    const { t } = useTranslation()
   useEffect(() => {
     return rawBlur.on('change', (v) => setBlurVal(v))
   }, [rawBlur])
@@ -89,22 +91,21 @@ export default function BookingPage2() {
             style={{ y: line1Y, opacity: line1Op }}
             className='text-2xl leading-relaxed text-black font-light mb-8'
           >
-            This place is unlike any other. In the heart of Singapore, it was imagined as a sanctuary above the vibrant city — a place for quiet mornings, warm evenings, and the simple joy of slowing down.
+            {t("text.home.about.text1")}
           </motion.p>
 
           <motion.p
             style={{ y: line2Y, opacity: line2Op }}
             className='text-2xl leading-relaxed text-black font-light mb-12'
           >
-            For gatherings, for laughter, for the pleasures of good food and gentle conversation.
+            {t("text.home.about.text2")}
           </motion.p>
 
           <motion.p
             style={{ y: line3Y, opacity: line3Op }}
             className='text-lg tracking-widest uppercase text-black font-medium'
           >
-            Today, it remains that same place of calm in the rhythm of the city.{' '}
-            <span className='font-bold'>Welcome to your moment in Singapore.</span>
+            {t("text.home.about.text3")}
           </motion.p>
 
           <motion.div

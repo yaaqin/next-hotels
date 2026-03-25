@@ -29,6 +29,8 @@
     "submit": "Kirim",
     "back": "Kembali",
     "booking": "Pesan",
+    "language": "Bahasa",
+    "menu": "menu",
     "night": "Malam",
     "available": "Tersedia",
     "next": "Selanjutnya",
@@ -52,6 +54,13 @@
       "follow": "Ikuti Kami",
       "mbs": "MARINA BAY SANDS",
       "privacypol": "Kebijakan Privasi"
+    },
+    "home":{
+      "about": {
+        "text1": "Tempat ini tidak seperti yang lain. Di jantung Singapura, tempat ini dibayangkan sebagai sebuah suaka di atas kota yang ramai — sebuah tempat untuk pagi yang tenang, sore yang hangat, dan kesenangan sederhana untuk melambat.",
+        "text2": "Untuk pertemuan, untuk tawa, untuk kesenangan dari makanan enak dan percakapan yang lembut.",
+        "text3": "Hari ini, tempat itu tetap menjadi tempat ketenangan yang sama di tengah irama kota. Selamat datang di momen Anda di Singapura."
+      }
     },
     "navbar": {
       "menu": {

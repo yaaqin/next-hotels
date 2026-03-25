@@ -29,6 +29,8 @@
     "submit": "Submit",
     "back": "Back",
     "booking": "Booking",
+    "language": "language",
+    "menu": "menu",
     "night": "Night",
     "available": "Available",
     "next": "Next",
@@ -52,6 +54,13 @@
       "follow": "Follow us",
       "mbs": "MARINA BAY SANDS",
       "privacypol": "Privacy Policy"
+    },
+    "home":{
+      "about": {
+        "text1": "This place is unlike any other. In the heart of Singapore, it was imagined as a sanctuary above the vibrant city — a place for quiet mornings, warm evenings, and the simple joy of slowing down.",
+        "text2": "For gatherings, for laughter, for the pleasures of good food and gentle conversation.",
+        "text3": "Today, it remains that same place of calm in the rhythm of the city. Welcome to your moment in Singapore."
+      }
     },
     "navbar": {
       "menu": {

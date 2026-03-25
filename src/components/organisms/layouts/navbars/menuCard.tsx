@@ -169,7 +169,7 @@ export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
                     </span>
                     <div className="text-left min-w-0">
                       <p className="text-xs font-semibold text-gray-800 group-hover:text-blue-600 transition-colors leading-none mb-0.5">
-                        {t("text.navbar.menu.language") ?? "Language"}
+                        {t("label.language")}
                       </p>
                       <p className="text-[11px] text-gray-400 truncate">
                         {selectedLang?.flag} {selectedLang?.label}
