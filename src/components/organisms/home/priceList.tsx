@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRef } from 'react'
 import { usePublicRoomTypeAvailibility } from '@/src/hooks/query/roomAvailibility/publicRoomTypeAvailibility'
 import { roomListAvailableState } from '@/src/models/public/roomAvailibility/listRoomType'
+import { useTranslation } from 'react-i18next'
 
 // ─── Date Utilities ───────────────────────────────────────────────────────────
 function getTodayAndTomorrow() {
@@ -50,9 +51,10 @@ function RoomCard({
     checkin: string
     checkout: string
 }) {
+    const { t } = useTranslation()
 
     return (
-        <div className="flex-shrink-0 w-[260px] rounded-3xl border border-gray-100 overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+        <div className="flex-shrink-0 w-[260px] rounded-3xl border border-gray-100 overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col">
             {/* Image */}
             <div className="relative h-40 bg-gray-100 overflow-hidden">
                 {room.imageUrl ? (
@@ -69,31 +71,36 @@ function RoomCard({
                         </svg>
                     </div>
                 )}
-                {/* Available badge */}
                 <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-[10px] font-semibold text-gray-600 px-2 py-1 rounded-full border border-gray-100">
-                    {room.availability.availableRooms} tersedia
+                    {room.availability.availableRooms} {t("label.available")}
                 </div>
             </div>
 
             {/* Content */}
-            <div className="p-4 space-y-1">
+            <div className="p-4 flex flex-col flex-grow">
                 {/* Name */}
                 <h3 className="text-base font-bold text-gray-900">{room.name}</h3>
 
-                {/* Description / etc */}
-                <p className="text-[11px] text-gray-400 truncate">{room.description || `${room.pricing.nights} malam`}</p>
+                {/* Description */}
+                <p className="text-[11px] text-gray-400 truncate mt-1">{room.description || `${room.pricing.nights} malam`}</p>
+
+                {/* Spacer — dorong harga & tombol ke bawah */}
+                <div className="flex-grow" />
 
                 {/* Price coret */}
-                {room.pricing.isDiscounted && room.pricing.originalPrice && (
+                {room.pricing.isDiscounted && room.pricing.originalPrice ? (
                     <p className="text-[11px] text-red-500 line-through">
                         {formatRupiah(room.pricing.originalPrice)}
                     </p>
+                ) : (
+                    // Placeholder biar tinggi tetap sama waktu gada harga coret
+                    <p className="text-[11px] invisible">placeholder</p>
                 )}
 
                 {/* Price */}
                 <p className="text-sm font-bold text-gray-900">
                     {formatRupiah(room.pricing.price)}
-                    <span className="text-[11px] font-normal text-gray-400">/malam</span>
+                    <span className="text-[11px] font-normal text-gray-400">/{t("label.night")}</span>
                 </p>
 
                 {/* CTA */}
@@ -102,7 +109,7 @@ function RoomCard({
                         href={`/booking/${room.roomTypeId}?checkIn=${checkin}&checkOut=${checkout}`}
                         className="block w-full text-center bg-white border border-gray-200 text-gray-800 text-xs font-semibold rounded-xl py-2.5 hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-colors duration-200"
                     >
-                        Booking
+                        {t("label.booking")}
                     </Link>
                 </div>
             </div>
@@ -114,6 +121,8 @@ function RoomCard({
 export default function RoomTypeCarousel() {
     const { checkin, checkout } = getTodayAndTomorrow()
     const { data, isLoading } = usePublicRoomTypeAvailibility(checkin, checkout)
+
+    const { t } = useTranslation()
 
     const scrollRef = useRef<HTMLDivElement>(null)
 

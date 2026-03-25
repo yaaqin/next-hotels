@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { BookingOverlay } from "./bookingOverlay";
 import { MenuOverlay } from "./menuCard";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 
 interface NavbarProps {
   isMain?: boolean
@@ -15,6 +16,8 @@ export default function Navbar({
   const [bookingOpen, setBookingOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const { t } = useTranslation()
+  
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -62,7 +65,7 @@ export default function Navbar({
               className={`text-xs md:text-sm font-medium cursor-pointer tracking-widest uppercase transition-colors duration-500 ease-in-out
           ${scrolled ? "text-gray-900" : "text-white"}`}
             >
-              Booking
+              {t("label.booking")}
             </button>
           )}
         </div>

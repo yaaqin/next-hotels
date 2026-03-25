@@ -55,7 +55,7 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
               transition={{ delay: 0.2, duration: 0.5 }}
             >
               <img
-                src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&q=80"
+                src="https://cdn.yaaqin.xyz/hotel/1774430263617-book-cover.jpg"
                 alt="Resort"
                 className="absolute inset-0 w-full h-full object-cover"
               />

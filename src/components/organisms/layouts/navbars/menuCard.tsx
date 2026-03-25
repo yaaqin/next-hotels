@@ -1,71 +1,68 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { UserIcon, Clock01Icon, Settings01Icon, BookOpen02Icon } from "hugeicons-react";
+import { UserIcon, Clock01Icon, Settings01Icon, BookOpen02Icon, Globe02Icon } from "hugeicons-react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
-
-const MENU_ITEMS = [
-  {
-    label: "Profile",
-    description: "Manage your personal information",
-    icon: UserIcon,
-    path: "/profile",
-  },
-  {
-    label: "Recent Activity",
-    description: "View your Booking activity ",
-    icon: BookOpen02Icon,
-    path: "/recent-activity",
-  },
-  {
-    label: "History",
-    description: "View your booking history",
-    icon: Clock01Icon,
-    path: "/history",
-  },
-  {
-    label: "Setting",
-    description: "Preferences, security & notifications",
-    icon: Settings01Icon,
-    path: "/setting",
-  },
-];
+import { useState } from "react";
+import { useLanguageStore } from "@/src/stores/languageStore";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface MenuOverlayProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+type Lang = "idn" | "eng" | "jpn" | "chn";
+
+const languages: { value: Lang; label: string; flag: string }[] = [
+  { value: "idn", label: "Bahasa Indonesia", flag: "🇮🇩" },
+  { value: "eng", label: "English", flag: "🇬🇧" },
+  { value: "jpn", label: "日本語", flag: "🇯🇵" },
+  { value: "chn", label: "中文", flag: "🇨🇳" },
+];
+
 export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
+  const [langOpen, setLangOpen] = useState(false);
+  const { language: selected, setLanguage } = useLanguageStore();
+  const queryClient = useQueryClient();
+
+  const handleChangeLanguage = (lang: Lang) => {
+    setLanguage(lang);
+    setLangOpen(false);
+    queryClient.invalidateQueries();
+  };
+
+  const selectedLang = languages.find((l) => l.value === selected);
 
   const MENU_ITEMS = [
     {
-      label: t('text.navbar.menu.profile'),
-      description: t('text.navbar.menu.profileDesk'),
+      label: t("text.navbar.menu.profile"),
+      description: t("text.navbar.menu.profileDesk"),
       icon: UserIcon,
       path: "/profile",
     },
     {
-      label: t('text.navbar.menu.activity'),
-      description: t('text.navbar.menu.activityDesk'),
+      label: t("text.navbar.menu.activity"),
+      description: t("text.navbar.menu.activityDesk"),
       icon: BookOpen02Icon,
       path: "/recent-activity",
     },
     {
-      label: t('text.navbar.menu.history'),
-      description: t('text.navbar.menu.historyDesk'),
+      label: t("text.navbar.menu.history"),
+      description: t("text.navbar.menu.historyDesk"),
       icon: Clock01Icon,
       path: "/history",
     },
-    {
-      label: t('text.navbar.menu.setting'),
-      description: t('text.navbar.menu.settingDesk'),
-      icon: Settings01Icon,
-      path: "/setting",
-    },
+    // {
+    //   label: t("text.navbar.menu.setting"),
+    //   description: t("text.navbar.menu.settingDesk"),
+    //   icon: Settings01Icon,
+    //   path: "/setting",
+    // },
   ];
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -105,7 +102,7 @@ export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
                   Marina Bay Sand
                 </p>
                 <h2 className="text-white text-2xl font-semibold leading-tight">
-                  {t('text.navbar.menu.yourAccount')}, <br /> {t('text.navbar.menu.yourWay')}
+                  {t("text.navbar.menu.yourAccount")}, <br /> {t("text.navbar.menu.yourWay")}
                 </h2>
               </div>
             </motion.div>
@@ -118,10 +115,10 @@ export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
               transition={{ delay: 0.25, duration: 0.5 }}
             >
               <p className="text-xs tracking-widest uppercase text-blue-400 mb-2">
-                {t('text.navbar.menu.navigate')}
+                {t("text.navbar.menu.navigate")}
               </p>
               <h3 className="text-2xl font-semibold text-gray-900 mb-8">
-                {t('text.navbar.menu.where')}?
+                {t("text.navbar.menu.where")}?
               </h3>
 
               <div className="flex flex-col gap-3">
@@ -155,6 +152,66 @@ export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
                     </motion.div>
                   );
                 })}
+
+                {/* Language Switcher */}
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + MENU_ITEMS.length * 0.08, duration: 0.4 }}
+                  className="relative"
+                >
+                  <button
+                    onClick={() => setLangOpen((prev) => !prev)}
+                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl border border-blue-100 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 group"
+                  >
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 group-hover:bg-blue-100 transition-colors flex-shrink-0">
+                      <Globe02Icon size={15} className="text-blue-500" />
+                    </span>
+                    <div className="text-left min-w-0">
+                      <p className="text-xs font-semibold text-gray-800 group-hover:text-blue-600 transition-colors leading-none mb-0.5">
+                        {t("text.navbar.menu.language") ?? "Language"}
+                      </p>
+                      <p className="text-[11px] text-gray-400 truncate">
+                        {selectedLang?.flag} {selectedLang?.label}
+                      </p>
+                    </div>
+                    <span
+                      className={`ml-auto text-gray-300 group-hover:text-blue-400 transition-all duration-200 text-sm flex-shrink-0 ${langOpen ? "rotate-90" : ""
+                        }`}
+                    >
+                      →
+                    </span>
+                  </button>
+                  {/* Dropdown */}
+                  <AnimatePresence>
+                    {langOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4, scaleY: 0.97 }}
+                        animate={{ opacity: 1, y: 0, scaleY: 1 }}
+                        exit={{ opacity: 0, y: -4, scaleY: 0.97 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute left-0 right-0 top-[calc(100%+4px)] z-10 bg-white border border-blue-100 rounded-xl shadow-md overflow-hidden"
+                      >
+                        {languages.map((lang) => (
+                          <button
+                            key={lang.value}
+                            onClick={() => handleChangeLanguage(lang.value)}
+                            className={`w-full flex items-center gap-2 px-4 py-2 text-xs transition-colors hover:bg-blue-50 ${selected === lang.value
+                                ? "font-semibold text-blue-600 bg-blue-50/60"
+                                : "text-gray-600"
+                              }`}
+                          >
+                            <span className="text-sm">{lang.flag}</span>
+                            <span>{lang.label}</span>
+                            {selected === lang.value && (
+                              <span className="ml-auto text-blue-400 text-[10px]">✓</span>
+                            )}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
               </div>
             </motion.div>
           </div>
