@@ -134,7 +134,7 @@ export default function RoomTypeCarousel() {
     const rooms = data?.data ?? []
 
     return (
-        <div className="relative w-full">
+        <div className="relative w-full mb-8">
             {/* Scroll area */}
             <div
                 ref={scrollRef}

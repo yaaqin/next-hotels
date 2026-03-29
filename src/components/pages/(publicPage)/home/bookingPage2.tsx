@@ -8,6 +8,9 @@ import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import Footer from '@/src/components/organisms/layouts/footers/publicFooter'
 import RoomTypeCarousel from '@/src/components/organisms/home/priceList'
 import { useTranslation } from 'react-i18next'
+import WhyChoose from '@/src/components/organisms/home/whyChoose'
+import WhoWeAre from '@/src/components/organisms/home/weAre'
+import Facility from '@/src/components/organisms/home/allFacility'
 
 export default function BookingPage2() {
   const { scrollY } = useScroll()
@@ -18,7 +21,7 @@ export default function BookingPage2() {
   const opacity = useSpring(rawOpacity, { stiffness: 120, damping: 20, mass: 0.5 })
   const y = useSpring(rawY, { stiffness: 120, damping: 20, mass: 0.5 })
   const [blurVal, setBlurVal] = useState(0)
-    const { t } = useTranslation()
+  const { t } = useTranslation()
   useEffect(() => {
     return rawBlur.on('change', (v) => setBlurVal(v))
   }, [rawBlur])
@@ -74,13 +77,15 @@ export default function BookingPage2() {
         </motion.section>
       </section>
 
+      <WhoWeAre />
+
       {/* Text Section */}
       <section
         ref={textSectionRef}
-        className='relative min-h-screen w-full bg-white'
+        className='relative h-screen w-full bg-white pb-4'
         style={{ zIndex: 2 }}
       >
-        <div className='min-h-screen flex flex-col justify-center px-16 max-w-4xl mx-auto py-32'>
+        <div className='h-screen flex flex-col justify-center px-16 max-w-4xl mx-auto py-32'>
 
           <motion.div
             style={{ opacity: line1Op }}
@@ -141,7 +146,8 @@ export default function BookingPage2() {
       </section> */}
 
       <RoomTypeCarousel />
-      <section className='relative h-screen w-full bg-black' style={{ zIndex: 2 }}></section>
+      <WhyChoose />
+      <Facility />
       <Amenities />
       <section style={{ zIndex: 3 }} className='relative'>
         <Footer />
