@@ -56,6 +56,10 @@
       "privacypol": "Privacy Policy"
     },
     "home":{
+      "head": {
+        "text1": "In quiet places, where the world slows down, we have created a space for rest, warmth, and timeless moments.",
+          "text2": "A place where time lingers gently."
+      },
       "about": {
         "text1": "This place is unlike any other. In the heart of Singapore, it was imagined as a sanctuary above the vibrant city — a place for quiet mornings, warm evenings, and the simple joy of slowing down.",
         "text2": "For gatherings, for laughter, for the pleasures of good food and gentle conversation.",

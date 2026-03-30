@@ -56,6 +56,10 @@
       "privacypol": "Kebijakan Privasi"
     },
     "home":{
+      "head": {
+        "text1": "Di tempat yang tenang, di mana dunia melambat, kami menciptakan ruang untuk beristirahat, kehangatan, dan momen yang tak lekang oleh waktu.",
+          "text2": "Tempat di mana waktu terasa berjalan lebih perlahan."
+      },
       "about": {
         "text1": "Tempat ini tidak seperti yang lain. Di jantung Singapura, tempat ini dibayangkan sebagai sebuah suaka di atas kota yang ramai — sebuah tempat untuk pagi yang tenang, sore yang hangat, dan kesenangan sederhana untuk melambat.",
         "text2": "Untuk pertemuan, untuk tawa, untuk kesenangan dari makanan enak dan percakapan yang lembut.",

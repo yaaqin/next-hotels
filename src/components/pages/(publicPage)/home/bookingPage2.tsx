@@ -68,11 +68,10 @@ export default function BookingPage2() {
           className="absolute bottom-8 left-6"
         >
           <h4 className="text-4xl max-w-2xl font-bold text-white text-shadow">
-            In quiet places, where the world slows down, we have created a space
-            for rest, warmth, and timeless moments.
+            {t("text.home.head.text1")}
           </h4>
           <p className="text-xl text-white mt-2">
-            A place where time lingers gently.
+            {t("text.home.head.text2")}
           </p>
         </motion.section>
       </section>
