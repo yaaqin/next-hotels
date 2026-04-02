@@ -187,4 +187,23 @@ export const NAVIGATION: NavItem[] = [
       },
     ],
   },
+  {
+    key: 'operational',
+    label: 'Operational',
+    path: '/operational',
+    children: [
+      {
+        key: 'opr',
+        label: 'Opertaional',
+        path: '/dashboard/operational',
+        parentKey: 'operational',
+      },
+      {
+        key: 'room-maintain',
+        label: 'Room Maintenance',
+        path: '/dashboard/room-maintenance',
+        parentKey: 'operational',
+      },
+    ],
+  },
 ];

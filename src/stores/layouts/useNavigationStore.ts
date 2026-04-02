@@ -8,6 +8,6 @@ interface NavigationState {
 }
 
 export const useNavigationStore = create<NavigationState>((set) => ({
-  activeSidebar: 'site',
+  activeSidebar: 'dashboard',
   setActiveSidebar: (key) => set({ activeSidebar: key }),
 }));
