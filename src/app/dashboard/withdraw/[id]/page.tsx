@@ -1,9 +1,7 @@
-import React from 'react'
+import DetailWithdraw from '@/src/components/pages/withdraw/detail'
 
 export default function page() {
   return (
-    <div>
-      detail wd here 
-    </div>
+    <DetailWithdraw/>
   )
 }

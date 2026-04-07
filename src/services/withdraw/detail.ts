@@ -1,11 +1,11 @@
 import { axiosPrivate } from "@/src/libs/instance"
-import { detailUserProps } from "@/src/models/users/detail"
+import { detailWdProps } from "@/src/models/withdraw/detail"
 
-export const WithdrawDetail = async (id: string): Promise<detailUserProps> => {
-  const res = await axiosPrivate.get(`/admins/${id}`)
+export const WithdrawDetail = async (id: string): Promise<detailWdProps> => {
+  const res = await axiosPrivate.get(`/withdraw/${id}`)
 
   if (!res) {
-    throw new Error('fail to get detail users')
+    throw new Error('fail to get detail withdrawal')
   }
 
   const data = await res.data

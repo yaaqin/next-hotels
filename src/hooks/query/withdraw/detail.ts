@@ -1,7 +1,7 @@
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { detailUserProps } from "@/src/models/users/detail";
-import { userDetail } from "@/src/services/users/detail";
+import { WithdrawDetail } from "@/src/services/withdraw/detail";
+import { detailWdProps } from "@/src/models/withdraw/detail";
 
 export const useWithdrawDetail = (id: string) => {
     const searchParams = useSearchParams();
@@ -11,9 +11,9 @@ export const useWithdrawDetail = (id: string) => {
         isLoading,
         error,
         refetch,
-    } = useQuery<detailUserProps>({
+    } = useQuery<detailWdProps>({
         queryKey: ["user-detail", id],
-        queryFn: () => userDetail(id),
+        queryFn: () => WithdrawDetail(id),
         enabled: !!page,
     });
 

@@ -3,6 +3,7 @@ import Loading from '@/src/components/organisms/loading';
 import { useRoomDetail } from '@/src/hooks/query/rooms/detail'
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+
 export default function DetailRoomPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
