@@ -185,6 +185,12 @@ export const NAVIGATION: NavItem[] = [
         path: '/finance/revenue',
         parentKey: 'finance',
       },
+      {
+        key: 'withdraw',
+        label: 'Withdraw',
+        path: '/dashboard/withdraw',
+        parentKey: 'finance',     
+      },
     ],
   },
   {

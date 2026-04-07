@@ -46,7 +46,9 @@ export default function RootLayout({
           <Providers>
             <SyncUserToken />
             <Suspense fallback={<div>Loading...</div>}>
+            {/* <section className="bg-green-300 overflow-hidden"> */}
               {children}
+            {/* </section> */}
             </Suspense>
           </Providers>
         </I18nProvider>
