@@ -7,7 +7,7 @@ import { useCallback } from 'react'
 const SGT_COIN_TYPE = '0x831d1156089ec1caeb5ee8f5a3ea309bbed417da778dc9bc800e76c7ebc7488b::sgt::SGT'
 // Format: '0xPACKAGE_ID::sgt::SGT'
 
-const SGT_DECIMALS = 9
+const SGT_DECIMALS = 6
 
 interface ExecuteSgtPaymentParams {
   hotelWalletAddress: string
