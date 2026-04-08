@@ -20,6 +20,7 @@ import { BookingPayload } from '@/src/models/bookings/create'
 import { useRouter } from 'next/navigation'
 import { SlushWalletButton } from '@/src/components/atoms/slushWalletButton'
 import { useSgtPayment } from '@/src/hooks/custom/payment/useSgtPayment'
+import { axiosPublic } from '@/src/libs/instance'
 
 type PaymentMethod = 'va_bca' | 'va_bni' | 'va_bri' | 'va_mandiri' | 'qris' | 'sgt'
 type PaymentCategory = 'va' | 'qris' | 'sgt'
@@ -167,7 +168,6 @@ export default function ReservationPage() {
       {
         onSuccess: async (res) => {
           const payment = res?.data?.payment
-          console.log('resBook ==>', payment)
           const bookingCode = res?.data?.booking?.bookingCode
 
           // Narrowing eksplisit: pastiin payment ada dulu
@@ -182,12 +182,18 @@ export default function ReservationPage() {
             const { hotelWalletAddress, sgtAmountDue } = payment
 
             try {
-              await executePayment({ hotelWalletAddress, sgtAmountDue })
+              const txDigest = await executePayment({ hotelWalletAddress, sgtAmountDue })
+
+              await axiosPublic.post('/booking/sgt/verify', {
+                bookingCode,
+                txDigest,
+              })
+
               reset()
               router.push(`/payment/success?bookingCode=${bookingCode}`)
             } catch (err) {
               console.error('SGT payment gagal:', err)
-              alert('Transaksi SGT dibatalkan atau gagal. Booking tetap pending.')
+              alert('Transaksi SGT dibatalkan atau gagal.')
             }
 
             return // <-- ini penting! stop eksekusi biar ga lanjut ke else branch
