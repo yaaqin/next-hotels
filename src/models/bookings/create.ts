@@ -3,6 +3,7 @@ export interface BookingPayload {
   checkInDate: string
   checkOutDate: string
   paymentMethod: string
+  senderWallet?: string
   contact: {
     fullName: string
     phone: string
@@ -37,6 +38,10 @@ export interface BookingResponse {
       billKey: string | null
       transactionId: string
       expiryTime: string
+      hotelWalletAddress?: string
+      sgtAmountDue?: number
+      rateSnapshot?: number
+      expiredAt?: string
     }
   }
 }

@@ -6,6 +6,7 @@ import Providers from "../components/organisms/providers/query";
 import { Suspense } from "react";
 import SyncUserToken from "../components/organisms/layouts/SyncUserToken";
 import I18nProvider from "../components/organisms/providers/I18nProvider";
+import { SuiProvider } from "../components/providers/suiProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,9 +47,9 @@ export default function RootLayout({
           <Providers>
             <SyncUserToken />
             <Suspense fallback={<div>Loading...</div>}>
-            {/* <section className="bg-green-300 overflow-hidden"> */}
-              {children}
-            {/* </section> */}
+              <SuiProvider>
+                {children}
+              </SuiProvider>
             </Suspense>
           </Providers>
         </I18nProvider>

@@ -13,7 +13,9 @@
     "ajv": "^8.18.0"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.90.21",
+    "@mysten/dapp-kit": "^1.0.4",
+    "@mysten/sui": "^2.15.0",
+    "@tanstack/react-query": "^5.96.2",
     "@tanstack/react-table": "^8.21.3",
     "axios": "^1.13.5",
     "chart.js": "^4.5.1",

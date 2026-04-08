@@ -18,9 +18,11 @@ import { roomNumberListState } from '@/src/models/public/roomAvailibility/listRo
 import { usePublicRoomNumberAvailibility } from '@/src/hooks/query/roomAvailibility/publicRoomNumberList'
 import { BookingPayload } from '@/src/models/bookings/create'
 import { useRouter } from 'next/navigation'
+import { SlushWalletButton } from '@/src/components/atoms/slushWalletButton'
+import { useSgtPayment } from '@/src/hooks/custom/payment/useSgtPayment'
 
-type PaymentMethod = 'va_bca' | 'va_bni' | 'va_bri' | 'va_mandiri' | 'qris'
-type PaymentCategory = 'va' | 'qris'
+type PaymentMethod = 'va_bca' | 'va_bni' | 'va_bri' | 'va_mandiri' | 'qris' | 'sgt'
+type PaymentCategory = 'va' | 'qris' | 'sgt'
 
 const VA_BANKS = [
   { value: 'va_bca', label: 'BCA Virtual Account', logo: 'BCA' },
@@ -92,6 +94,10 @@ export default function ReservationPage() {
   const { payload, setContact, setPaymentMethod, setRoomId, isReadyToSubmit } = useBookingStore()
   const { checkInDate, checkOutDate, items, contact } = payload
 
+  const { executePayment } = useSgtPayment()
+
+  const [sgtWalletAddress, setSgtWalletAddress] = useState<string | null>(null)
+
   const [isHydrated, setIsHydrated] = useState(false)
   useEffect(() => {
     setIsHydrated(true)
@@ -134,6 +140,7 @@ export default function ReservationPage() {
     setPaymentCategory(cat)
     setSelectedVA(null)
     if (cat === 'qris') setPaymentMethod('qris' as any)
+    if (cat !== 'sgt') setSgtWalletAddress(null) // reset wallet kalau ganti method
   }
 
   const handleSelectVA = (method: PaymentMethod) => {
@@ -146,15 +153,49 @@ export default function ReservationPage() {
   const { reset } = useBookingStore()
   const router = useRouter()
 
-  const handleBooking = () => {
+  const handleBooking = async () => {
     if (!isReadyToSubmit()) return
+
     const { items, ...rest } = payload
+
     mutate(
-      { ...rest, items: items.map(({ imageUrl, ...item }) => item) } as BookingPayload,
       {
-        onSuccess: (res) => {
-          reset()
-          router.push(`/reservation/${res?.data?.booking?.bookingCode}`)
+        ...rest,
+        items: items.map(({ imageUrl, ...item }) => item),
+        senderWallet: sgtWalletAddress ?? undefined,
+      } as BookingPayload,
+      {
+        onSuccess: async (res) => {
+          const payment = res?.data?.payment
+          const bookingCode = res?.data?.booking?.bookingCode
+
+          // Kalau SGT, langsung execute transaksi on-chain
+          if (paymentCategory === 'sgt' && payment?.type === 'SGT') {
+            if (!payment.hotelWalletAddress || !payment.sgtAmountDue) {
+              alert('Data pembayaran SGT tidak lengkap')
+              return
+            }
+
+            try {
+              await executePayment({
+                hotelWalletAddress: payment.hotelWalletAddress, // udah pasti string
+                sgtAmountDue: payment.sgtAmountDue,
+              })
+
+              // Sukses on-chain → redirect ke halaman sukses
+              reset()
+              router.push(`/payment/success?bookingCode=${bookingCode}`)
+            } catch (err) {
+              // User reject atau transaksi gagal
+              console.error('SGT payment gagal:', err)
+              // Bisa tampilin toast error di sini
+              alert('Transaksi SGT dibatalkan atau gagal. Booking tetap pending.')
+            }
+          } else {
+            // Flow Midtrans biasa
+            reset()
+            router.push(`/reservation/${bookingCode}`)
+          }
         },
       }
     )
@@ -180,8 +221,8 @@ export default function ReservationPage() {
         <div className="flex flex-col lg:flex-row gap-6">
 
           {/* ── Left Column ── */}
-          <div className="flex-1 space-y-4">
-
+          <div className="flex-1 space-y-4"> 
+ 
             {/* Stay Info Card */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-5">
@@ -323,14 +364,17 @@ export default function ReservationPage() {
                 <span className="text-xs tracking-widest uppercase text-gray-400">Payment</span>
               </div>
               <div className="flex gap-2 mb-4">
-                {(['va', 'qris'] as PaymentCategory[]).map((cat) => (
+                {(['va', 'qris', 'sgt'] as PaymentCategory[]).map((cat) => (
                   <button
                     key={cat}
                     onClick={() => handleSelectPayment(cat)}
                     className={`px-4 py-2 rounded-xl text-xs tracking-widest uppercase font-medium transition-all duration-200
-                      ${paymentCategory === cat ? 'bg-blue-500 text-white shadow-sm shadow-blue-200' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+      ${paymentCategory === cat
+                        ? 'bg-blue-500 text-white shadow-sm shadow-blue-200'
+                        : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                      }`}
                   >
-                    {cat === 'va' ? 'Virtual Account' : cat.toUpperCase()}
+                    {cat === 'va' ? 'Virtual Account' : cat === 'sgt' ? 'SGT Wallet' : cat.toUpperCase()}
                   </button>
                 ))}
               </div>
@@ -365,6 +409,26 @@ export default function ReservationPage() {
               {paymentCategory === 'qris' && (
                 <div className="mt-2 px-4 py-3 bg-blue-50 rounded-xl text-sm text-blue-600 text-center">
                   QR Code akan ditampilkan setelah konfirmasi
+                </div>
+              )}
+              {paymentCategory === 'sgt' && (
+                <div className="mt-2 space-y-2">
+                  <SlushWalletButton
+                    onConnected={(address) => {
+                      setSgtWalletAddress(address)
+                      setPaymentMethod('sgt' as any) // pastikan enum BE support 'sgt'
+                      // simpan wallet address ke store/payload
+                      // sesuaikan dengan setter yang lu punya di bookingStore
+                    }}
+                    onDisconnected={() => {
+                      setSgtWalletAddress(null)
+                    }}
+                  />
+                  {sgtWalletAddress && (
+                    <p className="text-[10px] text-center text-gray-400 tracking-wide">
+                      Wallet terhubung · siap untuk pembayaran SGT
+                    </p>
+                  )}
                 </div>
               )}
             </div>
