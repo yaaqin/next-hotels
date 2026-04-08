@@ -4,7 +4,7 @@ import { useSignAndExecuteTransaction, useSuiClient, useCurrentAccount } from '@
 import { Transaction } from '@mysten/sui/transactions'
 import { useCallback } from 'react'
 
-const SGT_COIN_TYPE = process.env.NEXT_PUBLIC_SGT_COIN_TYPE!
+const SGT_COIN_TYPE = '0x831d1156089ec1caeb5ee8f5a3ea309bbed417da778dc9bc800e76c7ebc7488b::sgt::SGT'
 // Format: '0xPACKAGE_ID::sgt::SGT'
 
 const SGT_DECIMALS = 9
