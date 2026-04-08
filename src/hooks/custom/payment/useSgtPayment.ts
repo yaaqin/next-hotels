@@ -4,7 +4,7 @@ import { useSignAndExecuteTransaction, useSuiClient, useCurrentAccount } from '@
 import { Transaction } from '@mysten/sui/transactions'
 import { useCallback } from 'react'
 
-const SGT_COIN_TYPE = process.env.NEXT_PUBLIC_SGT_COIN_TYPE! 
+const SGT_COIN_TYPE = process.env.NEXT_PUBLIC_SGT_COIN_TYPE!
 // Format: '0xPACKAGE_ID::sgt::SGT'
 
 const SGT_DECIMALS = 9
@@ -30,6 +30,9 @@ export function useSgtPayment() {
         owner: account.address,
         coinType: SGT_COIN_TYPE,
       })
+
+      console.log('SGT_COIN_TYPE:', SGT_COIN_TYPE)
+      console.log('SGT Coins found:', sgtCoins)
 
       if (!sgtCoins || sgtCoins.length === 0) {
         throw new Error('Tidak ada SGT di wallet kamu')
