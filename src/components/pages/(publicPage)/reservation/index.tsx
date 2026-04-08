@@ -167,35 +167,35 @@ export default function ReservationPage() {
       {
         onSuccess: async (res) => {
           const payment = res?.data?.payment
+          console.log('resBook ==>', payment)
           const bookingCode = res?.data?.booking?.bookingCode
 
-          // Kalau SGT, langsung execute transaksi on-chain
+          // Narrowing eksplisit: pastiin payment ada dulu
           if (paymentCategory === 'sgt' && payment?.type === 'SGT') {
+            // Validate sebelum destructure — pakai early return bukan nested if
             if (!payment.hotelWalletAddress || !payment.sgtAmountDue) {
               alert('Data pembayaran SGT tidak lengkap')
               return
             }
 
-            try {
-              await executePayment({
-                hotelWalletAddress: payment.hotelWalletAddress, // udah pasti string
-                sgtAmountDue: payment.sgtAmountDue,
-              })
+            // Setelah guard di atas, TS udah tau kedua field ini pasti string/number
+            const { hotelWalletAddress, sgtAmountDue } = payment
 
-              // Sukses on-chain → redirect ke halaman sukses
+            try {
+              await executePayment({ hotelWalletAddress, sgtAmountDue })
               reset()
               router.push(`/payment/success?bookingCode=${bookingCode}`)
             } catch (err) {
-              // User reject atau transaksi gagal
               console.error('SGT payment gagal:', err)
-              // Bisa tampilin toast error di sini
               alert('Transaksi SGT dibatalkan atau gagal. Booking tetap pending.')
             }
-          } else {
-            // Flow Midtrans biasa
-            reset()
-            router.push(`/reservation/${bookingCode}`)
+
+            return // <-- ini penting! stop eksekusi biar ga lanjut ke else branch
           }
+
+          // Flow Midtrans biasa
+          reset()
+          router.push(`/reservation/${bookingCode}`)
         },
       }
     )
@@ -221,8 +221,8 @@ export default function ReservationPage() {
         <div className="flex flex-col lg:flex-row gap-6">
 
           {/* ── Left Column ── */}
-          <div className="flex-1 space-y-4"> 
- 
+          <div className="flex-1 space-y-4">
+
             {/* Stay Info Card */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-5">
