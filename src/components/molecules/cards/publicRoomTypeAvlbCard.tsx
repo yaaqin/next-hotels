@@ -34,11 +34,11 @@ const formatCurrency = (value: number, currency = "IDR") => {
 const renderIcon = (type: RoomFeature["icon"]) => {
   switch (type) {
     case "size":
-      return <RulerIcon size={18} />
+      return <RulerIcon size={16} />
     case "bar":
-      return <MarketingIcon size={18} />
+      return <MarketingIcon size={16} />
     case "bath":
-      return <Bathtub01Icon size={18} />
+      return <Bathtub01Icon size={16} />
     default:
       return null
   }
@@ -60,79 +60,172 @@ export default function RoomAvlbCard({
   onViewPackage,
 }: RoomCardProps) {
   return (
-    <div className="border bg-[#d7d6cf] p-6 rounded-xl">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {/* IMAGE */}
+    <div
+      className="p-5 rounded-2xl"
+      style={{
+        background: "#DDE8F5",
+        border: "0.5px solid #B5CDE8",
+        fontFamily: "'Montserrat', sans-serif",
+      }}
+    >
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        {/* ── IMAGE ── */}
         <div className="lg:col-span-5 relative">
           {collectionLabel && (
-            <div className="absolute top-4 left-4 bg-black/60 text-white text-xs px-3 py-1">
+            <div
+              className="absolute top-3 left-3 text-[0.52rem] tracking-[0.18em] uppercase px-3 py-1.5 rounded-full"
+              style={{
+                background: "#05111F",
+                color: "#5B90C9",
+                border: "0.5px solid #1A56A0",
+              }}
+            >
               {collectionLabel}
             </div>
           )}
           <img
             src={image}
             alt={title}
-            className="w-full h-120 object-cover rounded-xl"
+            className="w-full h-72 lg:h-full object-cover rounded-xl"
+            style={{ minHeight: 240 }}
           />
         </div>
 
-        {/* INFO */}
-        <div className="lg:col-span-4 space-y-4">
-          <h2 className="text-2xl tracking-[0.15em] uppercase">
-            {title}
-          </h2>
+        {/* ── INFO ── */}
+        <div className="lg:col-span-4 flex flex-col justify-between py-1">
+          <div className="space-y-3">
 
-          <p className="uppercase tracking-[0.25em] text-sm">
-            {floorLabel}
-          </p>
-
-          <p className="text-sm text-gray-700">{bookedInfo}</p>
-          <p className="text-sm">Maksimal {maxGuest} tamu</p>
-
-          <div className="space-y-3 pt-4 text-sm tracking-[0.2em] uppercase">
-            <div className="flex items-center gap-3">
-              <RulerIcon size={18} />
-              <span>Luas rata-rata {size}</span>
+            {/* Title */}
+            <div>
+              <p
+                className="text-[0.52rem] tracking-[0.2em] uppercase mb-1"
+                style={{ color: "#1A56A0" }}
+              >
+                {floorLabel}
+              </p>
+              <div className="w-6 h-px mb-3" style={{ background: "#1A56A0", opacity: 0.4 }} />
+              <h2
+                className="text-[1.35rem] font-light tracking-[0.1em] uppercase leading-tight"
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  color: "#0A1828",
+                }}
+              >
+                {title}
+              </h2>
             </div>
 
-            {features.map((feature, index) => (
-              <div key={index} className="flex items-center gap-3">
-                {renderIcon(feature.icon)}
-                <span>{feature.label}</span>
+            {/* Availability & guests */}
+            <div className="space-y-1 pt-1">
+              <p
+                className="text-[0.68rem] tracking-[0.05em]"
+                style={{ color: "#1A56A0" }}
+              >
+                {bookedInfo}
+              </p>
+              <p
+                className="text-[0.68rem]"
+                style={{ color: "#2C4E72" }}
+              >
+                Maksimal {maxGuest} tamu
+              </p>
+            </div>
+
+            {/* Features */}
+            <div className="space-y-2.5 pt-3">
+              <div
+                className="flex items-center gap-3 text-[0.65rem] tracking-[0.12em] uppercase"
+                style={{ color: "#2C4E72" }}
+              >
+                <RulerIcon size={14} style={{ color: "#1A56A0", flexShrink: 0 }} />
+                <span>Luas rata-rata {size}</span>
               </div>
-            ))}
+
+              {features.map((feature, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-3 text-[0.65rem] tracking-[0.12em] uppercase"
+                  style={{ color: "#2C4E72" }}
+                >
+                  <span style={{ color: "#1A56A0", flexShrink: 0 }}>
+                    {renderIcon(feature.icon)}
+                  </span>
+                  <span>{feature.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
+          {/* View detail link */}
           <button
             onClick={onViewDetail}
-            className="pt-6 underline tracking-[0.2em] uppercase text-sm"
+            className="mt-6 text-left text-[0.63rem] tracking-[0.18em] uppercase transition-colors duration-200 w-fit"
+            style={{ color: "#1A56A0", textDecoration: "underline", textUnderlineOffset: "4px" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#0A1828")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#1A56A0")}
           >
             Lihat Perincian Kamar
           </button>
         </div>
 
-        {/* PRICE */}
-        <div className="lg:col-span-3 bg-[#cfcfc4] p-6 flex flex-col justify-between rounded-xl">
+        {/* ── PRICE ── */}
+        <div
+          className="lg:col-span-3 p-6 flex flex-col justify-between rounded-xl"
+          style={{ background: "#0A1E38" }}
+        >
           <div>
-            <p className="text-sm mb-2">Dari</p>
-            <h3 className="text-3xl font-light">
+            <p
+              className="text-[0.55rem] tracking-[0.18em] uppercase mb-1"
+              style={{ color: "#5B90C9" }}
+            >
+              Dari
+            </p>
+            <div className="w-5 h-px mb-3" style={{ background: "#1A56A0", opacity: 0.5 }} />
+            <h3
+              className="font-light leading-none"
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                color: "#C8DCEF",
+                fontSize: "1.6rem",
+              }}
+            >
               {formatCurrency(price, currency)}
-              <span className="text-base">/malam</span>
+              <span
+                className="text-sm ml-1"
+                style={{ color: "#6A9EC5", fontFamily: "'Montserrat', sans-serif" }}
+              >
+                /malam
+              </span>
             </h3>
 
-            <p className="text-sm mt-3 text-gray-700">
+            <p
+              className="text-[0.63rem] mt-3 leading-relaxed"
+              style={{ color: "#3A6A96" }}
+            >
               Dikenakan pajak dan biaya tambahan.
             </p>
 
-            <p className="text-sm mt-4">{bedInfo}</p>
+            <p
+              className="text-[0.65rem] mt-4 leading-relaxed"
+              style={{ color: "#6A9EC5" }}
+            >
+              {bedInfo}
+            </p>
           </div>
 
           <button
             onClick={onViewPackage}
-            className="mt-6 bg-black text-white py-3 uppercase tracking-[0.2em] text-sm hover:opacity-90 transition rounded-md"
+            className="mt-6 py-3.5 rounded-xl text-[0.65rem] tracking-[0.18em] uppercase font-normal transition-all duration-300"
+            style={{ background: "#EEF3FA", color: "#0A1828" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#C8DCEF"
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "#EEF3FA"
+            }}
           >
-            Reservation
+            Reserve Now
           </button>
         </div>
 

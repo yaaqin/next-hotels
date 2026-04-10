@@ -101,19 +101,36 @@ export default function BookingPublicPage() {
     }
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen" style={{ background: "#EEF3FA", fontFamily: "'Montserrat', sans-serif" }}>
+
             {/* ── Date Bar ── */}
-            <div className="relative bg-[#d9d9d4] px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                
+            <div
+                className="relative px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-2"
+                style={{ background: "#05111F", borderBottom: "1px solid #0A1E38" }}
+            >
+                {/* Left — eyebrow brand */}
+                <p
+                    className="text-[0.52rem] tracking-[0.2em] uppercase hidden md:block"
+                    style={{ color: "#3A6A96" }}
+                >
+                    Marina by Sand
+                </p>
+
+                {/* Center — date picker */}
                 <Popover>
                     <PopoverTrigger asChild>
-                        <button className="text-sm md:text-base font-medium tracking-[0.2em] uppercase text-gray-800 hover:text-gray-600 transition-colors text-left">
+                        <button
+                            className="text-sm tracking-[0.15em] uppercase transition-colors duration-200 text-left flex items-center gap-1"
+                            style={{ color: "#C8DCEF", fontFamily: "'Montserrat', sans-serif" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = "#ffffff")}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = "#C8DCEF")}
+                        >
                             {formatDisplayDate(checkinDate)}
-                            <span className="mx-3 text-gray-400">→</span>
+                            <span className="mx-3" style={{ color: "#1A56A0" }}>→</span>
                             {formatDisplayDate(checkoutDate)}
                         </button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 z-[200]" align="start">
+                    <PopoverContent className="w-auto p-0 z-[200]" align="center">
                         <Calendar
                             mode="single"
                             selected={checkinDate}
@@ -125,27 +142,42 @@ export default function BookingPublicPage() {
                     </PopoverContent>
                 </Popover>
 
-                <p className="text-xs tracking-[0.3em] uppercase text-gray-500">
+                {/* Right — stay info */}
+                <p
+                    className="text-[0.58rem] tracking-[0.2em] uppercase"
+                    style={{ color: "#3A6A96" }}
+                >
                     1 Malam · 1 Kamar
                 </p>
             </div>
 
             {/* ── Room List ── */}
             <div className="px-4 md:px-8 py-6 space-y-4">
+
+                {/* Loading skeletons */}
                 {isLoading && (
                     <div className="flex flex-col gap-4">
                         {[...Array(3)].map((_, i) => (
-                            <div key={i} className="h-64 rounded-2xl bg-gray-100 animate-pulse" />
+                            <div
+                                key={i}
+                                className="h-64 rounded-2xl animate-pulse"
+                                style={{ background: "#DDE8F5" }}
+                            />
                         ))}
                     </div>
                 )}
 
+                {/* Empty state */}
                 {!isLoading && data?.data?.length === 0 && (
-                    <div className="text-center py-24 text-gray-400 tracking-widest uppercase text-sm">
+                    <div
+                        className="text-center py-24 tracking-[0.2em] uppercase text-xs"
+                        style={{ color: "#6A9EC5" }}
+                    >
                         Tidak ada kamar tersedia untuk tanggal ini
                     </div>
                 )}
 
+                {/* Room cards */}
                 {!isLoading &&
                     data?.data?.map((roomType, key) => (
                         <RoomAvlbCard

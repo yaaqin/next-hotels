@@ -17,6 +17,13 @@ interface BookingOverlayProps {
 export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
   const [checkin, setCheckin] = useState<Date | undefined>(undefined);
   const [adults, setAdults] = useState("");
+  const [calendarOpen, setCalendarOpen] = useState(false);
+
+  // Auto-close popover after date selected
+  const handleDateSelect = (date: Date | undefined) => {
+    setCheckin(date);
+    if (date) setCalendarOpen(false);
+  };
 
   const handleBook = () => {
     if (!checkin) return;
@@ -29,7 +36,8 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-[100] bg-white flex items-center justify-center"
+          className="fixed inset-0 z-[100] flex items-center justify-center"
+          style={{ background: "#EEF3FA", fontFamily: "'Montserrat', sans-serif" }}
           initial={{ y: "-100%" }}
           animate={{ y: 0 }}
           exit={{ y: "-100%" }}
@@ -38,7 +46,10 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-6 right-8 text-gray-400 hover:text-gray-900 transition-colors duration-200 text-2xl font-light"
+            className="absolute top-6 right-8 transition-colors duration-200 text-xl font-light"
+            style={{ color: "#6A9EC5" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#0A1828")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#6A9EC5")}
             aria-label="Close"
           >
             ✕
@@ -47,9 +58,10 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
           {/* Inner Content */}
           <div className="w-full max-w-5xl mx-auto px-4 md:px-8 flex gap-6">
 
-            {/* Left — Image / Mood — hidden on mobile */}
+            {/* Left — Image / Mood */}
             <motion.div
-              className="hidden md:flex w-1/2 h-[75vh] rounded-3xl overflow-hidden relative bg-gray-100 items-end"
+              className="hidden md:flex w-1/2 h-[75vh] rounded-3xl overflow-hidden relative items-end"
+              style={{ background: "#0A1E38" }}
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
@@ -59,53 +71,95 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
                 alt="Resort"
                 className="absolute inset-0 w-full h-full object-cover"
               />
-              <div className="relative z-10 p-8 bg-gradient-to-t from-black/60 to-transparent w-full">
-                <p className="text-white/70 text-xs tracking-widest uppercase mb-1">
-                  Marina Bay Suites
+              {/* Gradient overlay */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: "linear-gradient(to top, #030D1A 35%, transparent 100%)",
+                }}
+              />
+              {/* Blue tint */}
+              <div
+                className="absolute inset-0"
+                style={{ background: "#1A56A0", opacity: 0.08 }}
+              />
+              <div className="relative z-10 p-8 w-full">
+                <p
+                  className="text-[0.55rem] tracking-[0.2em] uppercase mb-2"
+                  style={{ color: "#5B90C9" }}
+                >
+                  Marina by Sand
                 </p>
-                <h2 className="text-white text-2xl font-semibold leading-tight">
-                  Your perfect stay <br /> start here.
+                <div className="w-6 h-px mb-3" style={{ background: "#1A56A0", opacity: 0.6 }} />
+                <h2
+                  className="text-[1.6rem] font-light leading-tight"
+                  style={{ fontFamily: "'Cormorant Garamond', serif", color: "#C8DCEF" }}
+                >
+                  Where Every Stay<br />Becomes a Memory.
                 </h2>
               </div>
             </motion.div>
 
             {/* Right — Form */}
             <motion.div
-              className="w-full md:w-1/2 rounded-3xl border border-blue-100 flex flex-col justify-center px-6 md:px-10 py-10 md:py-12"
+              className="w-full md:w-1/2 rounded-3xl flex flex-col justify-center px-6 md:px-10 py-10 md:py-12"
+              style={{
+                background: "#DDE8F5",
+                border: "0.5px solid #B5CDE8",
+              }}
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.25, duration: 0.5 }}
             >
-              <p className="text-xs tracking-widest uppercase text-blue-400 mb-2">
+              <p
+                className="text-[0.55rem] tracking-[0.2em] uppercase mb-2"
+                style={{ color: "#1A56A0" }}
+              >
                 Reserve
               </p>
-              <h3 className="text-2xl font-semibold text-gray-900 mb-8">
-                Plan your visit
+              <h3
+                className="font-light mb-1 leading-tight"
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: "1.9rem",
+                  color: "#0A1828",
+                }}
+              >
+                Plan Your Visit
               </h3>
+              <div className="w-8 h-px mb-8" style={{ background: "#1A56A0", opacity: 0.4 }} />
 
               {/* Check-in */}
               <div className="mb-5">
-                <label className="block text-xs tracking-widest uppercase text-gray-400 mb-2">
-                  Check-in Date <span className="text-blue-400">*</span>
+                <label
+                  className="block text-[0.58rem] tracking-[0.18em] uppercase mb-2"
+                  style={{ color: "#2C4E72" }}
+                >
+                  Check-in Date <span style={{ color: "#1A56A0" }}>*</span>
                 </label>
-                <Popover>
+                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full justify-start text-left font-normal border border-blue-200 rounded-xl px-4 py-3 h-auto text-sm hover:bg-transparent focus:ring-2 focus:ring-blue-300 focus:border-transparent",
-                        !checkin && "text-gray-400"
+                        "w-full justify-start text-left font-normal rounded-xl px-4 py-3 h-auto text-sm hover:bg-transparent transition-all duration-200",
+                        !checkin && "text-[#6A9EC5]"
                       )}
+                      style={{
+                        border: "0.5px solid #B5CDE8",
+                        background: "#EEF3FA",
+                        color: checkin ? "#0A1828" : "#6A9EC5",
+                      }}
                     >
-                      <Calendar01Icon className="mr-2 h-4 w-4 text-blue-400" />
-                      {checkin ? format(checkin, "PPP") : "Pilih tanggal check-in"}
+                      <Calendar01Icon className="mr-2 h-4 w-4" style={{ color: "#1A56A0" }} />
+                      {checkin ? format(checkin, "PPP") : "Select check-in date"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0 z-[200]" align="start">
                     <Calendar
                       mode="single"
                       selected={checkin}
-                      onSelect={setCheckin}
+                      onSelect={handleDateSelect}
                       disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                       initialFocus
                       className="rounded-lg border"
@@ -116,9 +170,15 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
 
               {/* Adults */}
               <div className="mb-10">
-                <label className="block text-xs tracking-widest uppercase text-gray-400 mb-2">
-                  Adults{" "}
-                  <span className="text-gray-300 normal-case tracking-normal">
+                <label
+                  className="block text-[0.58rem] tracking-[0.18em] uppercase mb-2"
+                  style={{ color: "#2C4E72" }}
+                >
+                  Guests{" "}
+                  <span
+                    className="normal-case tracking-normal text-[0.65rem]"
+                    style={{ color: "#6A9EC5" }}
+                  >
                     (optional)
                   </span>
                 </label>
@@ -129,7 +189,14 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
                   placeholder="e.g. 2"
                   value={adults}
                   onChange={(e) => setAdults(e.target.value)}
-                  className="w-full border border-blue-200 rounded-xl px-4 py-3 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition"
+                  className="w-full rounded-xl px-4 py-3 text-sm transition-all duration-200 focus:outline-none"
+                  style={{
+                    border: "0.5px solid #B5CDE8",
+                    background: "#EEF3FA",
+                    color: "#0A1828",
+                  }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = "#1A56A0")}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = "#B5CDE8")}
                 />
               </div>
 
@@ -137,18 +204,35 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
               <button
                 onClick={handleBook}
                 disabled={!checkin}
-                className={`w-full py-4 rounded-xl text-sm tracking-widest uppercase font-medium transition-all duration-300
-                  ${checkin
-                    ? "bg-blue-500 text-white hover:bg-blue-600 shadow-lg shadow-blue-200 hover:shadow-blue-300"
-                    : "bg-gray-100 text-gray-300 cursor-not-allowed"
-                  }
-                `}
+                className="w-full py-4 rounded-xl text-[0.68rem] tracking-[0.18em] uppercase font-normal transition-all duration-300"
+                style={
+                  checkin
+                    ? {
+                        background: "#0A1828",
+                        color: "#C8DCEF",
+                        cursor: "pointer",
+                      }
+                    : {
+                        background: "#D0DCE8",
+                        color: "#8AADC8",
+                        cursor: "not-allowed",
+                      }
+                }
+                onMouseEnter={(e) => {
+                  if (checkin) e.currentTarget.style.background = "#163356";
+                }}
+                onMouseLeave={(e) => {
+                  if (checkin) e.currentTarget.style.background = "#0A1828";
+                }}
               >
-                Book Now
+                Reserve Your Experience
               </button>
 
               {!checkin && (
-                <p className="text-center text-xs text-gray-300 mt-3">
+                <p
+                  className="text-center text-[0.62rem] mt-3"
+                  style={{ color: "#8AADC8" }}
+                >
                   Please select a check-in date to continue
                 </p>
               )}
