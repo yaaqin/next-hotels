@@ -154,6 +154,15 @@ export default function ReservationPage() {
   const { reset } = useBookingStore()
   const router = useRouter()
 
+  const preselectedRoomId = items[0]?.roomId
+
+  useEffect(() => {
+    if (!preselectedRoomId || !roomData?.data || selectedRoom) return
+
+    const match = roomData.data.find((r) => r.id === preselectedRoomId)
+    if (match) setSelectedRoom(match)
+  }, [preselectedRoomId, roomData?.data])
+
   const handleBooking = async () => {
     if (!isReadyToSubmit()) return
 

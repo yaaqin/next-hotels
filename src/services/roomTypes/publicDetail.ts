@@ -4,7 +4,7 @@ import { publicRoomTypeDetailProps } from "@/src/models/public/roomTypeDetail/pu
 type Params = {
   id: string
   checkin: string 
-  checkout?: string
+  checkout: string
   siteCode?: string
 }
 

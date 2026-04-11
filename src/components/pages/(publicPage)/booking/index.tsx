@@ -46,7 +46,9 @@ export default function BookingPublicPage() {
 
     const { setStay, setItem, setRoomDetail } = useBookingStore()
 
-    const checkinParam = searchParams.get("checkin")
+    const checkinParam = searchParams.get("checkIn")
+    const checkoutParam = searchParams.get("checkOut")
+    console.log('checkout ==>', checkoutParam)
 
     const { checkinDate, checkoutDate, checkin, checkout } = useMemo(() => {
         const checkinDate = parseDateParam(checkinParam)

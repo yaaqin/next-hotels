@@ -4,6 +4,7 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import { useRoomDetailPublic } from '@/src/hooks/query/rooms/publicDetail'
 import SliderImage from '@/src/components/organisms/galleries/sliderImage'
 import { publicRoomDetailState } from '@/src/models/public/room/detail'
+import { useBookingStore } from '@/src/stores/booking'
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 function Skeleton() {
@@ -56,24 +57,40 @@ function RoomDetailContent({ room, checkin, checkout }: {
   checkout: string
 }) {
   const router = useRouter()
+  const { setStay, setItem, setRoomId, setRoomDetail } = useBookingStore()
 
   const nights = checkin && checkout
     ? Math.max(0, Math.round((new Date(checkout).getTime() - new Date(checkin).getTime()) / 86400000))
     : 0
 
   const handleReservasi = () => {
-    console.log('Reservasi payload:', {
-      roomId: room.id,
-      roomNumber: room.number,
-      siteCode: room.siteCode,
-      checkin,
-      checkout,
-      nights,
-      roomType: room.roomType.translation.name,
-      bedType: room.bedType.translation.name,
+    console.log('ini yang harusnya dikirim ==>', room.gallery?.images?.[0]?.url)
+    setStay({
+      siteCode: room.site.sitecode,
+      checkInDate: checkin,
+      checkOutDate: checkout,
     })
-  }
 
+    setItem({
+      roomTypeId: room.roomType.id,
+      imageUrl: room.gallery?.images?.[0]?.url || '',
+    })
+
+    setRoomId(
+      room.roomType.id,
+      room.id,
+      room.gallery?.images?.[0]?.url || '',
+    )
+
+    setRoomDetail({
+      roomTypeName: room.roomType.translation.name,
+      pricePerNight: room.pricing?.pricePerNight ?? 0,
+      nights: room.pricing?.nights ?? nights,
+      totalPrice: room.pricing?.totalPrice ?? 0,
+    })
+
+    router.push('/reservation')
+  }
   return (
     <div className="min-h-screen bg-white relative">
 

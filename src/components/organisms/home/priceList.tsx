@@ -1,10 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import { usePublicRoomTypeAvailibility } from '@/src/hooks/query/roomAvailibility/publicRoomTypeAvailibility'
 import { roomListAvailableState } from '@/src/models/public/roomAvailibility/listRoomType'
 import { useTranslation } from 'react-i18next'
+import { useBookingStore } from '@/src/stores/booking'
+import { useRouter } from 'next/navigation'
 
 // ─── Date Utilities ───────────────────────────────────────────────────────────
 function getTodayAndTomorrow() {
@@ -46,10 +48,12 @@ function RoomCard({
     room,
     checkin,
     checkout,
+    onSelect,
 }: {
     room: roomListAvailableState
     checkin: string
     checkout: string
+    onSelect: (room: roomListAvailableState) => void
 }) {
     const { t } = useTranslation()
 
@@ -105,12 +109,12 @@ function RoomCard({
 
                 {/* CTA */}
                 <div className="pt-2">
-                    <Link
-                        href={`/booking/${room.roomTypeId}?checkIn=${checkin}&checkOut=${checkout}`}
+                    <button
+                        onClick={() => onSelect(room)}
                         className="block w-full text-center bg-white border border-gray-200 text-gray-800 text-xs font-semibold rounded-xl py-2.5 hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-colors duration-200"
                     >
                         {t("label.booking")}
-                    </Link>
+                    </button>
                 </div>
             </div>
         </div>
@@ -132,6 +136,31 @@ export default function RoomTypeCarousel() {
     }
 
     const rooms = data?.data ?? []
+    const router = useRouter()
+    const { setStay, setItem, setRoomDetail } = useBookingStore()
+
+
+    const handleSelectRoom = useCallback(
+        (roomType: roomListAvailableState) => {
+            setStay({
+                siteCode: 'MERAK',
+                checkInDate: checkin,
+                checkOutDate: checkout,
+            })
+            setItem({
+                roomTypeId: roomType.roomTypeId,
+                imageUrl: roomType.imageUrl || '',
+            })
+            setRoomDetail({
+                roomTypeName: roomType.name,
+                pricePerNight: roomType.pricing.price,
+                nights: roomType.pricing.nights,
+                totalPrice: roomType.pricing.totalPrice,
+            })
+            router.push('/reservation')
+        },
+        [checkin, checkout, setStay, setItem, setRoomDetail, router],
+    )
 
     return (
         <div className="relative w-full mb-8">
@@ -155,6 +184,7 @@ export default function RoomTypeCarousel() {
                                 room={room}
                                 checkin={checkin}
                                 checkout={checkout}
+                                onSelect={handleSelectRoom}
                             />
                         ))
                 }

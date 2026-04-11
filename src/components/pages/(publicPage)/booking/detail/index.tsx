@@ -257,7 +257,7 @@ export default function RoomTypeDetailPage() {
   const searchParams = useSearchParams();
 
   const checkin = searchParams.get("checkIn") ?? "";
-  const checkout = searchParams.get("checkOut") ?? "";
+  const checkout = searchParams.get("checkout") ?? "";
   const showDatePicker = !checkin;
 
   const { data, isLoading, error } = useRoomTypeDetailPublic(id);

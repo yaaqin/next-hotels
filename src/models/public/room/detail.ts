@@ -17,6 +17,17 @@ export interface publicRoomDetailState {
   facilityGroup: FacilityGroup
   gallery: Gallery
   isAllowToCheckIn: boolean
+  pricing: Pricing | null
+}
+
+export interface Pricing {
+  basePrice: number
+  pricePerNight: number
+  originalPrice: number | null
+  isDiscounted: boolean
+  nights: number
+  totalPrice: number
+  nightlyBreakdown: number[]
 }
 
 export interface Site {
