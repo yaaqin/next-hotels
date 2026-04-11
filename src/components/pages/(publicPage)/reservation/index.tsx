@@ -22,6 +22,7 @@ import { SlushWalletButton } from '@/src/components/atoms/slushWalletButton'
 import { useSgtPayment } from '@/src/hooks/custom/payment/useSgtPayment'
 import { axiosPublic } from '@/src/libs/instance'
 import { useSafeSession } from "@/src/hooks/custom/payment/useSafeSession"
+import toast from 'react-hot-toast'
 
 type PaymentMethod = 'va_bca' | 'va_bni' | 'va_bri' | 'va_mandiri' | 'qris' | 'sgt'
 type PaymentCategory = 'va' | 'qris' | 'sgt'
@@ -274,7 +275,7 @@ export default function ReservationPage() {
           const bookingCode = res?.data?.booking?.bookingCode
           if (paymentCategory === 'sgt' && payment?.type === 'SGT') {
             if (!payment.hotelWalletAddress || !payment.sgtAmountDue) {
-              alert('Data pembayaran SGT tidak lengkap')
+              toast.error('Data pembayaran SGT tidak lengkap')
               return
             }
             const { hotelWalletAddress, sgtAmountDue } = payment
@@ -285,12 +286,19 @@ export default function ReservationPage() {
               router.push(`/payment/success?bookingCode=${bookingCode}`)
             } catch (err) {
               console.error('SGT payment gagal:', err)
-              alert('Transaksi SGT dibatalkan atau gagal.')
+              toast.error('Transaksi SGT dibatalkan atau gagal.')
             }
             return
           }
           reset()
           router.push(`/reservation/${bookingCode}`)
+        },
+        onError: (err: any) => {
+          const message =
+            err?.response?.data?.message ??
+            err?.message ??
+            'Terjadi kesalahan, coba lagi.'
+          toast.error(message)
         },
       }
     )
