@@ -1,7 +1,4 @@
-import Footer from '@/src/components/organisms/layouts/footers/publicFooter'
-import TopLanguageNavbar from '@/src/components/organisms/layouts/navbars/topNavbarLang'
 import SessionWrapper from '@/src/components/providers/sessionWrapper'
-import Link from 'next/link'
 import { Suspense } from 'react'
 
 function PageSkeleton() {
@@ -23,26 +20,12 @@ export default function PublicAccessLayout({
   return (
     <SessionWrapper>
       <section className="flex flex-col min-h-screen">
-        <Suspense fallback={null}>
-          <TopLanguageNavbar />
-        </Suspense>
-
-        <header className="bg-white text-center w-full shadow-sm border-b border-gray-100 py-3 sticky top-0 z-50">
-          <Link
-            href="/"
-            className="cursor-pointer text-4xl font-bold text-gray-900 tracking-tight hover:opacity-70 transition-opacity duration-200 inline-block"
-          >
-            MBS
-          </Link>
-        </header>
-
         <main className="flex-1">
           <Suspense fallback={<PageSkeleton />}>
             {children}
           </Suspense>
         </main>
 
-        <Footer />
       </section>
     </SessionWrapper>
   )

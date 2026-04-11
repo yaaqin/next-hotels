@@ -13,7 +13,7 @@ export const useRoomTypeDetailPublic = (id: string) => {
   const searchParams = useSearchParams();
 
   const checkin = searchParams.get("checkIn");
-  const checkoutParam = searchParams.get("checkOut");
+  const checkoutParam = searchParams.get("checkout");
 
   const checkout = checkoutParam ?? (checkin ? addOneDay(checkin) : undefined);
 
@@ -30,7 +30,7 @@ export const useRoomTypeDetailPublic = (id: string) => {
         checkin: checkin as string,
         checkout: checkout as string,
       }),
-    enabled: !!id && !!checkin, // cuma jalan kalau param valid
+    enabled: !!id && !!checkin, 
   });
 
   return { data, isLoading, error, refetch };
