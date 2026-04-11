@@ -2,7 +2,6 @@
 
 import Footer from '@/src/components/organisms/layouts/footers/publicFooter'
 import TopLanguageNavbar from '@/src/components/organisms/layouts/navbars/topNavbarLang'
-import { SessionProvider } from 'next-auth/react'
 import Link from 'next/link'
 import { Suspense } from 'react'
 
@@ -31,7 +30,6 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <SessionProvider>
       <section className="flex flex-col min-h-screen">
         {/* Top Language Bar */}
         <Suspense fallback={null}>
@@ -39,13 +37,13 @@ export default function RootLayout({
         </Suspense>
 
         {/* Brand Header */}
-        <header className="bg-white text-center w-full shadow-sm border-b border-gray-100 py-3 sticky top-0 z-50">
+        <header className="bg-white text-center w-full shadow-sm border-b border-gray-100 py-3 sticky top-0 z-20">
           <Link
             href="/"
             className="cursor-pointer text-4xl font-bold text-gray-900 tracking-tight hover:opacity-70 transition-opacity duration-200 inline-block"
           >
             MBS
-          </Link>
+          </Link> 
         </header>
 
         {/* Main Content */}
@@ -58,6 +56,5 @@ export default function RootLayout({
         {/* Footer */}
         <Footer />
       </section>
-    </SessionProvider>
   )
 }

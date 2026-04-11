@@ -28,7 +28,7 @@ export default function TopLanguageNavbar() {
   const selectedLabel = languages.find((l) => l.value === selected)?.label ?? selected
 
   return (
-    <div className="w-full bg-black text-white text-sm">
+    <div className="w-full bg-black text-white text-sm z-50">
       <div className="max-w-7xl mx-auto px-4 py-2 flex justify-end items-center relative">
 
         <button

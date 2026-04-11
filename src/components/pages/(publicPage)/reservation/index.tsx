@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession, signIn } from 'next-auth/react'
+import { signIn } from 'next-auth/react'
 import {
   Building01Icon,
   Calendar01Icon,
@@ -21,6 +21,7 @@ import { useRouter } from 'next/navigation'
 import { SlushWalletButton } from '@/src/components/atoms/slushWalletButton'
 import { useSgtPayment } from '@/src/hooks/custom/payment/useSgtPayment'
 import { axiosPublic } from '@/src/libs/instance'
+import { useSafeSession } from "@/src/hooks/custom/payment/useSafeSession"
 
 type PaymentMethod = 'va_bca' | 'va_bni' | 'va_bri' | 'va_mandiri' | 'qris' | 'sgt'
 type PaymentCategory = 'va' | 'qris' | 'sgt'
@@ -58,7 +59,6 @@ function Divider() {
   return <div className="border-t border-dashed border-gray-200 my-6" />
 }
 
-// ─── Skeleton: Contact Loading ─────────────────────────────────────────────────
 function ContactCardSkeleton() {
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm animate-pulse">
@@ -81,7 +81,6 @@ function ContactCardSkeleton() {
   )
 }
 
-// ─── Google Login Gate ────────────────────────────────────────────────────────
 function GoogleLoginGate() {
   return (
     <div className="bg-white rounded-2xl p-8 shadow-sm flex flex-col items-center text-center gap-4">
@@ -91,7 +90,7 @@ function GoogleLoginGate() {
       <div>
         <p className="text-sm font-semibold text-gray-900 mb-1">Login diperlukan</p>
         <p className="text-xs text-gray-400 leading-relaxed">
-          Masuk dengan Google untuk melanjutkan reservasi. Email kamu akan digunakan sebagai kontak booking.
+          Masuk dengan Google untuk melanjutkan reservasi.
         </p>
       </div>
       <button
@@ -110,13 +109,12 @@ function GoogleLoginGate() {
   )
 }
 
-// ─── Contact Card ─────────────────────────────────────────────────────────────
 function ContactCard({
   session,
   contact,
   setContact,
 }: {
-  session: NonNullable<ReturnType<typeof useSession>['data']>
+  session: NonNullable<ReturnType<typeof useSafeSession>['session']>
   contact: any
   setContact: (val: any) => void
 }) {
@@ -136,7 +134,6 @@ function ContactCard({
           </div>
         )}
       </div>
-
       <div className="space-y-4">
         <div className="relative">
           <UserIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
@@ -156,7 +153,7 @@ function ContactCard({
               placeholder="Email"
               value={session?.user?.email ?? ''}
               readOnly
-              onChange={() => {}}
+              onChange={() => { }}
               className="w-full pl-9 pr-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none transition placeholder:text-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed select-none"
             />
           </div>
@@ -198,19 +195,14 @@ function ContactCard({
   )
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ReservationPage() {
-  const { data: session, status } = useSession()
+  const { session, isLoading, isAuthenticated, isUnauthenticated } = useSafeSession()
   const { payload, setContact, setPaymentMethod, setRoomId, isReadyToSubmit } = useBookingStore()
   const { checkInDate, checkOutDate, items, contact } = payload
 
   const { executePayment } = useSgtPayment()
   const [sgtWalletAddress, setSgtWalletAddress] = useState<string | null>(null)
-  const [isHydrated, setIsHydrated] = useState(false)
 
-  useEffect(() => { setIsHydrated(true) }, [])
-
-  // Auto-fill nama dari Google session
   useEffect(() => {
     if (session?.user?.name && !contact.fullName) {
       setContact({ fullName: session.user.name })
@@ -269,9 +261,7 @@ export default function ReservationPage() {
 
   const handleBooking = async () => {
     if (!isReadyToSubmit()) return
-
     const { items, ...rest } = payload
-
     mutate(
       {
         ...rest,
@@ -282,7 +272,6 @@ export default function ReservationPage() {
         onSuccess: async (res) => {
           const payment = res?.data?.payment
           const bookingCode = res?.data?.booking?.bookingCode
-
           if (paymentCategory === 'sgt' && payment?.type === 'SGT') {
             if (!payment.hotelWalletAddress || !payment.sgtAmountDue) {
               alert('Data pembayaran SGT tidak lengkap')
@@ -300,7 +289,6 @@ export default function ReservationPage() {
             }
             return
           }
-
           reset()
           router.push(`/reservation/${bookingCode}`)
         },
@@ -308,21 +296,11 @@ export default function ReservationPage() {
     )
   }
 
-  // Derived button state
-  const sessionLoading = !isHydrated || status === 'loading'
-  const isLoggedIn = !!session
-  const canSubmit = isHydrated && isLoggedIn && isReadyToSubmit() && !isPending
-
-  const buttonLabel = isPending
-    ? 'Processing...'
-    : sessionLoading
-    ? 'Memuat sesi...'
-    : 'Confirm & Pay'
+  const canSubmit = isAuthenticated && isReadyToSubmit() && !isPending
 
   return (
     <div className="min-h-screen bg-[#f5f4f0] py-10 px-4">
       <div className="max-w-4xl mx-auto">
-
         <div className="mb-8">
           <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">Reservation</h1>
           <p className="text-sm text-gray-400 tracking-widest uppercase mt-1">
@@ -331,11 +309,9 @@ export default function ReservationPage() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">
-
-          {/* ── Left Column ── */}
           <div className="flex-1 space-y-4">
 
-            {/* Stay Info Card */}
+            {/* Stay Info */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-5">
                 <Calendar01Icon size={16} className="text-blue-400" />
@@ -386,16 +362,16 @@ export default function ReservationPage() {
               </div>
             </div>
 
-            {/* ── Contact Card: 3 states ── */}
-            {status === 'loading' || !isHydrated ? (
+            {/* Contact — 3 state bener */}
+            {isLoading ? (
               <ContactCardSkeleton />
-            ) : !session ? (
+            ) : isUnauthenticated ? (
               <GoogleLoginGate />
-            ) : (
+            ) : isAuthenticated && session ? (
               <ContactCard session={session} contact={contact} setContact={setContact} />
-            )}
+            ) : null}
 
-            {/* Payment Card */}
+            {/* Payment */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-5">
                 <CreditCardIcon size={16} className="text-blue-400" />
@@ -469,7 +445,7 @@ export default function ReservationPage() {
 
           </div>
 
-          {/* ── Right Column ── */}
+          {/* Right Column */}
           <div className="lg:w-72 space-y-4">
             <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-6">
               <div className="w-full h-36 rounded-xl overflow-hidden mb-5 bg-gray-100">
@@ -492,32 +468,28 @@ export default function ReservationPage() {
                 <span className="text-xs tracking-widest uppercase text-gray-400">Total</span>
                 <span className="text-lg font-bold text-gray-900">{pricing ? formatCurrency(pricing.totalPrice) : '—'}</span>
               </div>
-
-              {/* ── Confirm Button ── */}
               <button
                 onClick={handleBooking}
-                disabled={!canSubmit || sessionLoading}
+                disabled={!canSubmit || isLoading}
                 className={`w-full mt-5 py-3.5 rounded-xl text-sm tracking-widest uppercase font-medium transition-all duration-300
-                  ${canSubmit && !sessionLoading
+                  ${canSubmit && !isLoading
                     ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-md shadow-blue-100'
                     : 'bg-gray-100 text-gray-300 cursor-not-allowed'
                   }`}
               >
-                {sessionLoading ? (
+                {isPending ? 'Processing...' : isLoading ? (
                   <span className="flex items-center justify-center gap-2">
                     <span className="w-3.5 h-3.5 rounded-full border-2 border-gray-300 border-t-gray-400 animate-spin inline-block" />
                     Memuat sesi...
                   </span>
-                ) : buttonLabel}
+                ) : 'Confirm & Pay'}
               </button>
-
-              {/* ── Hint text: only show after session resolved ── */}
-              {isHydrated && status !== 'loading' && !session && (
+              {isUnauthenticated && (
                 <p className="text-center text-[10px] text-gray-300 mt-2 tracking-wide">
                   Login dengan Google untuk melanjutkan
                 </p>
               )}
-              {isHydrated && status !== 'loading' && session && !isReadyToSubmit() && (
+              {isAuthenticated && !isReadyToSubmit() && (
                 <p className="text-center text-[10px] text-gray-300 mt-2 tracking-wide">
                   Lengkapi semua data untuk melanjutkan
                 </p>

@@ -5,6 +5,8 @@ import { useRoomDetailPublic } from '@/src/hooks/query/rooms/publicDetail'
 import SliderImage from '@/src/components/organisms/galleries/sliderImage'
 import { publicRoomDetailState } from '@/src/models/public/room/detail'
 import { useBookingStore } from '@/src/stores/booking'
+import RoomImageGallery from '@/src/components/organisms/galleries/sliderImage/roomImageGallery'
+import { FACILITY_ICONS } from '@/src/constans/room'
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 function Skeleton() {
@@ -93,25 +95,6 @@ function RoomDetailContent({ room, checkin, checkout }: {
   }
   return (
     <div className="min-h-screen bg-white relative">
-
-      {/* ── Gallery ── */}
-      {room.gallery?.images?.length > 0 ? (
-        <SliderImage data={{
-          id: room.gallery.id,
-          title: room.gallery.title,
-          createdAt: room.gallery.createdAt,
-          createdBy: room.createdBy,
-          images: room.gallery.images,
-        }} />
-      ) : (
-        <div className="w-full h-64 bg-gray-100 flex items-center justify-center">
-          <svg className="w-14 h-14 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
-              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909" />
-          </svg>
-        </div>
-      )}
-
       <div className="px-5 pt-6 pb-32 space-y-6">
 
         {/* ── Header ── */}
@@ -127,6 +110,13 @@ function RoomDetailContent({ room, checkin, checkout }: {
           </div>
           <p className="text-sm text-gray-400 font-mono">{room.id}</p>
         </div>
+
+        <hr className="border-gray-100" />
+
+        {/* ── Gallery ── */}
+        {room.gallery?.images?.length > 0 && (
+          <RoomImageGallery images={room.gallery.images} />
+        )}
 
         <hr className="border-gray-100" />
 
@@ -170,7 +160,9 @@ function RoomDetailContent({ room, checkin, checkout }: {
         </div>
 
         {/* ── Fasilitas ── */}
-        <div className="border border-gray-100 rounded-2xl p-4 space-y-4">
+        <div className="border border-gray-100 rounded-2xl p-5 space-y-5">
+
+          {/* Header */}
           <div className="flex items-center justify-between">
             <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-400">
               Fasilitas
@@ -179,27 +171,52 @@ function RoomDetailContent({ room, checkin, checkout }: {
               {room.facilityGroup.code}
             </span>
           </div>
+
           {room.facilityGroup.note && (
-            <p className="text-xs text-gray-400">{room.facilityGroup.note}</p>
+            <p className="text-xs text-gray-400 -mt-2">{room.facilityGroup.note}</p>
           )}
-          <div className="space-y-4">
-            {room.facilityGroup.facilities.map((facility) => (
-              <div key={facility.type.id}>
-                <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-2">
-                  {facility.type.name}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {facility.items.map((item) => (
-                    <span
-                      key={item.id}
-                      className="px-3 py-1 text-xs text-gray-600 bg-gray-50 border border-gray-100 rounded-full"
-                    >
-                      {item.name}
-                    </span>
-                  ))}
+
+          {/* Categories */}
+          <div className="space-y-5">
+            {room.facilityGroup.facilities.map((facility) => {
+              const icon = FACILITY_ICONS[facility.type.code] ?? FACILITY_ICONS.DEFAULT
+              return (
+                <div key={facility.type.id} className="space-y-2.5">
+
+                  {/* Category label + icon */}
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0">
+                      <img
+                        src={`https://cdn.hugeicons.com/icons/${icon}-stroke-rounded.svg`}
+                        alt=""
+                        className="w-3.5 h-3.5 opacity-50"
+                      />
+                    </div>
+                    <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-400">
+                      {facility.type.name}
+                    </p>
+                  </div>
+
+                  {/* Pills */}
+                  <div className="flex flex-wrap gap-1.5 pl-8">
+                    {facility.items.map((item) => (
+                      <span
+                        key={item.id}
+                        className="px-2.5 py-1 text-[11px] text-gray-500 bg-gray-50 border border-gray-100 rounded-full leading-none"
+                      >
+                        {item.name}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Divider antar category, kecuali yang terakhir */}
+                  {facility !== room.facilityGroup.facilities.at(-1) && (
+                    <hr className="border-gray-50 mt-1 pl-8" />
+                  )}
+
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
 

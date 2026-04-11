@@ -1,0 +1,20 @@
+export const FACILITY_ICONS: Record<string, string> = {
+  // type.code → hugeicons slug
+  FURNITURE:        'sofa',
+  PERABOTAN:        'sofa',
+  BATHROOM:         'bathtub-01',
+  BATHROOM_FACILITIES: 'bathtub-01',
+  VIEW:             'mountain',
+  VIEW_OUTDOOR:     'mountain',
+  FOOD:             'coffee-01',
+  FOOD_BEVERAGE:    'coffee-01',
+  SAFETY:           'shield-01',
+  SAFETY_SECURITY:  'shield-01',
+  CONNECTIVITY:     'wifi-connected-01',
+  MEDIA:            'wifi-connected-01',
+  CONNECTIVITY_MEDIA: 'wifi-connected-01',
+  CLIMATE:          'air-conditioner',
+  BEDDING:          'bed-02',
+  ENTERTAINMENT:    'tv-01',
+  DEFAULT:          'star',
+}

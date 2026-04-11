@@ -65,9 +65,44 @@ function CopyButton({ text }: { text: string }) {
     )
 }
 
+// ─── QRIS Sandbox Warning ─────────────────────────────────────────────────────
+
+function QrisSandboxWarning() {
+    const [dismissed, setDismissed] = useState(false)
+    if (dismissed) return null
+
+    return (
+        <div className="flex gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3.5">
+            <div className="flex-shrink-0 mt-0.5">
+                <svg className="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-amber-800 mb-1">Simulasi QRIS sandbox sering gagal</p>
+                <p className="text-xs text-amber-700 leading-relaxed">
+                    Jika pembayaran QRIS gagal, silakan ganti metode pembayaran ke <span className="font-semibold">VA BCA</span> saat booking ulang.
+                    Untuk booking ruangan yang sama, harap tunggu <span className="font-semibold">±15 menit</span> hingga payment ini expired sebelum mencoba booking kembali.
+                </p>
+            </div>
+            <button
+                onClick={() => setDismissed(true)}
+                className="flex-shrink-0 text-amber-400 hover:text-amber-600 transition-colors"
+                aria-label="Tutup peringatan"
+            >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    )
+}
+
 // ─── Payment Info Panel ───────────────────────────────────────────────────────
 
 function PaymentInfoPanel({ payment, totalAmount }: { payment: Payment; totalAmount: number }) {
+    const qrisUrl = (payment as any).qrisUrl as string | undefined
+
     if (payment.type === 'VIRTUAL_ACCOUNT') {
         return (
             <div className="flex flex-col gap-5">
@@ -112,14 +147,18 @@ function PaymentInfoPanel({ payment, totalAmount }: { payment: Payment; totalAmo
         )
     }
 
+    // ── QRIS ──
     return (
         <div className="flex flex-col gap-5">
-            {/* QR */}
+            {/* Sandbox Warning */}
+            <QrisSandboxWarning />
+
+            {/* QR Image */}
             <div>
                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">QR Code</p>
                 <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex flex-col items-center gap-3">
-                    {(payment as any).qrisUrl ? (
-                        <img src={(payment as any).qrisUrl} alt="QRIS" className="w-40 h-40 object-contain rounded-lg" />
+                    {qrisUrl ? (
+                        <img src={qrisUrl} alt="QRIS" className="w-40 h-40 object-contain rounded-lg" />
                     ) : (
                         <div className="w-40 h-40 bg-white border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
                             <p className="text-xs text-gray-400">QR tidak tersedia</p>
@@ -127,6 +166,19 @@ function PaymentInfoPanel({ payment, totalAmount }: { payment: Payment; totalAmo
                     )}
                 </div>
             </div>
+
+            {/* QRIS Image URL — sama persis seperti VA Number */}
+            {qrisUrl && (
+                <div>
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">URL Gambar QRIS</p>
+                    <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+                        <span className="font-mono text-xs text-gray-700 flex-1 break-all line-clamp-2">
+                            {qrisUrl}
+                        </span>
+                        <CopyButton text={qrisUrl} />
+                    </div>
+                </div>
+            )}
 
             {/* Total */}
             <div className="bg-green-50 border border-green-100 rounded-xl px-4 py-3">
