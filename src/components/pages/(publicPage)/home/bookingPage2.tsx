@@ -67,10 +67,10 @@ export default function BookingPage2() {
           }}
           className="absolute bottom-8 left-6"
         >
-          <h4 className="text-4xl max-w-2xl font-bold text-white text-shadow">
+          <h4 className="text-xl md:text-4xl max-w-2xl font-bold text-white text-shadow">
             {t("text.home.head.text1")}
           </h4>
-          <p className="text-xl text-white mt-2">
+          <p className="text-xs md:text-xl text-white mt-2">
             {t("text.home.head.text2")}
           </p>
         </motion.section>
@@ -84,7 +84,7 @@ export default function BookingPage2() {
         className='relative h-screen w-full bg-white pb-4'
         style={{ zIndex: 2 }}
       >
-        <div className='h-screen flex flex-col justify-center px-16 max-w-4xl mx-auto py-32'>
+        <div className='h-screen flex flex-col justify-center px-8 md:px-16 max-w-4xl mx-auto py-32'>
 
           <motion.div
             style={{ opacity: line1Op }}
@@ -93,21 +93,21 @@ export default function BookingPage2() {
 
           <motion.p
             style={{ y: line1Y, opacity: line1Op }}
-            className='text-2xl leading-relaxed text-black font-light mb-8'
+            className='text-lg md:text-2xl leading-relaxed text-black font-light mb-8'
           >
             {t("text.home.about.text1")}
           </motion.p>
 
           <motion.p
             style={{ y: line2Y, opacity: line2Op }}
-            className='text-2xl leading-relaxed text-black font-light mb-12'
+            className='text-lg md:text-2xl leading-relaxed text-black font-light mb-12'
           >
             {t("text.home.about.text2")}
           </motion.p>
 
           <motion.p
             style={{ y: line3Y, opacity: line3Op }}
-            className='text-lg tracking-widest uppercase text-black font-medium'
+            className='text-xs md:text-lg tracking-widest uppercase text-black font-medium'
           >
             {t("text.home.about.text3")}
           </motion.p>

@@ -18,11 +18,39 @@ function formatCurrency(amount: number) {
   }).format(amount)
 }
 
+// "0xf86ee9dc57d1dff51befe..." → "0xf8...e48"
+function truncateWallet(address: string) {
+  if (!address || address.length <= 10) return address
+  return `${address.slice(0, 6)}...${address.slice(-3)}`
+}
+
+// Cek apakah string adalah wallet address (mulai 0x dan panjang)
+function isWalletAddress(str: string) {
+  return /^0x[a-fA-F0-9]{10,}$/.test(str)
+}
+
+// Parse note: kalau ada "wallet: 0x..." → truncate bagian addressnya
+function parseNote(note: string) {
+  if (!note) return note
+  const walletMatch = note.match(/(wallet:\s*)(0x[a-fA-F0-9]+)/i)
+  if (walletMatch) {
+    return note.replace(walletMatch[2], truncateWallet(walletMatch[2]))
+  }
+  return note
+}
+
 const SOURCE_TYPE_LABEL: Record<string, string> = {
   REFUND: 'Refund booking',
   USAGE: 'Digunakan untuk booking',
   EXPIRED: 'Kredit kadaluarsa',
   MANUAL: 'Penyesuaian manual',
+}
+
+const SOURCE_TYPE_COLOR: Record<string, string> = {
+  REFUND: 'bg-green-50 text-green-700',
+  USAGE: 'bg-orange-50 text-orange-600',
+  EXPIRED: 'bg-red-50 text-red-600',
+  MANUAL: 'bg-blue-50 text-blue-600',
 }
 
 function Divider() {
@@ -49,6 +77,23 @@ function LogIcon({ type }: { type: string }) {
   )
 }
 
+function SkeletonRow() {
+  return (
+    <div className="flex items-center gap-3 py-3 animate-pulse">
+      <div className="w-8 h-8 rounded-full bg-gray-100 flex-shrink-0" />
+      <div className="flex-1 space-y-2">
+        <div className="h-3 bg-gray-100 rounded w-3/4" />
+        <div className="h-2.5 bg-gray-100 rounded w-16" />
+      </div>
+      <div className="text-right space-y-2 flex-shrink-0">
+        <div className="h-2.5 bg-gray-100 rounded w-20 ml-auto" />
+        <div className="h-3 bg-gray-100 rounded w-16 ml-auto" />
+        <div className="h-2.5 bg-gray-100 rounded w-24 ml-auto" />
+      </div>
+    </div>
+  )
+}
+
 export default function CreditHistoryPage() {
   const { data, isLoading } = useUserCreditHistory()
   const router = useRouter()
@@ -56,8 +101,8 @@ export default function CreditHistoryPage() {
   const credit = data?.data
 
   return (
-    <div className="min-h-screen bg-[#f5f4f0] py-10 px-4">
-      <div className="max-w-[680px] mx-auto space-y-4">
+    <div className="min-h-screen bg-[#f5f4f0] py-8 px-4">
+      <div className="w-full mx-auto space-y-4">
 
         {/* Header */}
         <div className="mb-6">
@@ -68,15 +113,15 @@ export default function CreditHistoryPage() {
             <ArrowLeft01Icon size={13} />
             Kembali
           </button>
-          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">Credit History</h1>
-          <p className="text-sm text-gray-400 tracking-widest uppercase mt-1">
+          <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">Credit History</h1>
+          <p className="text-xs text-gray-400 tracking-widest uppercase mt-1">
             Riwayat transaksi booking credit
           </p>
         </div>
 
         {/* Balance Summary */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-5">
+        <div className="bg-white rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <CreditCardIcon size={16} className="text-emerald-400" />
               <span className="text-xs tracking-widest uppercase text-gray-400">Saldo kredit</span>
@@ -97,13 +142,17 @@ export default function CreditHistoryPage() {
           <p className="text-[10px] tracking-[0.14em] uppercase text-gray-400 mb-1">
             Saldo tersedia
           </p>
-          <p className="text-3xl font-semibold text-gray-900">
-            {isLoading ? '—' : formatCurrency(credit?.balance ?? 0)}
-          </p>
+          {isLoading ? (
+            <div className="h-8 w-36 bg-gray-100 rounded animate-pulse" />
+          ) : (
+            <p className="text-3xl font-semibold text-gray-900">
+              {formatCurrency(credit?.balance ?? 0)}
+            </p>
+          )}
 
           <Divider />
 
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-[10px] tracking-[0.18em] uppercase text-gray-400 mb-1">
                 Berlaku hingga
@@ -124,8 +173,8 @@ export default function CreditHistoryPage() {
         </div>
 
         {/* Log List */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-5">
+        <div className="bg-white rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" />
             <span className="text-xs tracking-widest uppercase text-gray-400">
               Riwayat transaksi
@@ -133,36 +182,44 @@ export default function CreditHistoryPage() {
           </div>
 
           {isLoading ? (
-            <p className="text-xs text-gray-300 text-center py-6">Memuat riwayat...</p>
+            <div className="divide-y divide-gray-100">
+              {Array.from({ length: 4 }).map((_, i) => <SkeletonRow key={i} />)}
+            </div>
           ) : !credit?.logs?.length ? (
             <p className="text-sm text-gray-400 text-center py-6">Belum ada transaksi</p>
           ) : (
             <div className="divide-y divide-gray-100">
               {credit.logs.map((log) => (
-                <div key={log.id} className="flex items-center gap-3 py-3">
+                <div key={log.id} className="flex items-start gap-3 py-3.5">
+                  {/* Icon */}
                   <LogIcon type={log.type} />
 
+                  {/* Label + badge */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-gray-900">
-                      {log.note || SOURCE_TYPE_LABEL[log.sourceType] || log.sourceType}
+                    <p className="text-xs font-medium text-gray-900 leading-snug break-words">
+                      {parseNote(log.note || SOURCE_TYPE_LABEL[log.sourceType] || log.sourceType)}
                     </p>
-                    <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 tracking-wide">
+                    <span
+                      className={`inline-block mt-1.5 text-[10px] px-1.5 py-0.5 rounded tracking-wide font-medium
+                        ${SOURCE_TYPE_COLOR[log.sourceType] ?? 'bg-gray-100 text-gray-500'}`}
+                    >
                       {log.sourceType}
                     </span>
                   </div>
 
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-[11px] text-gray-400 mb-0.5">
+                  {/* Amount + date */}
+                  <div className="text-right flex-shrink-0 pl-2">
+                    <p className="text-[11px] text-gray-400 mb-0.5 tabular-nums">
                       {formatDate(log.createdAt)}
                     </p>
                     <p
-                      className={`text-sm font-medium
-                        ${log.type === 'ADD' ? 'text-green-700' : 'text-red-700'}`}
+                      className={`text-sm font-semibold tabular-nums
+                        ${log.type === 'ADD' ? 'text-green-700' : 'text-red-600'}`}
                     >
-                      {log.type === 'ADD' ? '+' : '−'} {formatCurrency(log.amount)}
+                      {log.type === 'ADD' ? '+' : '−'}{formatCurrency(log.amount)}
                     </p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">
-                      Saldo: {formatCurrency(log.balanceAfter)}
+                    <p className="text-[10px] text-gray-400 mt-0.5 tabular-nums">
+                      {formatCurrency(log.balanceAfter)}
                     </p>
                   </div>
                 </div>

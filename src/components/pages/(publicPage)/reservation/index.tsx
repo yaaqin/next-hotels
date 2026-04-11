@@ -58,8 +58,30 @@ function Divider() {
   return <div className="border-t border-dashed border-gray-200 my-6" />
 }
 
-// ─── Google Login Gate ────────────────────────────────────────────────────────
+// ─── Skeleton: Contact Loading ─────────────────────────────────────────────────
+function ContactCardSkeleton() {
+  return (
+    <div className="bg-white rounded-2xl p-6 shadow-sm animate-pulse">
+      <div className="flex items-center gap-2 mb-5">
+        <div className="w-4 h-4 rounded bg-gray-100" />
+        <div className="w-16 h-3 rounded bg-gray-100" />
+      </div>
+      <div className="space-y-4">
+        <div className="h-11 rounded-xl bg-gray-100" />
+        <div className="grid grid-cols-2 gap-3">
+          <div className="h-11 rounded-xl bg-gray-100" />
+          <div className="h-11 rounded-xl bg-gray-100" />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="h-11 rounded-xl bg-gray-100" />
+          <div className="h-11 rounded-xl bg-gray-100" />
+        </div>
+      </div>
+    </div>
+  )
+}
 
+// ─── Google Login Gate ────────────────────────────────────────────────────────
 function GoogleLoginGate() {
   return (
     <div className="bg-white rounded-2xl p-8 shadow-sm flex flex-col items-center text-center gap-4">
@@ -88,23 +110,107 @@ function GoogleLoginGate() {
   )
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// ─── Contact Card ─────────────────────────────────────────────────────────────
+function ContactCard({
+  session,
+  contact,
+  setContact,
+}: {
+  session: NonNullable<ReturnType<typeof useSession>['data']>
+  contact: any
+  setContact: (val: any) => void
+}) {
+  return (
+    <div className="bg-white rounded-2xl p-6 shadow-sm">
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-2">
+          <UserIcon size={16} className="text-blue-400" />
+          <span className="text-xs tracking-widest uppercase text-gray-400">Contact</span>
+        </div>
+        {session.user && (
+          <div className="flex items-center gap-2">
+            {session.user.image && (
+              <img src={session.user.image} alt="avatar" className="w-6 h-6 rounded-full" />
+            )}
+            <span className="text-xs text-gray-400">{session.user.email}</span>
+          </div>
+        )}
+      </div>
 
+      <div className="space-y-4">
+        <div className="relative">
+          <UserIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
+          <input
+            type="text"
+            placeholder="Full Name *"
+            value={contact.fullName}
+            onChange={(e) => setContact({ fullName: e.target.value })}
+            className="w-full pl-9 pr-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent transition placeholder:text-gray-300"
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="relative">
+            <Mail01Icon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
+            <input
+              type="email"
+              placeholder="Email"
+              value={session?.user?.email ?? ''}
+              readOnly
+              onChange={() => {}}
+              className="w-full pl-9 pr-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none transition placeholder:text-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed select-none"
+            />
+          </div>
+          <div className="relative">
+            <SmartPhone01Icon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
+            <input
+              type="tel"
+              placeholder="Phone *"
+              value={contact.phone}
+              onChange={(e) => setContact({ phone: e.target.value })}
+              className="w-full pl-9 pr-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent transition placeholder:text-gray-300"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="relative">
+            <IdIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
+            <select
+              value={contact.idType ?? ''}
+              onChange={(e) => setContact({ idType: (e.target.value as any) || undefined })}
+              className="w-full pl-9 pr-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent transition text-gray-400 appearance-none bg-white"
+            >
+              <option value="">ID Type (optional)</option>
+              <option value="KTP">KTP</option>
+              <option value="PASSPORT">Passport</option>
+              <option value="SIM">SIM</option>
+            </select>
+          </div>
+          <input
+            type="text"
+            placeholder="ID Number (optional)"
+            value={contact.idNumber ?? ''}
+            onChange={(e) => setContact({ idNumber: e.target.value || undefined })}
+            className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent transition placeholder:text-gray-300"
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ReservationPage() {
   const { data: session, status } = useSession()
   const { payload, setContact, setPaymentMethod, setRoomId, isReadyToSubmit } = useBookingStore()
   const { checkInDate, checkOutDate, items, contact } = payload
 
   const { executePayment } = useSgtPayment()
-
   const [sgtWalletAddress, setSgtWalletAddress] = useState<string | null>(null)
-
   const [isHydrated, setIsHydrated] = useState(false)
-  useEffect(() => {
-    setIsHydrated(true)
-  }, [])
 
-  // Auto-fill email dari Google session
+  useEffect(() => { setIsHydrated(true) }, [])
+
+  // Auto-fill nama dari Google session
   useEffect(() => {
     if (session?.user?.name && !contact.fullName) {
       setContact({ fullName: session.user.name })
@@ -141,7 +247,7 @@ export default function ReservationPage() {
     setPaymentCategory(cat)
     setSelectedVA(null)
     if (cat === 'qris') setPaymentMethod('qris' as any)
-    if (cat !== 'sgt') setSgtWalletAddress(null) // reset wallet kalau ganti method
+    if (cat !== 'sgt') setSgtWalletAddress(null)
   }
 
   const handleSelectVA = (method: PaymentMethod) => {
@@ -155,10 +261,8 @@ export default function ReservationPage() {
   const router = useRouter()
 
   const preselectedRoomId = items[0]?.roomId
-
   useEffect(() => {
     if (!preselectedRoomId || !roomData?.data || selectedRoom) return
-
     const match = roomData.data.find((r) => r.id === preselectedRoomId)
     if (match) setSelectedRoom(match)
   }, [preselectedRoomId, roomData?.data])
@@ -179,36 +283,24 @@ export default function ReservationPage() {
           const payment = res?.data?.payment
           const bookingCode = res?.data?.booking?.bookingCode
 
-          // Narrowing eksplisit: pastiin payment ada dulu
           if (paymentCategory === 'sgt' && payment?.type === 'SGT') {
-            // Validate sebelum destructure — pakai early return bukan nested if
             if (!payment.hotelWalletAddress || !payment.sgtAmountDue) {
               alert('Data pembayaran SGT tidak lengkap')
               return
             }
-
-            // Setelah guard di atas, TS udah tau kedua field ini pasti string/number
             const { hotelWalletAddress, sgtAmountDue } = payment
-
             try {
               const txDigest = await executePayment({ hotelWalletAddress, sgtAmountDue })
-
-              await axiosPublic.post('/booking/sgt/verify', {
-                bookingCode,
-                txDigest,
-              })
-
+              await axiosPublic.post('/booking/sgt/verify', { bookingCode, txDigest })
               reset()
               router.push(`/payment/success?bookingCode=${bookingCode}`)
             } catch (err) {
               console.error('SGT payment gagal:', err)
               alert('Transaksi SGT dibatalkan atau gagal.')
             }
-
-            return // <-- ini penting! stop eksekusi biar ga lanjut ke else branch
+            return
           }
 
-          // Flow Midtrans biasa
           reset()
           router.push(`/reservation/${bookingCode}`)
         },
@@ -216,11 +308,16 @@ export default function ReservationPage() {
     )
   }
 
-  // useEffect (() => {
-  //   if (items.length === 0) {
-  //     router.push('/')
-  //   }
-  // }, [items])
+  // Derived button state
+  const sessionLoading = !isHydrated || status === 'loading'
+  const isLoggedIn = !!session
+  const canSubmit = isHydrated && isLoggedIn && isReadyToSubmit() && !isPending
+
+  const buttonLabel = isPending
+    ? 'Processing...'
+    : sessionLoading
+    ? 'Memuat sesi...'
+    : 'Confirm & Pay'
 
   return (
     <div className="min-h-screen bg-[#f5f4f0] py-10 px-4">
@@ -289,87 +386,13 @@ export default function ReservationPage() {
               </div>
             </div>
 
-            {/* Contact Card — show gate kalau belum login */}
-            {status !== 'loading' && !session ? (
+            {/* ── Contact Card: 3 states ── */}
+            {status === 'loading' || !isHydrated ? (
+              <ContactCardSkeleton />
+            ) : !session ? (
               <GoogleLoginGate />
             ) : (
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-2">
-                    <UserIcon size={16} className="text-blue-400" />
-                    <span className="text-xs tracking-widest uppercase text-gray-400">Contact</span>
-                  </div>
-                  {/* Session info */}
-                  {session?.user && (
-                    <div className="flex items-center gap-2">
-                      {session.user.image && (
-                        <img src={session.user.image} alt="avatar" className="w-6 h-6 rounded-full" />
-                      )}
-                      <span className="text-xs text-gray-400">{session.user.email}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-4">
-                  <div className="relative">
-                    <UserIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
-                    <input
-                      type="text"
-                      placeholder="Full Name *"
-                      value={contact.fullName}
-                      onChange={(e) => setContact({ fullName: e.target.value })}
-                      className="w-full pl-9 pr-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent transition placeholder:text-gray-300"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="relative">
-                      <Mail01Icon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
-                      <input
-                        type="email"
-                        placeholder="Email"
-                        value={session?.user?.email ?? ''}
-                        readOnly
-                        onChange={() => { }} // suppress React controlled warning
-                        className="w-full pl-9 pr-4 py-3 text-sm border border-gray-200 rounded-xl 
-                                    focus:outline-none transition placeholder:text-gray-300
-                                    bg-gray-50 text-gray-400 cursor-not-allowed select-none"
-                      />
-                    </div>
-                    <div className="relative">
-                      <SmartPhone01Icon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
-                      <input
-                        type="tel"
-                        placeholder="Phone *"
-                        value={contact.phone}
-                        onChange={(e) => setContact({ phone: e.target.value })}
-                        className="w-full pl-9 pr-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent transition placeholder:text-gray-300"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="relative">
-                      <IdIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
-                      <select
-                        value={contact.idType ?? ''}
-                        onChange={(e) => setContact({ idType: e.target.value as any || undefined })}
-                        className="w-full pl-9 pr-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent transition text-gray-400 appearance-none bg-white"
-                      >
-                        <option value="">ID Type (optional)</option>
-                        <option value="KTP">KTP</option>
-                        <option value="PASSPORT">Passport</option>
-                        <option value="SIM">SIM</option>
-                      </select>
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="ID Number (optional)"
-                      value={contact.idNumber ?? ''}
-                      onChange={(e) => setContact({ idNumber: e.target.value || undefined })}
-                      className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent transition placeholder:text-gray-300"
-                    />
-                  </div>
-                </div>
-              </div>
+              <ContactCard session={session} contact={contact} setContact={setContact} />
             )}
 
             {/* Payment Card */}
@@ -384,7 +407,7 @@ export default function ReservationPage() {
                     key={cat}
                     onClick={() => handleSelectPayment(cat)}
                     className={`px-4 py-2 rounded-xl text-xs tracking-widest uppercase font-medium transition-all duration-200
-      ${paymentCategory === cat
+                      ${paymentCategory === cat
                         ? 'bg-blue-500 text-white shadow-sm shadow-blue-200'
                         : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
                       }`}
@@ -431,13 +454,9 @@ export default function ReservationPage() {
                   <SlushWalletButton
                     onConnected={(address) => {
                       setSgtWalletAddress(address)
-                      setPaymentMethod('sgt' as any) // pastikan enum BE support 'sgt'
-                      // simpan wallet address ke store/payload
-                      // sesuaikan dengan setter yang lu punya di bookingStore
+                      setPaymentMethod('sgt' as any)
                     }}
-                    onDisconnected={() => {
-                      setSgtWalletAddress(null)
-                    }}
+                    onDisconnected={() => setSgtWalletAddress(null)}
                   />
                   {sgtWalletAddress && (
                     <p className="text-[10px] text-center text-gray-400 tracking-wide">
@@ -473,23 +492,32 @@ export default function ReservationPage() {
                 <span className="text-xs tracking-widest uppercase text-gray-400">Total</span>
                 <span className="text-lg font-bold text-gray-900">{pricing ? formatCurrency(pricing.totalPrice) : '—'}</span>
               </div>
+
+              {/* ── Confirm Button ── */}
               <button
                 onClick={handleBooking}
-                disabled={!isHydrated || !session || !isReadyToSubmit() || isPending}
+                disabled={!canSubmit || sessionLoading}
                 className={`w-full mt-5 py-3.5 rounded-xl text-sm tracking-widest uppercase font-medium transition-all duration-300
-                  ${isHydrated && session && isReadyToSubmit() && !isPending
+                  ${canSubmit && !sessionLoading
                     ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-md shadow-blue-100'
                     : 'bg-gray-100 text-gray-300 cursor-not-allowed'
                   }`}
               >
-                {isPending ? 'Processing...' : 'Confirm & Pay'}
+                {sessionLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="w-3.5 h-3.5 rounded-full border-2 border-gray-300 border-t-gray-400 animate-spin inline-block" />
+                    Memuat sesi...
+                  </span>
+                ) : buttonLabel}
               </button>
-              {isHydrated && !session && (
+
+              {/* ── Hint text: only show after session resolved ── */}
+              {isHydrated && status !== 'loading' && !session && (
                 <p className="text-center text-[10px] text-gray-300 mt-2 tracking-wide">
                   Login dengan Google untuk melanjutkan
                 </p>
               )}
-              {isHydrated && session && !isReadyToSubmit() && (
+              {isHydrated && status !== 'loading' && session && !isReadyToSubmit() && (
                 <p className="text-center text-[10px] text-gray-300 mt-2 tracking-wide">
                   Lengkapi semua data untuk melanjutkan
                 </p>
