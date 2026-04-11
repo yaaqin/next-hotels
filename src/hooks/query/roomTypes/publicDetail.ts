@@ -28,7 +28,7 @@ export const useRoomTypeDetailPublic = (id: string) => {
       publicRoomTypeDetail({
         id,
         checkin: checkin as string,
-        // checkout,
+        checkout: checkout as string,
       }),
     enabled: !!id && !!checkin, // cuma jalan kalau param valid
   });
