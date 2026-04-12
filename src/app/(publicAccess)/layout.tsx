@@ -1,3 +1,4 @@
+import IdleRobotHelper from '@/src/components/organisms/layouts/robotHelper'
 import SessionWrapper from '@/src/components/providers/sessionWrapper'
 import { Suspense } from 'react'
 
@@ -18,15 +19,15 @@ export default function PublicAccessLayout({
   children: React.ReactNode
 }>) {
   return (
-    <SessionWrapper>
+     <SessionWrapper>
       <section className="flex flex-col min-h-screen">
         <main className="flex-1">
           <Suspense fallback={<PageSkeleton />}>
             {children}
           </Suspense>
         </main>
-
       </section>
+      <IdleRobotHelper />  {/* ← pindah ke sini, di luar section */}
     </SessionWrapper>
   )
 }
