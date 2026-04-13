@@ -95,6 +95,15 @@
         "historyDesk": "view your booking history",
         "setting": "Setting",
         "settingDesk": "preference, security & notification"
+      },
+      "booking": {
+        "tagline": "Where Every Stay\nBecomes a Memory.",
+        "reserveBtn": "Reserve Your Experience",
+        "selectCheckin": "Please select a check-in date to continue",
+        "guests": "Guests",
+        "optional": "optional",
+        "checkinDate": "Check-in Date",
+        "reserve": "Reserve"
       }
     }
   },

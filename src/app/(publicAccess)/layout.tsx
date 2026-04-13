@@ -27,7 +27,7 @@ export default function PublicAccessLayout({
           </Suspense>
         </main>
       </section>
-      <IdleRobotHelper />  {/* ← pindah ke sini, di luar section */}
+      <IdleRobotHelper /> 
     </SessionWrapper>
   )
 }

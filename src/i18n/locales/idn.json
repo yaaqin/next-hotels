@@ -95,6 +95,15 @@
         "historyDesk": "lihat riwayat pemesanan Anda",
         "setting": "Pengaturan",
         "settingDesk": "preferensi, keamanan & notifikasi."
+      },
+      "booking": {
+        "tagline": "Di Mana Setiap Menginap\nMenjadi Kenangan.",
+        "reserveBtn": "Reservasi Sekarang",
+        "selectCheckin": "Silakan pilih tanggal check-in untuk melanjutkan",
+        "guests": "Tamu",
+        "optional": "opsional",
+        "checkinDate": "Tanggal Check-in",
+        "reserve": "Reservasi"
       }
     }
   },

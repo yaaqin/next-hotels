@@ -95,6 +95,15 @@
         "historyDesk": "查看您的预订历史",
         "setting": "设置",
         "settingDesk": "偏好、安全与通知"
+      },
+      "booking": {
+        "tagline": "每一次入住\n都成为美好回忆。",
+        "reserveBtn": "立即预订",
+        "selectCheckin": "请选择入住日期以继续",
+        "guests": "宾客",
+        "optional": "可选",
+        "checkinDate": "入住日期",
+        "reserve": "预订"
       }
     }
   },

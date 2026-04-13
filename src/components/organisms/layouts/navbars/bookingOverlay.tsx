@@ -8,6 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Calendar01Icon } from "hugeicons-react";
+import { useTranslation } from "react-i18next";
 
 interface BookingOverlayProps {
   isOpen: boolean;
@@ -19,7 +20,8 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
   const [adults, setAdults] = useState("");
   const [calendarOpen, setCalendarOpen] = useState(false);
 
-  // Auto-close popover after date selected
+  const { t } = useTranslation()
+
   const handleDateSelect = (date: Date | undefined) => {
     setCheckin(date);
     if (date) setCalendarOpen(false);
@@ -95,7 +97,7 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
                   className="text-[1.6rem] font-light leading-tight"
                   style={{ fontFamily: "'Cormorant Garamond', serif", color: "#C8DCEF" }}
                 >
-                  Where Every Stay<br />Becomes a Memory.
+                  {t('text.navbar.booking.tagline')}
                 </h2>
               </div>
             </motion.div>
@@ -115,7 +117,7 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
                 className="text-[0.55rem] tracking-[0.2em] uppercase mb-2"
                 style={{ color: "#1A56A0" }}
               >
-                Reserve
+                {t('text.navbar.booking.reserve')}
               </p>
               <h3
                 className="font-light mb-1 leading-tight"
@@ -125,7 +127,7 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
                   color: "#0A1828",
                 }}
               >
-                Plan Your Visit
+                {t('text.footer.planVisit')}
               </h3>
               <div className="w-8 h-px mb-8" style={{ background: "#1A56A0", opacity: 0.4 }} />
 
@@ -135,7 +137,7 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
                   className="block text-[0.58rem] tracking-[0.18em] uppercase mb-2"
                   style={{ color: "#2C4E72" }}
                 >
-                  Check-in Date <span style={{ color: "#1A56A0" }}>*</span>
+                  {t('text.navbar.booking.checkinDate')} <span style={{ color: "#1A56A0" }}>*</span>
                 </label>
                 <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                   <PopoverTrigger asChild>
@@ -152,7 +154,7 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
                       }}
                     >
                       <Calendar01Icon className="mr-2 h-4 w-4" style={{ color: "#1A56A0" }} />
-                      {checkin ? format(checkin, "PPP") : "Select check-in date"}
+                      {checkin ? format(checkin, "PPP") : t('text.navbar.booking.selectCheckin')}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0 z-[200]" align="start">
@@ -174,12 +176,12 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
                   className="block text-[0.58rem] tracking-[0.18em] uppercase mb-2"
                   style={{ color: "#2C4E72" }}
                 >
-                  Guests{" "}
+                  {t('text.navbar.booking.guests')}{" "}
                   <span
                     className="normal-case tracking-normal text-[0.65rem]"
                     style={{ color: "#6A9EC5" }}
                   >
-                    (optional)
+                    ({t('text.navbar.booking.optional')})
                   </span>
                 </label>
                 <input
@@ -208,15 +210,15 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
                 style={
                   checkin
                     ? {
-                        background: "#0A1828",
-                        color: "#C8DCEF",
-                        cursor: "pointer",
-                      }
+                      background: "#0A1828",
+                      color: "#C8DCEF",
+                      cursor: "pointer",
+                    }
                     : {
-                        background: "#D0DCE8",
-                        color: "#8AADC8",
-                        cursor: "not-allowed",
-                      }
+                      background: "#D0DCE8",
+                      color: "#8AADC8",
+                      cursor: "not-allowed",
+                    }
                 }
                 onMouseEnter={(e) => {
                   if (checkin) e.currentTarget.style.background = "#163356";
@@ -225,7 +227,7 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
                   if (checkin) e.currentTarget.style.background = "#0A1828";
                 }}
               >
-                Reserve Your Experience
+                {t('text.navbar.booking.reserveBtn')}
               </button>
 
               {!checkin && (
@@ -233,7 +235,7 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
                   className="text-center text-[0.62rem] mt-3"
                   style={{ color: "#8AADC8" }}
                 >
-                  Please select a check-in date to continue
+                  {t('text.navbar.booking.selectCheckin')}
                 </p>
               )}
             </motion.div>

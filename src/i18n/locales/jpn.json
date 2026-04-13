@@ -95,6 +95,15 @@
         "historyDesk": "予約履歴を確認する",
         "setting": "設定",
         "settingDesk": "設定、セキュリティ、通知"
+      },
+      "booking": {
+        "tagline": "すべての滞在が\n思い出になる場所。",
+        "reserveBtn": "今すぐ予約",
+        "selectCheckin": "続行するにはチェックイン日を選択してください",
+        "guests": "ゲスト",
+        "optional": "任意",
+        "checkinDate": "チェックイン日",
+        "reserve": "予約"
       }
     }
   },
