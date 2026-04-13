@@ -23,6 +23,7 @@ import { useSgtPayment } from '@/src/hooks/custom/payment/useSgtPayment'
 import { axiosPublic } from '@/src/libs/instance'
 import { useSafeSession } from "@/src/hooks/custom/payment/useSafeSession"
 import toast from 'react-hot-toast'
+import { useTranslation } from 'react-i18next'
 
 type PaymentMethod = 'va_bca' | 'va_bni' | 'va_bri' | 'va_mandiri' | 'qris' | 'sgt'
 type PaymentCategory = 'va' | 'qris' | 'sgt'
@@ -119,12 +120,15 @@ function ContactCard({
   contact: any
   setContact: (val: any) => void
 }) {
+
+  const { t } = useTranslation()
+
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm">
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
           <UserIcon size={16} className="text-blue-400" />
-          <span className="text-xs tracking-widest uppercase text-gray-400">Contact</span>
+          <span className="text-xs tracking-widest uppercase text-gray-400">{t("text.reservation.contact")}</span>
         </div>
         {session.user && (
           <div className="flex items-center gap-2">
@@ -140,7 +144,7 @@ function ContactCard({
           <UserIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
           <input
             type="text"
-            placeholder="Full Name *"
+            placeholder={t("text.reservation.fullNamePlaceholder")}
             value={contact.fullName}
             onChange={(e) => setContact({ fullName: e.target.value })}
             className="w-full pl-9 pr-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent transition placeholder:text-gray-300"
@@ -151,7 +155,7 @@ function ContactCard({
             <Mail01Icon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
             <input
               type="email"
-              placeholder="Email"
+              placeholder={t("text.reservation.emailPlaceholder")}
               value={session?.user?.email ?? ''}
               readOnly
               onChange={() => { }}
@@ -162,7 +166,7 @@ function ContactCard({
             <SmartPhone01Icon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
             <input
               type="tel"
-              placeholder="Phone *"
+              placeholder={t("text.reservation.phonePlaceholder")}
               value={contact.phone}
               onChange={(e) => setContact({ phone: e.target.value })}
               className="w-full pl-9 pr-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent transition placeholder:text-gray-300"
@@ -177,15 +181,15 @@ function ContactCard({
               onChange={(e) => setContact({ idType: (e.target.value as any) || undefined })}
               className="w-full pl-9 pr-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent transition text-gray-400 appearance-none bg-white"
             >
-              <option value="">ID Type (optional)</option>
+              <option value="">{t("text.reservation.idTypePlaceholder")}</option>
               <option value="KTP">KTP</option>
-              <option value="PASSPORT">Passport</option>
+              <option value="PASSPORT">{t("text.reservation.passport")}</option>
               <option value="SIM">SIM</option>
             </select>
           </div>
           <input
             type="text"
-            placeholder="ID Number (optional)"
+            placeholder={t("text.reservation.idNumberPlaceholder")}
             value={contact.idNumber ?? ''}
             onChange={(e) => setContact({ idNumber: e.target.value || undefined })}
             className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent transition placeholder:text-gray-300"
@@ -306,13 +310,20 @@ export default function ReservationPage() {
 
   const canSubmit = isAuthenticated && isReadyToSubmit() && !isPending
 
+  const { t } = useTranslation()
+
+  // const ENABLED_PAYMENT_METHODS: PaymentCategory[] = ['va', 'sgt'];
+  const DISABLED_PAYMENT_METHODS: PaymentCategory[] = ['qris'];
+
   return (
     <div className="min-h-screen bg-[#f5f4f0] py-10 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">Reservation</h1>
+          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
+            {t("text.reservation.title")}
+          </h1>
           <p className="text-sm text-gray-400 tracking-widest uppercase mt-1">
-            {payload.siteCode || 'MBS'} · Review your booking details
+            {payload.siteCode || 'MBS'} · {t("text.reservation.reviewDetails")}
           </p>
         </div>
 
@@ -323,24 +334,26 @@ export default function ReservationPage() {
             <div className="bg-white rounded-2xl p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-5">
                 <Calendar01Icon size={16} className="text-blue-400" />
-                <span className="text-xs tracking-widest uppercase text-gray-400">Stay</span>
+                <span className="text-xs tracking-widest uppercase text-gray-400">
+                  {t("text.reservation.stay")}
+                </span>
               </div>
               <div className="grid grid-cols-2 gap-6 mb-6">
-                <div><Label>Check In</Label><Field>{formatDate(checkInDate)}</Field></div>
-                <div><Label>Check Out</Label><Field>{formatDate(checkOutDate)}</Field></div>
+                <div><Label>{t("text.reservation.checkIn")}</Label><Field>{formatDate(checkInDate)}</Field></div>
+                <div><Label>{t("text.reservation.checkOut")}</Label><Field>{formatDate(checkOutDate)}</Field></div>
               </div>
               <Divider />
               <div className="flex items-center gap-2 mb-5">
                 <Building01Icon size={16} className="text-blue-400" />
-                <span className="text-xs tracking-widest uppercase text-gray-400">Room</span>
+                <span className="text-xs tracking-widest uppercase text-gray-400">{t("text.reservation.room")}</span>
               </div>
               <div className="grid grid-cols-3 gap-4 mb-4">
-                <div><Label>Room Type</Label><Field>{displayRoom?.roomType.name ?? '—'}</Field></div>
-                <div><Label>Floor</Label><Field>{selectedRoom?.floor ?? '—'}</Field></div>
-                <div><Label>Bed Type</Label><Field>{displayRoom?.bedType.name ?? '—'}</Field></div>
+                <div><Label>{t("text.reservation.roomType")}</Label><Field>{displayRoom?.roomType.name ?? '—'}</Field></div>
+                <div><Label>{t("text.reservation.floor")}</Label><Field>{selectedRoom?.floor ?? '—'}</Field></div>
+                <div><Label>{t("text.reservation.bedType")}</Label><Field>{displayRoom?.bedType.name ?? '—'}</Field></div>
               </div>
               <div>
-                <Label>Room Number</Label>
+                <Label>{t("text.reservation.roomNumber")}</Label>
                 <div className="relative mt-1">
                   <button
                     onClick={() => setRoomOpen(!roomOpen)}
@@ -383,22 +396,35 @@ export default function ReservationPage() {
             <div className="bg-white rounded-2xl p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-5">
                 <CreditCardIcon size={16} className="text-blue-400" />
-                <span className="text-xs tracking-widest uppercase text-gray-400">Payment</span>
+                <span className="text-xs tracking-widest uppercase text-gray-400">{t("text.reservation.payment")}</span>
               </div>
               <div className="flex gap-2 mb-4">
-                {(['va', 'qris', 'sgt'] as PaymentCategory[]).map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => handleSelectPayment(cat)}
-                    className={`px-4 py-2 rounded-xl text-xs tracking-widest uppercase font-medium transition-all duration-200
-                      ${paymentCategory === cat
-                        ? 'bg-blue-500 text-white shadow-sm shadow-blue-200'
-                        : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-                      }`}
-                  >
-                    {cat === 'va' ? 'Virtual Account' : cat === 'sgt' ? 'SGT Wallet' : cat.toUpperCase()}
-                  </button>
-                ))}
+                {(['va', 'qris', 'sgt'] as PaymentCategory[]).map((cat) => {
+                  const isDisabled = DISABLED_PAYMENT_METHODS.includes(cat);
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => !isDisabled && handleSelectPayment(cat)}
+                      disabled={isDisabled}
+                      className={`px-4 py-2 rounded-xl text-xs tracking-widest uppercase font-medium transition-all duration-200
+        ${isDisabled
+                          ? 'bg-gray-50 text-gray-200 cursor-not-allowed border border-dashed border-gray-200'
+                          : paymentCategory === cat
+                            ? 'bg-blue-500 text-white shadow-sm shadow-blue-200'
+                            : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                        }`}
+                    >
+                      <span className={isDisabled ? 'line-through' : ''}>
+                        {cat === 'va' ? t("text.reservation.virtualAccount") : cat === 'sgt' ? t("text.reservation.crypto") : cat.toUpperCase()}
+                      </span>
+                      {isDisabled && (
+                        <span className="ml-1.5 normal-case tracking-normal no-underline text-gray-300">
+                          {t("text.reservation.comingSoon")}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
               {paymentCategory === 'va' && (
                 <div className="relative mt-2">
@@ -407,7 +433,7 @@ export default function ReservationPage() {
                     className="w-full flex items-center justify-between px-4 py-3 border border-gray-200 rounded-xl text-sm text-gray-700 hover:border-blue-300 transition"
                   >
                     <span className={selectedVA ? 'text-gray-900' : 'text-gray-300'}>
-                      {selectedVA ? VA_BANKS.find((b) => b.value === selectedVA)?.label : 'Pilih bank...'}
+                      {selectedVA ? VA_BANKS.find((b) => b.value === selectedVA)?.label : t("text.reservation.selectBank")}
                     </span>
                     <ArrowDown01Icon size={14} className={`text-gray-400 transition-transform duration-200 ${vaOpen ? 'rotate-180' : ''}`} />
                   </button>
@@ -418,7 +444,7 @@ export default function ReservationPage() {
                           key={bank.value}
                           onClick={() => handleSelectVA(bank.value as PaymentMethod)}
                           className={`w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition text-left
-                            ${selectedVA === bank.value ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}
+                ${selectedVA === bank.value ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}
                         >
                           <span className="w-10 h-6 bg-gray-100 rounded text-[10px] font-bold text-gray-500 flex items-center justify-center">{bank.logo}</span>
                           {bank.label}
@@ -430,11 +456,15 @@ export default function ReservationPage() {
               )}
               {paymentCategory === 'qris' && (
                 <div className="mt-2 px-4 py-3 bg-blue-50 rounded-xl text-sm text-blue-600 text-center">
-                  QR Code akan ditampilkan setelah konfirmasi
+                  {t("text.reservation.qrisInfo")}
                 </div>
               )}
               {paymentCategory === 'sgt' && (
                 <div className="mt-2 space-y-2">
+                  <div className="px-4 py-3 bg-amber-50 border border-amber-100 rounded-xl space-y-1 mb-3">
+                    <p className="text-xs font-medium text-amber-700">{t("text.reservation.cryptoNoticeTitle")}</p>
+                    <p className="text-[11px] text-amber-600 leading-relaxed">{t("text.reservation.cryptoNoticeDesc")}</p>
+                  </div>
                   <SlushWalletButton
                     onConnected={(address) => {
                       setSgtWalletAddress(address)
@@ -444,7 +474,7 @@ export default function ReservationPage() {
                   />
                   {sgtWalletAddress && (
                     <p className="text-[10px] text-center text-gray-400 tracking-wide">
-                      Wallet terhubung · siap untuk pembayaran SGT
+                      {t("text.reservation.walletConnected")}
                     </p>
                   )}
                 </div>
@@ -459,47 +489,47 @@ export default function ReservationPage() {
               <div className="w-full h-36 rounded-xl overflow-hidden mb-5 bg-gray-100">
                 {roomImageUrl && <img src={roomImageUrl} alt="Room" className="w-full h-full object-cover" />}
               </div>
-              <p className="text-xs tracking-widest uppercase text-gray-400 mb-1">Price Summary</p>
+              <p className="text-xs tracking-widest uppercase text-gray-400 mb-1">{t("text.reservation.priceSummary")}</p>
               <p className="text-base font-semibold text-gray-900 mb-4">{displayRoom?.roomType.name ?? '—'}</p>
               {pricing ? (
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between text-gray-500">
-                    <span>{formatCurrency(pricing.price)} × {pricing.nights} malam</span>
+                    <span>{formatCurrency(pricing.price)} × {pricing.nights} {t("text.reservation.nights")}</span>
                     <span className="text-gray-900">{formatCurrency(pricing.totalPrice)}</span>
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-gray-300 text-center py-2">Memuat harga...</p>
+                <p className="text-xs text-gray-300 text-center py-2">{t("text.reservation.loadingPrice")}</p>
               )}
               <div className="border-t border-dashed border-gray-200 my-4" />
               <div className="flex justify-between items-center">
-                <span className="text-xs tracking-widest uppercase text-gray-400">Total</span>
+                <span className="text-xs tracking-widest uppercase text-gray-400">{t("text.reservation.total")}</span>
                 <span className="text-lg font-bold text-gray-900">{pricing ? formatCurrency(pricing.totalPrice) : '—'}</span>
               </div>
               <button
                 onClick={handleBooking}
                 disabled={!canSubmit || isLoading}
                 className={`w-full mt-5 py-3.5 rounded-xl text-sm tracking-widest uppercase font-medium transition-all duration-300
-                  ${canSubmit && !isLoading
+        ${canSubmit && !isLoading
                     ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-md shadow-blue-100'
                     : 'bg-gray-100 text-gray-300 cursor-not-allowed'
                   }`}
               >
-                {isPending ? 'Processing...' : isLoading ? (
+                {isPending ? t("text.reservation.processing") : isLoading ? (
                   <span className="flex items-center justify-center gap-2">
                     <span className="w-3.5 h-3.5 rounded-full border-2 border-gray-300 border-t-gray-400 animate-spin inline-block" />
-                    Memuat sesi...
+                    {t("text.reservation.loadingSession")}
                   </span>
-                ) : 'Confirm & Pay'}
+                ) : t("text.reservation.confirmPay")}
               </button>
               {isUnauthenticated && (
                 <p className="text-center text-[10px] text-gray-300 mt-2 tracking-wide">
-                  Login dengan Google untuk melanjutkan
+                  {t("text.reservation.loginPrompt")}
                 </p>
               )}
               {isAuthenticated && !isReadyToSubmit() && (
                 <p className="text-center text-[10px] text-gray-300 mt-2 tracking-wide">
-                  Lengkapi semua data untuk melanjutkan
+                  {t("text.reservation.completeData")}
                 </p>
               )}
             </div>

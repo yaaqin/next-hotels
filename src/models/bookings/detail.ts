@@ -98,6 +98,8 @@ export interface Payment {
   expiredAt: string
   paidAt: any
   type: string
-  vaNumber: string
+  vaNumber: any
   vaBank: string
+  billerCode: string
+  billKey: string
 }
