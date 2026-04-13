@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 const IDLE_FIRST_MS = 5_000;
 const IDLE_AFTER_DISMISS_MS = 15_000;
@@ -11,6 +12,8 @@ export default function IdleRobotHelper() {
     const visibleRef = useRef(false);
     const dismissedRef = useRef(false);
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const { t } = useTranslation()
 
     const setVisibleSync = (val: boolean) => {
         visibleRef.current = val;
@@ -128,8 +131,7 @@ export default function IdleRobotHelper() {
             </div>
 
             <p style={{ fontSize: 12, color: '#475569', textAlign: 'center', lineHeight: 1.4, fontWeight: 500 }}>
-                Butuh bantuan?{' '}
-                <span style={{ color: '#3b82f6' }}>Gw siap bantu!</span>
+                {t("text.home.robot.needHelp")}
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, width: '100%' }}>
@@ -143,7 +145,7 @@ export default function IdleRobotHelper() {
                         display: 'block',
                     }}
                 >
-                    Lihat panduan booking
+                    {t("text.home.robot.guideBtn")}
                 </Link>
                 <button
                     onClick={handleDismiss}
@@ -154,7 +156,7 @@ export default function IdleRobotHelper() {
                         fontSize: 11, cursor: 'pointer',
                     }}
                 >
-                    Tidak, terima kasih
+                    {t("text.home.robot.dismissBtn")}
                 </button>
             </div>
         </div>

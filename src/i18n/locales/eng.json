@@ -79,6 +79,90 @@
         "text1": "This place is unlike any other. In the heart of Singapore, it was imagined as a sanctuary above the vibrant city — a place for quiet mornings, warm evenings, and the simple joy of slowing down.",
         "text2": "For gatherings, for laughter, for the pleasures of good food and gentle conversation.",
         "text3": "Today, it remains that same place of calm in the rhythm of the city. Welcome to your moment in Singapore."
+      },
+      "weare": {
+        "text1": "Born from a belief that every great stay begins with a thoughtfully furnished space, Marina by Sand was founded to bridge the gap between extraordinary design and flawless execution.",
+        "text2": "As a premier hospitality furnishing partner, we have made it our purpose to elevate every room, lobby, and suite — delivering spaces that guests remember long after they depart.",
+        "ourStory": "Our Story",
+        "visionTitle": "The Vision Behind",
+        "yearsLabel": "Years of Hospitality\nExcellence",
+        "suppliersLabel": "Premier Suppliers",
+        "inNumbers": "Marina by Sand\nIn Numbers"
+      },
+      "whychoose": {
+        "diff": "Marina by Sand — The Difference",
+        "title": "Why Discerning Guests",
+        "titleChoose": "Choose",
+        "cards": {
+          "endToEnd": {
+            "badge": "Full Concierge",
+            "title": "White-Glove, End-to-End Fulfillment",
+            "desc": "From first consultation to final installation, every detail of your furnishing journey is orchestrated seamlessly — so you may focus on what truly matters."
+          },
+          "afterSales": {
+            "badge": "Dedicated Care",
+            "title": "Lifelong After-Stay Partnership",
+            "desc": "Our commitment does not conclude at checkout. A dedicated specialist remains at your service for any future refinements, replacements, or evolving needs."
+          },
+          "noVariety": {
+            "badge": "Curated Access",
+            "title": "Unrestricted Selection, Uncompromised Standards",
+            "desc": "Our vendor-agnostic philosophy grants you access to the world's finest furniture houses — selected solely on merit, craftsmanship, and your distinct aesthetic vision."
+          },
+          "superiorQuality": {
+            "badge": "Provenance & Craft",
+            "title": "Superlative Quality, Without Exception",
+            "desc": "We partner exclusively with world-class suppliers whose materials, joinery, and finishing standards reflect the calibre your guests deserve to experience."
+          },
+          "bespoke": {
+            "badge": "Artisan Craft",
+            "title": "Bespoke Pieces, Tailored to Perfection",
+            "desc": "Commissioned creations carrying the precise proportions, materials, and character your space demands — nothing less."
+          }
+        }
+      },
+      "amenities": {
+        "businessServices": "Business Services",
+        "concierge": "Concierge",
+        "digitalCheckIn": "Digital Check-In",
+        "fitnessCenter": "Fitness Center",
+        "freeInternet": "Free Internet Access",
+        "laundry": "Laundry",
+        "meetingFacilities": "Meeting Facilities",
+        "valetParking": "Valet Parking",
+        "selfParking": "Self Parking",
+        "pool": "Pool",
+        "restaurant": "Restaurant On-Site",
+        "roomService": "Room Service"
+      },
+      "ourworks": {
+        "label": "Marina by Sand — Our Works",
+        "title": "Spaces Crafted for",
+        "titleEm": "Extraordinary Living",
+        "desc": "A curated selection of our most distinguished interiors — each one a testament to refined craftsmanship, purposeful design, and the enduring art of hospitality.",
+        "projects": {
+          "gym": {
+            "title": "Fitness Sanctuary",
+            "subtitle": "Wellness & Recreation"
+          },
+          "restaurant": {
+            "title": "The Grand Dining",
+            "subtitle": "Culinary Excellence"
+          },
+          "hotel": {
+            "title": "Signature Suites",
+            "subtitle": "Curated Hospitality"
+          },
+          "house": {
+            "title": "Private Retreats",
+            "subtitle": "Exclusive Residences"
+          }
+        }
+      },
+      "robot": {
+        "needHelp": "Need help? I'm here for you!",
+        "guideBtn": "View booking guide",
+        "dismissBtn": "No, thank you"
       }
     },
     "navbar": {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Project {
   id: string;
@@ -8,33 +9,6 @@ interface Project {
   subtitle: string;
   imageUrl: string;
 }
-
-const projects: Project[] = [
-  {
-    id: "Gym",
-    title: "Fitness Sanctuary",
-    subtitle: "Wellness & Recreation",
-    imageUrl: "https://i.pinimg.com/1200x/2a/2d/8a/2a2d8abaaeb7d6ac4b76a77843e07a25.jpg",
-  },
-  {
-    id: "restaurant",
-    title: "The Grand Dining",
-    subtitle: "Culinary Excellence",
-    imageUrl: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80",
-  },
-  {
-    id: "hotel",
-    title: "Signature Suites",
-    subtitle: "Curated Hospitality",
-    imageUrl: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
-  },
-  {
-    id: "house",
-    title: "Private Retreats",
-    subtitle: "Exclusive Residences",
-    imageUrl: "https://cdn.yaaqin.xyz/hotel/1771903990760-balkon2.jpg",
-  },
-];
 
 function ProjectCard({
   project,
@@ -106,6 +80,8 @@ export default function Portfolio() {
   const [visible, setVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
+  const { t } = useTranslation()
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -117,9 +93,35 @@ export default function Portfolio() {
     return () => observer.disconnect();
   }, []);
 
-  const headingAnim = `transition-all duration-700 ${
-    visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-  }`;
+  const headingAnim = `transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+    }`;
+
+  const projects: Project[] = [
+    {
+      id: "Gym",
+      title: t("text.home.ourworks.projects.gym.title"),
+      subtitle: t("text.home.ourworks.projects.gym.subtitle"),
+      imageUrl: "https://i.pinimg.com/1200x/2a/2d/8a/2a2d8abaaeb7d6ac4b76a77843e07a25.jpg",
+    },
+    {
+      id: "restaurant",
+      title: t("text.home.ourworks.projects.restaurant.title"),
+      subtitle: t("text.home.ourworks.projects.restaurant.subtitle"),
+      imageUrl: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80",
+    },
+    {
+      id: "hotel",
+      title: t("text.home.ourworks.projects.hotel.title"),
+      subtitle: t("text.home.ourworks.projects.hotel.subtitle"),
+      imageUrl: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
+    },
+    {
+      id: "house",
+      title: t("text.home.ourworks.projects.house.title"),
+      subtitle: t("text.home.ourworks.projects.house.subtitle"),
+      imageUrl: "https://cdn.yaaqin.xyz/hotel/1771903990760-balkon2.jpg",
+    },
+  ];
 
   return (
     <section
@@ -137,17 +139,17 @@ export default function Portfolio() {
           {/* Heading */}
           <div className={headingAnim}>
             <p className="text-[0.6rem] tracking-[0.2em] uppercase text-[#1A56A0] mb-2">
-              Marina by Sand — Our Works
+              {t("text.home.ourworks.label")}
             </p>
             <h2
               className="text-[2rem] font-light text-[#0A1828] leading-tight mb-3"
               style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
-              Spaces Crafted for<br />
-              <em className="text-[#1A56A0]">Extraordinary Living</em>
+              {t("text.home.ourworks.title")}<br />
+              <em className="text-[#1A56A0]">{t("text.home.ourworks.titleEm")}</em>
             </h2>
             <p className="text-[0.72rem] text-[#2C4E72] leading-relaxed font-light">
-              A curated selection of our most distinguished interiors — each one a testament to refined craftsmanship, purposeful design, and the enduring art of hospitality.
+              {t("text.home.ourworks.desc")}
             </p>
           </div>
 
@@ -169,7 +171,7 @@ export default function Portfolio() {
             <button
               className="w-full py-4 rounded-full border border-[#0A1828] text-[#0A1828] text-[0.7rem] tracking-[0.18em] uppercase font-normal active:bg-[#0A1828] active:text-[#EEF3FA] transition-all duration-300"
             >
-              Reserve Your Experience
+              {t("text.navbar.booking.reserveBtn")}
             </button>
           </div>
         </div>
@@ -183,18 +185,18 @@ export default function Portfolio() {
           <div className="flex flex-col gap-4">
             <div className={headingAnim}>
               <p className="text-[0.58rem] tracking-[0.2em] uppercase text-[#1A56A0] mb-2">
-                Marina by Sand — Our Works
+                {t("text.home.ourworks.label")}
               </p>
               <h2
                 className="text-[2.2rem] lg:text-[2.6rem] font-light text-[#0A1828] leading-tight mb-3"
                 style={{ fontFamily: "'Cormorant Garamond', serif" }}
               >
-                Spaces Crafted for{" "}
-                <em className="text-[#1A56A0]">Extraordinary Living</em>
+                {t("text.home.ourworks.title")}{" "}
+                <em className="text-[#1A56A0]">{t("text.home.ourworks.titleEm")}</em>
               </h2>
               <div className="w-8 h-px bg-[#1A56A0] opacity-40 mb-3" />
               <p className="text-[0.72rem] text-[#2C4E72] leading-relaxed font-light max-w-xs">
-                A curated selection of our most distinguished interiors — each one a testament to refined craftsmanship, purposeful design, and the enduring art of hospitality.
+                {t("text.home.ourworks.desc")}
               </p>
             </div>
             <ProjectCard
@@ -220,7 +222,7 @@ export default function Portfolio() {
               style={{ transitionDelay: "500ms" }}
             >
               <button className="w-full py-4 rounded-full border border-[#0A1828] text-[#0A1828] text-[0.68rem] tracking-[0.18em] uppercase font-normal hover:bg-[#0A1828] hover:text-[#EEF3FA] transition-all duration-300">
-                Reserve Your Experience
+                {t("text.navbar.booking.reserveBtn")}
               </button>
             </div>
           </div>

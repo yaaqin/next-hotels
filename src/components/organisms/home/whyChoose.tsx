@@ -1,41 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
-const cards = [
-  {
-    id: "end-to-end",
-    badge: "Full Concierge",
-    title: "White-Glove, End-to-End Fulfillment",
-    desc: "From first consultation to final installation, every detail of your furnishing journey is orchestrated seamlessly — so you may focus on what truly matters.",
-  },
-  {
-    id: "after-sales",
-    badge: "Dedicated Care",
-    title: "Lifelong After-Stay Partnership",
-    desc: "Our commitment does not conclude at checkout. A dedicated specialist remains at your service for any future refinements, replacements, or evolving needs.",
-  },
-  {
-    id: "no-variety",
-    badge: "Curated Access",
-    title: "Unrestricted Selection, Uncompromised Standards",
-    desc: "Our vendor-agnostic philosophy grants you access to the world's finest furniture houses — selected solely on merit, craftsmanship, and your distinct aesthetic vision.",
-  },
-  {
-    id: "superior-quality",
-    badge: "Provenance & Craft",
-    title: "Superlative Quality, Without Exception",
-    desc: "We partner exclusively with world-class suppliers whose materials, joinery, and finishing standards reflect the calibre your guests deserve to experience.",
-  },
-  {
-    id: "bespoke",
-    badge: "Artisan Craft",
-    title: "Bespoke Pieces, Tailored to Perfection",
-    desc: "Commissioned creations carrying the precise proportions, materials, and character your space demands — nothing less.",
-  },
-];
+
 
 // ─── SVG DECORATIONS ─────────────────────────────────────────────────────────
 
@@ -182,6 +152,8 @@ export default function WhyChoose() {
   const [visible, setVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
+  const { t } = useTranslation()
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -194,13 +166,45 @@ export default function WhyChoose() {
   }, []);
 
   const anim = (delay: number) =>
-    `transition-all duration-700 ease-out ${
-      visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+    `transition-all duration-700 ease-out ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
     }`;
 
   const delayStyle = (ms: number): React.CSSProperties => ({
     transitionDelay: `${ms}ms`,
   });
+
+  const cards = [
+    {
+      id: "end-to-end",
+      badge: t("text.home.whychoose.cards.endToEnd.badge"),
+      title: t("text.home.whychoose.cards.endToEnd.title"),
+      desc: t("text.home.whychoose.cards.endToEnd.desc"),
+    },
+    {
+      id: "after-sales",
+      badge: t("text.home.whychoose.cards.afterSales.badge"),
+      title: t("text.home.whychoose.cards.afterSales.title"),
+      desc: t("text.home.whychoose.cards.afterSales.desc"),
+    },
+    {
+      id: "no-variety",
+      badge: t("text.home.whychoose.cards.noVariety.badge"),
+      title: t("text.home.whychoose.cards.noVariety.title"),
+      desc: t("text.home.whychoose.cards.noVariety.desc"),
+    },
+    {
+      id: "superior-quality",
+      badge: t("text.home.whychoose.cards.superiorQuality.badge"),
+      title: t("text.home.whychoose.cards.superiorQuality.title"),
+      desc: t("text.home.whychoose.cards.superiorQuality.desc"),
+    },
+    {
+      id: "bespoke",
+      badge: t("text.home.whychoose.cards.bespoke.badge"),
+      title: t("text.home.whychoose.cards.bespoke.title"),
+      desc: t("text.home.whychoose.cards.bespoke.desc"),
+    },
+  ];
 
   return (
     <section
@@ -216,15 +220,15 @@ export default function WhyChoose() {
         <p
           className="text-[0.6rem] tracking-[0.2em] uppercase text-[#1A56A0] mb-2 font-normal"
         >
-          Marina by Sand — The Difference
+          {t("text.home.whychoose.diff")}
         </p>
         <h2
           className="text-[2rem] md:text-[2.8rem] lg:text-[3.2rem] font-light text-[#0A1828] leading-tight tracking-tight"
           style={{ fontFamily: "'Cormorant Garamond', serif" }}
         >
-          Why Discerning Guests{" "}
+          {t("text.home.whychoose.title")}{" "}
           <br className="hidden sm:block" />
-          Choose{" "}
+          {t("text.home.whychoose.titleChoose")}{" "}
           <em className="text-[#1A56A0] not-italic" style={{ fontStyle: "italic" }}>
             Marina by Sand
           </em>

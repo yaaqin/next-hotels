@@ -14,24 +14,27 @@ import {
   Cards01Icon,
   SpoonAndForkIcon,
 } from "hugeicons-react";
+import { useTranslation } from "react-i18next";
 
-const amenities = [
-  { icon: PrinterIcon, label: "Business Services" },
-  { icon: CustomerService01Icon, label: "Concierge" },
-  { icon: Cards01Icon, label: "Digital Check-In" },
-  { icon: Dumbbell01Icon, label: "Fitness Center" },
-  { icon: Wifi01Icon, label: "Free Internet Access" },
-  { icon: HangerIcon, label: "Laundry" },
-  { icon: PresentationBarChart01Icon, label: "Meeting Facilities" },
-  { icon: Car01Icon, label: "Valet Parking" },
-  { icon: ParkingAreaCircleIcon, label: "Self Parking" },
-  { icon: SwimmingIcon, label: "Pool" },
-  { icon: SpoonAndForkIcon, label: "Restaurant On-Site" },
-  { icon: DeliveryBox01Icon, label: "Room Service" },
-//   { icon: FlowerIcon, label: "Spa" },
-];
+
 
 export default function Amenities() {
+  const { t } = useTranslation()
+
+  const amenities = [
+    { icon: PrinterIcon, label: t("text.home.amenities.businessServices") },
+    { icon: CustomerService01Icon, label: t("text.home.amenities.concierge") },
+    { icon: Cards01Icon, label: t("text.home.amenities.digitalCheckIn") },
+    { icon: Dumbbell01Icon, label: t("text.home.amenities.fitnessCenter") },
+    { icon: Wifi01Icon, label: t("text.home.amenities.freeInternet") },
+    { icon: HangerIcon, label: t("text.home.amenities.laundry") },
+    { icon: PresentationBarChart01Icon, label: t("text.home.amenities.meetingFacilities") },
+    { icon: Car01Icon, label: t("text.home.amenities.valetParking") },
+    { icon: ParkingAreaCircleIcon, label: t("text.home.amenities.selfParking") },
+    { icon: SwimmingIcon, label: t("text.home.amenities.pool") },
+    { icon: SpoonAndForkIcon, label: t("text.home.amenities.restaurant") },
+    { icon: DeliveryBox01Icon, label: t("text.home.amenities.roomService") },
+  ];
   return (
     <section className="w-full py-16 px-8 bg-white relative" style={{ zIndex: 3 }}>
       <h2 className="text-center text-3xl font-bold tracking-[0.25em] uppercase text-gray-900 mb-12">

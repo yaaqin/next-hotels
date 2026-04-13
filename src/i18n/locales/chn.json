@@ -79,6 +79,90 @@
         "text1": "这个地方与众不同。在新加坡的心脏，它被设想为繁华城市之上的避风港——一个可以享受宁静的早晨、温暖的夜晚，以及放慢节奏的简单快乐的地方。",
         "text2": "为了聚会，为了欢笑，为了美食和轻松交谈的乐趣。",
         "text3": "今天，它依然是城市节奏中那片宁静之地。欢迎来到你在新加坡的时刻。"
+      },
+      "weare": {
+        "text1": "Marina by Sand 的创立源于一个信念：每一次美好的入住体验都始于一个精心布置的空间，旨在弥合非凡设计与完美执行之间的差距。",
+        "text2": "作为顶级酒店家具合作伙伴，我们致力于提升每一间客房、大堂和套房，打造让宾客离开后仍念念不忘的空间。",
+        "ourStory": "我们的故事",
+        "visionTitle": "背后的愿景",
+        "yearsLabel": "年酒店业\n卓越经验",
+        "suppliersLabel": "顶级供应商",
+        "inNumbers": "Marina by Sand\n数字说明"
+      },
+      "whychoose": {
+        "diff": "Marina by Sand — 与众不同",
+        "title": "为何挑剔的宾客",
+        "titleChoose": "选择",
+        "cards": {
+          "endToEnd": {
+            "badge": "全程礼宾",
+            "title": "白手套端到端一站式服务",
+            "desc": "从首次咨询到最终安装，您的家具之旅的每一个细节都被无缝统筹安排——让您专注于真正重要的事情。"
+          },
+          "afterSales": {
+            "badge": "专属关怀",
+            "title": "终身入住后合作伙伴关系",
+            "desc": "我们的承诺不在退房时结束。专属专家将继续为您服务，满足未来的调整、更换或不断变化的需求。"
+          },
+          "noVariety": {
+            "badge": "精选渠道",
+            "title": "无限选择，标准不妥协",
+            "desc": "我们的供应商中立理念让您获得世界顶级家具品牌的访问权——纯粹基于品质、工艺和您独特的美学愿景进行筛选。"
+          },
+          "superiorQuality": {
+            "badge": "出处与工艺",
+            "title": "卓越品质，毫无例外",
+            "desc": "我们专门与世界级供应商合作，其材料、榫接和精加工标准体现了您的宾客应有的品位。"
+          },
+          "bespoke": {
+            "badge": "匠人工艺",
+            "title": "定制作品，量身打造至臻完美",
+            "desc": "受托创作具有精确比例、材料和空间所需特色的定制作品——绝不妥协。"
+          }
+        }
+      },
+      "amenities": {
+        "businessServices": "商务服务",
+        "concierge": "礼宾服务",
+        "digitalCheckIn": "数字入住",
+        "fitnessCenter": "健身中心",
+        "freeInternet": "免费网络",
+        "laundry": "洗衣服务",
+        "meetingFacilities": "会议设施",
+        "valetParking": "代客泊车",
+        "selfParking": "自助停车",
+        "pool": "游泳池",
+        "restaurant": "现场餐厅",
+        "roomService": "客房服务"
+      },
+      "ourworks": {
+        "label": "Marina by Sand — 我们的作品",
+        "title": "精心打造的空间，为了",
+        "titleEm": "非凡的居住体验",
+        "desc": "我们最具代表性的室内设计精选——每一件都是精湛工艺、有目的设计和永恒酒店艺术的见证。",
+        "projects": {
+          "gym": {
+            "title": "健身圣地",
+            "subtitle": "健康与休闲"
+          },
+          "restaurant": {
+            "title": "盛大餐厅",
+            "subtitle": "卓越美食"
+          },
+          "hotel": {
+            "title": "标志性套房",
+            "subtitle": "精选酒店体验"
+          },
+          "house": {
+            "title": "私人度假胜地",
+            "subtitle": "专属住宅"
+          }
+        }
+      },
+      "robot": {
+        "needHelp": "需要帮助吗？我随时为您服务！",
+        "guideBtn": "查看预订指南",
+        "dismissBtn": "不，谢谢"
       }
     },
     "navbar": {

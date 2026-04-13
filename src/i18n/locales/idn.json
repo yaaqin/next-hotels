@@ -79,6 +79,90 @@
         "text1": "Tempat ini tidak seperti yang lain. Di jantung Singapura, tempat ini dibayangkan sebagai sebuah suaka di atas kota yang ramai — sebuah tempat untuk pagi yang tenang, sore yang hangat, dan kesenangan sederhana untuk melambat.",
         "text2": "Untuk pertemuan, untuk tawa, untuk kesenangan dari makanan enak dan percakapan yang lembut.",
         "text3": "Hari ini, tempat itu tetap menjadi tempat ketenangan yang sama di tengah irama kota. Selamat datang di momen Anda di Singapura."
+      },
+      "weare": {
+        "text1": "Lahir dari keyakinan bahwa setiap penginapan yang luar biasa dimulai dari ruang yang dirancang dengan penuh perhatian, Marina by Sand didirikan untuk menjembatani kesenjangan antara desain yang luar biasa dan eksekusi yang sempurna.",
+        "text2": "Sebagai mitra furnitur perhotelan terkemuka, kami menjadikan tujuan kami untuk meningkatkan setiap kamar, lobi, dan suite — menghadirkan ruang yang diingat tamu lama setelah mereka pergi.",
+        "ourStory": "Kisah Kami",
+        "visionTitle": "Visi Kami",
+        "yearsLabel": "Tahun Keunggulan\nPerhotelan",
+        "suppliersLabel": "Pemasok Terkemuka",
+        "inNumbers": "Marina by Sand\nDalam Angka"
+      },
+      "whychoose": {
+        "diff": "Marina by Sand — Perbedaannya",
+        "title": "Mengapa Tamu yang Cermat",
+        "titleChoose": "Memilih",
+        "cards": {
+          "endToEnd": {
+            "badge": "Concierge Penuh",
+            "title": "Pemenuhan Menyeluruh dengan Sentuhan Premium",
+            "desc": "Dari konsultasi pertama hingga instalasi akhir, setiap detail perjalanan furnitur Anda dikelola dengan mulus — sehingga Anda dapat fokus pada hal yang benar-benar penting."
+          },
+          "afterSales": {
+            "badge": "Perawatan Khusus",
+            "title": "Kemitraan Jangka Panjang Pasca Menginap",
+            "desc": "Komitmen kami tidak berakhir saat checkout. Spesialis khusus kami siap melayani Anda untuk penyempurnaan, penggantian, atau kebutuhan yang berkembang di masa mendatang."
+          },
+          "noVariety": {
+            "badge": "Akses Terkurasi",
+            "title": "Pilihan Tak Terbatas, Standar Tak Tertandingi",
+            "desc": "Filosofi vendor-agnostik kami memberi Anda akses ke rumah furnitur terbaik dunia — dipilih semata berdasarkan kualitas, keahlian, dan visi estetika Anda yang unik."
+          },
+          "superiorQuality": {
+            "badge": "Asal-usul & Keahlian",
+            "title": "Kualitas Terbaik, Tanpa Pengecualian",
+            "desc": "Kami bermitra eksklusif dengan pemasok kelas dunia yang material, sambungan, dan standar penyelesaiannya mencerminkan kualitas yang layak dinikmati tamu Anda."
+          },
+          "bespoke": {
+            "badge": "Kerajinan Pengrajin",
+            "title": "Karya Bespoke, Disesuaikan dengan Sempurna",
+            "desc": "Kreasi yang dipesan khusus dengan proporsi, material, dan karakter yang tepat sesuai kebutuhan ruang Anda — tidak kurang dari itu."
+          }
+        }
+      },
+      "amenities": {
+        "businessServices": "Layanan Bisnis",
+        "concierge": "Concierge",
+        "digitalCheckIn": "Check-In Digital",
+        "fitnessCenter": "Pusat Kebugaran",
+        "freeInternet": "Akses Internet Gratis",
+        "laundry": "Laundry",
+        "meetingFacilities": "Fasilitas Rapat",
+        "valetParking": "Valet Parkir",
+        "selfParking": "Parkir Mandiri",
+        "pool": "Kolam Renang",
+        "restaurant": "Restoran di Lokasi",
+        "roomService": "Layanan Kamar"
+      },
+      "ourworks": {
+        "label": "Marina by Sand — Karya Kami",
+        "title": "Ruang yang Dirancang untuk",
+        "titleEm": "Kehidupan yang Luar Biasa",
+        "desc": "Pilihan terkurasi dari interior paling prestisius kami — masing-masing merupakan bukti keahlian yang halus, desain yang penuh tujuan, dan seni perhotelan yang abadi.",
+        "projects": {
+          "gym": {
+            "title": "Surga Kebugaran",
+            "subtitle": "Kesehatan & Rekreasi"
+          },
+          "restaurant": {
+            "title": "The Grand Dining",
+            "subtitle": "Keunggulan Kuliner"
+          },
+          "hotel": {
+            "title": "Suite Eksklusif",
+            "subtitle": "Perhotelan Terkurasi"
+          },
+          "house": {
+            "title": "Retreat Pribadi",
+            "subtitle": "Residensi Eksklusif"
+          }
+        }
+      },
+      "robot": {
+        "needHelp": "Butuh bantuan? Gw siap bantu!",
+        "guideBtn": "Lihat panduan booking",
+        "dismissBtn": "Tidak, terima kasih"
       }
     },
     "navbar": {
