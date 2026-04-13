@@ -11,7 +11,7 @@
     "description": "説明",
     "address": "住所",
     "create": "作る",
-    "createAt": "作成日時", 
+    "createAt": "作成日時",
     "createBy": "作成者",
     "date": "日付",
     "detail": "詳細",
@@ -51,14 +51,29 @@
       "desk": "サインインするために詳細を入力してください"
     },
     "footer": {
-      "follow": "フォローしてください",
-      "mbs": "マリーナベイ・サンズ",
-      "privacypol": "プライバシーポリシー"
+      "follow": "フォローする",
+      "mbs": "マリーナベイサンズ",
+      "privacypol": "プライバシーポリシー",
+      "planVisit": "訪問を計画する",
+      "routetoHere": "道順を見る",
+      "giftCertificate": "ギフト券",
+      "blog": "ブログ",
+      "trademarkNotice": "商標に関するお知らせ",
+      "companyInfo": "会社情報",
+      "preservation": "環境保全",
+      "socialResponsibility": "社会的責任",
+      "mediaCenter": "メディアセンター",
+      "career": "採用情報",
+      "contactUs": "お問い合わせ",
+      "visitorServices": "ビジターサービス",
+      "hotelReservation": "ホテル予約",
+      "entertainmentTicket": "エンターテインメントチケット購入",
+      "copyright": "© 2026 Marina Bay Sands. 無断転載を禁じます。"
     },
-    "home":{
+    "home": {
       "head": {
         "text1": "静かな場所で、世界がゆっくりと流れる中、私たちは安らぎと温もり、そして時を超えるひとときのための空間を創り出しました",
-          "text2": "時がやさしく留まる場所。"
+        "text2": "時がやさしく留まる場所。"
       },
       "about": {
         "text1": "この場所は他のどことも異なります。シンガポールの中心に位置し、活気ある街の上にある聖域として考えられました―静かな朝、温かい夕方、そしてゆっくりと過ごすことの単純な喜びのための場所です。",

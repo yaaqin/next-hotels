@@ -53,7 +53,22 @@
     "footer": {
       "follow": "关注我们",
       "mbs": "滨海湾金沙",
-      "privacypol": "隐私政策"
+      "privacypol": "隐私政策",
+      "planVisit": "规划您的行程",
+      "routetoHere": "获取路线",
+      "giftCertificate": "礼品券",
+      "blog": "博客",
+      "trademarkNotice": "商标声明",
+      "companyInfo": "公司信息",
+      "preservation": "环境保护",
+      "socialResponsibility": "社会责任",
+      "mediaCenter": "媒体中心",
+      "career": "招聘信息",
+      "contactUs": "联系我们",
+      "visitorServices": "访客服务",
+      "hotelReservation": "酒店预订",
+      "entertainmentTicket": "娱乐票务购买",
+      "copyright": "© 2026 Marina Bay Sands. 版权所有。"
     },
     "home": {
       "head": {

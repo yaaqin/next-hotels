@@ -51,14 +51,29 @@
       "desk": "Please enter your details to sign in"
     },
     "footer": {
-      "follow": "Follow us",
+      "follow": "Follow Us",
       "mbs": "MARINA BAY SANDS",
-      "privacypol": "Privacy Policy"
+      "privacypol": "Privacy Policy",
+      "planVisit": "Plan Your Visit",
+      "routetoHere": "Get Directions",
+      "giftCertificate": "Gift Certificate",
+      "blog": "Blog",
+      "trademarkNotice": "Trademark Notice",
+      "companyInfo": "Company Information",
+      "preservation": "Preservation",
+      "socialResponsibility": "Social Responsibility",
+      "mediaCenter": "Media Center",
+      "career": "Careers",
+      "contactUs": "Contact Us",
+      "visitorServices": "Visitor Services",
+      "hotelReservation": "Hotel Reservation",
+      "entertainmentTicket": "Entertainment Ticket Purchase",
+      "copyright": "© 2026 Marina Bay Sands. All Rights Reserved."
     },
-    "home":{
+    "home": {
       "head": {
         "text1": "In quiet places, where the world slows down, we have created a space for rest, warmth, and timeless moments.",
-          "text2": "A place where time lingers gently."
+        "text2": "A place where time lingers gently."
       },
       "about": {
         "text1": "This place is unlike any other. In the heart of Singapore, it was imagined as a sanctuary above the vibrant city — a place for quiet mornings, warm evenings, and the simple joy of slowing down.",

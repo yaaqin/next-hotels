@@ -12,7 +12,7 @@
     "address": "Alamat",
     "create": "Buat",
     "createAt": "dibuat",
-    "createBy": "dibuat Oleh", 
+    "createBy": "dibuat Oleh",
     "date": "Tanggal",
     "detail": "Detail",
     "password": "Kata sandi",
@@ -53,12 +53,27 @@
     "footer": {
       "follow": "Ikuti Kami",
       "mbs": "MARINA BAY SANDS",
-      "privacypol": "Kebijakan Privasi"
+      "privacypol": "Kebijakan Privasi",
+      "planVisit": "Rencanakan Kunjungan",
+      "routetoHere": "Rute ke Sini",
+      "giftCertificate": "Sertifikat Hadiah",
+      "blog": "Blog",
+      "trademarkNotice": "Pemberitahuan Merek Dagang",
+      "companyInfo": "Informasi Perusahaan",
+      "preservation": "Pelestarian",
+      "socialResponsibility": "Tanggung Jawab Sosial",
+      "mediaCenter": "Pusat Media",
+      "career": "Karier",
+      "contactUs": "Hubungi Kami",
+      "visitorServices": "Layanan Pengunjung",
+      "hotelReservation": "Reservasi Hotel",
+      "entertainmentTicket": "Pembelian Tiket Hiburan",
+      "copyright": "© 2026 Marina Bay Sands. Hak Cipta Dilindungi Undang-Undang."
     },
-    "home":{
+    "home": {
       "head": {
         "text1": "Di tempat yang tenang, di mana dunia melambat, kami menciptakan ruang untuk beristirahat, kehangatan, dan momen yang tak lekang oleh waktu.",
-          "text2": "Tempat di mana waktu terasa berjalan lebih perlahan."
+        "text2": "Tempat di mana waktu terasa berjalan lebih perlahan."
       },
       "about": {
         "text1": "Tempat ini tidak seperti yang lain. Di jantung Singapura, tempat ini dibayangkan sebagai sebuah suaka di atas kota yang ramai — sebuah tempat untuk pagi yang tenang, sore yang hangat, dan kesenangan sederhana untuk melambat.",

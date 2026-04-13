@@ -31,27 +31,27 @@ export default function Footer() {
 
           {/* Column 1 */}
           <div className="space-y-4">
-            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">Rencanakan Kunjungan</p>
-            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">Rute ke Sini</p>
-            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">Layanan Pengunjung</p>
-            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">Sertifikat Hadiah</p>
-            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">Blog</p>
+            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">{t('text.footer.planVisit')}</p>
+            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">{t('text.footer.routetoHere')}</p>
+            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">{t('text.footer.visitorServices')}</p>
+            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">{t('text.footer.giftCertificate')}</p>
+            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">{t('text.footer.blog')}</p>
           </div>
 
           {/* Column 2 */}
           <div className="space-y-4">
-            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">Informasi Perusahaan</p>
-            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">Pelestarian</p>
-            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">Tanggung Jawab Sosial</p>
-            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">Pusat Media</p>
-            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">Karier</p>
-            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">Hubungi Kami</p>
+            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">{t('text.footer.companyInfo')}</p>
+            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">{t('text.footer.preservation')}</p>
+            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">{t('text.footer.socialResponsibility')}</p>
+            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">{t('text.footer.mediaCenter')}</p>
+            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">{t('text.footer.career')}</p>
+            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">{t('text.footer.contactUs')}</p>
           </div>
 
           {/* Column 3 */}
           <div className="space-y-4">
-            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">Pemberitahuan Merek Dagang</p>
-            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">Kebijakan Privasi</p>
+            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">{t('text.footer.trademarkNotice')}</p>
+            <p className="hover:text-[#C8DCEF] transition-colors duration-300 cursor-pointer">{t('text.footer.privacypol')}</p>
           </div>
 
           {/* Column 4 - Contact */}
@@ -59,7 +59,7 @@ export default function Footer() {
 
             <div>
               <h3 className="uppercase tracking-[0.18em] text-[0.62rem] mb-4 text-[#C8DCEF]">
-                Reservasi Hotel
+                {t('text.footer.hotelReservation')}
               </h3>
               <div className="w-5 h-px bg-[#1A56A0] opacity-40 mb-4" />
               <div className="flex items-center gap-3 mb-3 text-[0.72rem]">
@@ -74,7 +74,7 @@ export default function Footer() {
 
             <div>
               <h3 className="uppercase tracking-[0.18em] text-[0.62rem] mb-4 text-[#C8DCEF]">
-                Pembelian Tiket Hiburan
+                {t('text.footer.entertainmentTicket')}
               </h3>
               <div className="w-5 h-px bg-[#1A56A0] opacity-40 mb-4" />
               <div className="flex items-center gap-3 text-[0.72rem]">
@@ -115,7 +115,7 @@ export default function Footer() {
             {t('text.footer.privacypol')}
           </p>
           <p className="normal-case tracking-normal text-[#2A4E6A] text-[0.65rem]">
-            © 2026 Marina Bay Sands. Hak Cipta Dilindungi Undang-Undang.
+            {t('text.footer.copyright')}
           </p>
         </div>
 
