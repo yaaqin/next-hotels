@@ -112,9 +112,9 @@ export const NAVIGATION: NavItem[] = [
         parentKey: 'user',
       },
       {
-        key: 'role',
-        label: 'Role',
-        path: '/user/role',
+        key: 'user-log',
+        label: 'User Log',
+        path: '/dashboard/user-log',
         parentKey: 'user',
       },
       {
