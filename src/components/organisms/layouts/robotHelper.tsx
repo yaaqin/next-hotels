@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 
 const IDLE_FIRST_MS = 5_000;
-const IDLE_AFTER_DISMISS_MS = 15_000;
+const IDLE_AFTER_DISMISS_MS = 35_000;
 
 export default function IdleRobotHelper() {
     const [visible, setVisible] = useState(false);
