@@ -1,9 +1,7 @@
-import React from 'react'
+import FinancePage from '@/src/components/pages/finance'
 
 export default function page() {
   return (
-    <div>
-      finance page here
-    </div>
+    <FinancePage/>
   )
 }
