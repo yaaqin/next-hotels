@@ -255,7 +255,14 @@
       "qrisWarningDesc2": "saat booking ulang. Untuk booking ruangan yang sama, harap tunggu",
       "qrisWarningWait": "±15 menit",
       "qrisWarningDesc3": "hingga payment ini expired sebelum mencoba booking kembali.",
-      "closeWarning": "Tutup peringatan"
+      "closeWarning": "Tutup peringatan",
+      "expiredTitle": "Pembayaran Kadaluarsa",
+      "expiredDesc": "Waktu pembayaran telah habis. Silakan buat booking baru.",
+      "notFoundTitle": "Booking Tidak Ditemukan",
+      "notFoundDesc": "Data booking tidak tersedia atau sudah tidak valid.",
+      "invalidStatusTitle": "Status Tidak Valid",
+      "invalidStatusDesc": "Booking ini tidak dalam status menunggu pembayaran.",
+      "backToHome": "Kembali ke Beranda"
     },
     "profile": {
       "title": "Profil",

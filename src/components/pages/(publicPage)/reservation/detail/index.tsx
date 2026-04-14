@@ -112,27 +112,27 @@ function PaymentInfoPanel({ payment, totalAmount }: { payment: Payment; totalAmo
 
                 {/* Mandiri: billerCode + billKey, bukan vaNumber */}
                 {payment.vaBank !== 'MANDIRI' && (
-                //     <div className="space-y-3">
-                //         <div>
-                //             <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">{t('text.reservation.billerCode')}</p>
-                //             <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
-                //                 <span className="font-mono text-base md:text-lg font-bold tracking-widest text-gray-800 flex-1 break-all">
-                //                     {payment.billerCode ?? '—'}
-                //                 </span>
-                //                 {payment.billerCode && <CopyButton text={payment.billerCode} />}
-                //             </div>
-                //         </div>
-                //         <div>
-                //             <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">{t('text.reservation.billKey')}</p>
-                //             <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
-                //                 <span className="font-mono text-base md:text-lg font-bold tracking-widest text-gray-800 flex-1 break-all">
-                //                     {payment.billKey ?? '—'}
-                //                 </span>
-                //                 {payment.billKey && <CopyButton text={payment.billKey} />}
-                //             </div>
-                //         </div>
-                //     </div>
-                // ) : (
+                    //     <div className="space-y-3">
+                    //         <div>
+                    //             <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">{t('text.reservation.billerCode')}</p>
+                    //             <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+                    //                 <span className="font-mono text-base md:text-lg font-bold tracking-widest text-gray-800 flex-1 break-all">
+                    //                     {payment.billerCode ?? '—'}
+                    //                 </span>
+                    //                 {payment.billerCode && <CopyButton text={payment.billerCode} />}
+                    //             </div>
+                    //         </div>
+                    //         <div>
+                    //             <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">{t('text.reservation.billKey')}</p>
+                    //             <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+                    //                 <span className="font-mono text-base md:text-lg font-bold tracking-widest text-gray-800 flex-1 break-all">
+                    //                     {payment.billKey ?? '—'}
+                    //                 </span>
+                    //                 {payment.billKey && <CopyButton text={payment.billKey} />}
+                    //             </div>
+                    //         </div>
+                    //     </div>
+                    // ) : (
                     <div>
                         <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">{t('text.reservation.vaNumber')}</p>
                         <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
@@ -285,8 +285,7 @@ export default function PaymentStatus() {
 
     useEffect(() => {
         if (!status) return
-        if (status === 'PAID') router.push(`/booking/success/${bookingCode}`)
-        else if (status === 'EXPIRED') router.push(`/booking/expired/${bookingCode}`)
+        if (status === 'PAID') router.push(`/payment/success/${bookingCode}`)
     }, [status])
 
     if (isLoading) {
@@ -297,9 +296,69 @@ export default function PaymentStatus() {
         )
     }
 
+    // Status EXPIRED
+    if (status === 'EXPIRED') {
+        return (
+            <div className="flex flex-col items-center justify-center py-24 px-4 text-center">
+                <div className="w-14 h-14 rounded-full bg-orange-50 flex items-center justify-center mb-4">
+                    <svg className="w-7 h-7 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h2 className="text-base font-semibold text-gray-800 mb-1">{t('text.reservation.expiredTitle')}</h2>
+                <p className="text-sm text-gray-400 mb-6">{t('text.reservation.expiredDesc')}</p>
+                <button
+                    onClick={() => router.push('/')}
+                    className="px-5 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-700 transition-colors"
+                >
+                    {t('text.reservation.backToHome')}
+                </button>
+            </div>
+        )
+    }
+
+    // Booking tidak ditemukan / error
     const booking = data?.data
-    if (!booking || !booking.payment) return null
-    if (booking.status !== 'PENDING') return null
+    if (!booking || !booking.payment) {
+        return (
+            <div className="flex flex-col items-center justify-center py-24 px-4 text-center">
+                <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mb-4">
+                    <svg className="w-7 h-7 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h2 className="text-base font-semibold text-gray-800 mb-1">{t('text.reservation.notFoundTitle')}</h2>
+                <p className="text-sm text-gray-400 mb-6">{t('text.reservation.notFoundDesc')}</p>
+                <button
+                    onClick={() => router.push('/')}
+                    className="px-5 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-700 transition-colors"
+                >
+                    {t('text.reservation.backToHome')}
+                </button>
+            </div>
+        )
+    }
+
+    // Status bukan PENDING (misal sudah PAID tapi belum redirect, atau status lain)
+    if (booking.status !== 'PENDING') {
+        return (
+            <div className="flex flex-col items-center justify-center py-24 px-4 text-center">
+                <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                    <svg className="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+                <h2 className="text-base font-semibold text-gray-800 mb-1">{t('text.reservation.invalidStatusTitle')}</h2>
+                <p className="text-sm text-gray-400 mb-6">{t('text.reservation.invalidStatusDesc')}</p>
+                <button
+                    onClick={() => router.push('/')}
+                    className="px-5 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-700 transition-colors"
+                >
+                    {t('text.reservation.backToHome')}
+                </button>
+            </div>
+        )
+    }
 
     return (
         <div className="w-full max-w-4xl mx-auto px-4 md:px-8 py-6 md:py-10">

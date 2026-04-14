@@ -255,7 +255,14 @@
       "qrisWarningDesc2": "如需预订同一房间，请等待",
       "qrisWarningWait": "约 15 分钟",
       "qrisWarningDesc3": "直到此付款过期后再试。",
-      "closeWarning": "关闭提示"
+      "closeWarning": "关闭提示",
+       "expiredTitle": "支付已过期",
+      "expiredDesc": "支付时间已截止，请重新创建预订。",
+      "notFoundTitle": "未找到预订",
+      "notFoundDesc": "预订数据不可用或已失效。",
+      "invalidStatusTitle": "状态无效",
+      "invalidStatusDesc": "此预订不处于待付款状态。",
+      "backToHome": "返回首页"
     },
     "profile": {
       "title": "个人资料",

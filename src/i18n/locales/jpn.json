@@ -255,7 +255,14 @@
       "qrisWarningDesc2": "に変更してください。同じ部屋を予約する場合は、",
       "qrisWarningWait": "約15分",
       "qrisWarningDesc3": "この支払いが期限切れになるまでお待ちください。",
-      "closeWarning": "警告を閉じる"
+      "closeWarning": "警告を閉じる",
+       "expiredTitle": "支払い期限切れ",
+      "expiredDesc": "支払い期限が過ぎました。新しい予約を作成してください。",
+      "notFoundTitle": "予約が見つかりません",
+      "notFoundDesc": "予約データが存在しないか、無効になっています。",
+      "invalidStatusTitle": "無効なステータス",
+      "invalidStatusDesc": "この予約は支払い待ち状態ではありません。",
+      "backToHome": "ホームに戻る"
     },
     "profile": {
       "title": "プロフィール",

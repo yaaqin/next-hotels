@@ -255,7 +255,14 @@
       "qrisWarningDesc2": "when rebooking. For the same room, please wait",
       "qrisWarningWait": "±15 minutes",
       "qrisWarningDesc3": "until this payment expires before trying again.",
-      "closeWarning": "Close warning"
+      "closeWarning": "Close warning",
+      "expiredTitle": "Payment Expired",
+      "expiredDesc": "The payment window has closed. Please create a new booking.",
+      "notFoundTitle": "Booking Not Found",
+      "notFoundDesc": "Booking data is unavailable or no longer valid.",
+      "invalidStatusTitle": "Invalid Status",
+      "invalidStatusDesc": "This booking is not awaiting payment.",
+      "backToHome": "Back to Home"
     },
     "profile": {
       "title": "Profile",
