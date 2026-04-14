@@ -3,6 +3,7 @@
 import { useUserCreditHistory } from '@/src/hooks/query/userProfile/creditHistory'
 import { CreditCardIcon, ArrowLeft01Icon } from 'hugeicons-react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 
 function formatDate(dateStr: string) {
   if (!dateStr) return '—'
@@ -18,18 +19,15 @@ function formatCurrency(amount: number) {
   }).format(amount)
 }
 
-// "0xf86ee9dc57d1dff51befe..." → "0xf8...e48"
 function truncateWallet(address: string) {
   if (!address || address.length <= 10) return address
   return `${address.slice(0, 6)}...${address.slice(-3)}`
 }
 
-// Cek apakah string adalah wallet address (mulai 0x dan panjang)
 function isWalletAddress(str: string) {
   return /^0x[a-fA-F0-9]{10,}$/.test(str)
 }
 
-// Parse note: kalau ada "wallet: 0x..." → truncate bagian addressnya
 function parseNote(note: string) {
   if (!note) return note
   const walletMatch = note.match(/(wallet:\s*)(0x[a-fA-F0-9]+)/i)
@@ -37,13 +35,6 @@ function parseNote(note: string) {
     return note.replace(walletMatch[2], truncateWallet(walletMatch[2]))
   }
   return note
-}
-
-const SOURCE_TYPE_LABEL: Record<string, string> = {
-  REFUND: 'Refund booking',
-  USAGE: 'Digunakan untuk booking',
-  EXPIRED: 'Kredit kadaluarsa',
-  MANUAL: 'Penyesuaian manual',
 }
 
 const SOURCE_TYPE_COLOR: Record<string, string> = {
@@ -60,10 +51,7 @@ function Divider() {
 function LogIcon({ type }: { type: string }) {
   const isAdd = type === 'ADD'
   return (
-    <div
-      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0
-        ${isAdd ? 'bg-green-50' : 'bg-red-50'}`}
-    >
+    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isAdd ? 'bg-green-50' : 'bg-red-50'}`}>
       {isAdd ? (
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#3B6D11" strokeWidth="1.8">
           <path d="M8 3v10M3 8h10" />
@@ -96,9 +84,18 @@ function SkeletonRow() {
 
 export default function CreditHistoryPage() {
   const { data, isLoading } = useUserCreditHistory()
+  const { t } = useTranslation()
   const router = useRouter()
 
   const credit = data?.data
+
+  // Pindah ke dalam komponen supaya t() bisa diakses
+  const SOURCE_TYPE_LABEL: Record<string, string> = {
+    REFUND: t("text.profile.creditHistory.sourceType.refund"),
+    USAGE: t("text.profile.creditHistory.sourceType.usage"),
+    EXPIRED: t("text.profile.creditHistory.sourceType.expired"),
+    MANUAL: t("text.profile.creditHistory.sourceType.manual"),
+  }
 
   return (
     <div className="min-h-screen bg-[#f5f4f0] py-8 px-4">
@@ -111,11 +108,13 @@ export default function CreditHistoryPage() {
             className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 mb-3 transition-colors"
           >
             <ArrowLeft01Icon size={13} />
-            Kembali
+            {t("text.profile.creditHistory.back")}
           </button>
-          <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">Credit History</h1>
+          <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
+            {t("text.profile.creditHistory.title")}
+          </h1>
           <p className="text-xs text-gray-400 tracking-widest uppercase mt-1">
-            Riwayat transaksi booking credit
+            {t("text.profile.creditHistory.subtitle")}
           </p>
         </div>
 
@@ -124,23 +123,20 @@ export default function CreditHistoryPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <CreditCardIcon size={16} className="text-emerald-400" />
-              <span className="text-xs tracking-widest uppercase text-gray-400">Saldo kredit</span>
+              <span className="text-xs tracking-widest uppercase text-gray-400">
+                {t("text.profile.creditHistory.creditBalance")}
+              </span>
             </div>
             {credit && (
-              <span
-                className={`text-[10px] font-medium px-2.5 py-1 rounded-lg tracking-widest uppercase
-                  ${credit.status === 'ACTIVE'
-                    ? 'bg-green-50 text-green-700'
-                    : 'bg-gray-100 text-gray-400'
-                  }`}
-              >
+              <span className={`text-[10px] font-medium px-2.5 py-1 rounded-lg tracking-widest uppercase
+                ${credit.status === 'ACTIVE' ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-400'}`}>
                 {credit.status}
               </span>
             )}
           </div>
 
           <p className="text-[10px] tracking-[0.14em] uppercase text-gray-400 mb-1">
-            Saldo tersedia
+            {t("text.profile.creditHistory.availableBalance")}
           </p>
           {isLoading ? (
             <div className="h-8 w-36 bg-gray-100 rounded animate-pulse" />
@@ -155,7 +151,7 @@ export default function CreditHistoryPage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-[10px] tracking-[0.18em] uppercase text-gray-400 mb-1">
-                Berlaku hingga
+                {t("text.profile.creditHistory.validUntil")}
               </p>
               <p className="text-sm font-medium text-gray-900">
                 {credit?.expiredAt ? formatDate(credit.expiredAt) : '—'}
@@ -163,10 +159,10 @@ export default function CreditHistoryPage() {
             </div>
             <div>
               <p className="text-[10px] tracking-[0.18em] uppercase text-gray-400 mb-1">
-                Total transaksi
+                {t("text.profile.creditHistory.totalTransaction")}
               </p>
               <p className="text-sm font-medium text-gray-900">
-                {credit?.logs?.length ?? 0} transaksi
+                {t("text.profile.creditHistory.transactionCount", { count: credit?.logs?.length ?? 0 })}
               </p>
             </div>
           </div>
@@ -177,7 +173,7 @@ export default function CreditHistoryPage() {
           <div className="flex items-center gap-2 mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" />
             <span className="text-xs tracking-widest uppercase text-gray-400">
-              Riwayat transaksi
+              {t("text.profile.creditHistory.transactionHistory")}
             </span>
           </div>
 
@@ -186,36 +182,30 @@ export default function CreditHistoryPage() {
               {Array.from({ length: 4 }).map((_, i) => <SkeletonRow key={i} />)}
             </div>
           ) : !credit?.logs?.length ? (
-            <p className="text-sm text-gray-400 text-center py-6">Belum ada transaksi</p>
+            <p className="text-sm text-gray-400 text-center py-6">
+              {t("text.profile.creditHistory.noTransaction")}
+            </p>
           ) : (
             <div className="divide-y divide-gray-100">
               {credit.logs.map((log) => (
                 <div key={log.id} className="flex items-start gap-3 py-3.5">
-                  {/* Icon */}
                   <LogIcon type={log.type} />
 
-                  {/* Label + badge */}
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-gray-900 leading-snug break-words">
                       {parseNote(log.note || SOURCE_TYPE_LABEL[log.sourceType] || log.sourceType)}
                     </p>
-                    <span
-                      className={`inline-block mt-1.5 text-[10px] px-1.5 py-0.5 rounded tracking-wide font-medium
-                        ${SOURCE_TYPE_COLOR[log.sourceType] ?? 'bg-gray-100 text-gray-500'}`}
-                    >
+                    <span className={`inline-block mt-1.5 text-[10px] px-1.5 py-0.5 rounded tracking-wide font-medium
+                      ${SOURCE_TYPE_COLOR[log.sourceType] ?? 'bg-gray-100 text-gray-500'}`}>
                       {log.sourceType}
                     </span>
                   </div>
 
-                  {/* Amount + date */}
                   <div className="text-right flex-shrink-0 pl-2">
                     <p className="text-[11px] text-gray-400 mb-0.5 tabular-nums">
                       {formatDate(log.createdAt)}
                     </p>
-                    <p
-                      className={`text-sm font-semibold tabular-nums
-                        ${log.type === 'ADD' ? 'text-green-700' : 'text-red-600'}`}
-                    >
+                    <p className={`text-sm font-semibold tabular-nums ${log.type === 'ADD' ? 'text-green-700' : 'text-red-600'}`}>
                       {log.type === 'ADD' ? '+' : '−'}{formatCurrency(log.amount)}
                     </p>
                     <p className="text-[10px] text-gray-400 mt-0.5 tabular-nums">

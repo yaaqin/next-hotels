@@ -1,11 +1,9 @@
 'use client'
 
 import { signOut, useSession } from 'next-auth/react'
-import {
-  UserIcon,
-  LogoutSquare01Icon,
-} from 'hugeicons-react'
+import { UserIcon } from 'hugeicons-react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import { useUserProfile } from '@/src/hooks/query/userProfile'
 import { GoogleLoginGate } from '../recentActivity'
 import Images from '@/src/components/atoms/images'
@@ -43,17 +41,13 @@ function formatCurrency(amount: number) {
 
 function getInitials(name?: string | null) {
   if (!name) return '?'
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
+  return name.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase()
 }
 
 export default function ProfileUserPage() {
   const { data: session, status: authStatus } = useSession()
   const { data, isLoading } = useUserProfile()
+  const { t } = useTranslation()
   const router = useRouter()
 
   const user = data?.data
@@ -66,15 +60,21 @@ export default function ProfileUserPage() {
 
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">Profile</h1>
-          <p className="text-sm text-gray-400 tracking-widest uppercase mt-1">Akun saya</p>
+          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
+            {t("text.profile.title")}
+          </h1>
+          <p className="text-sm text-gray-400 tracking-widest uppercase mt-1">
+            {t("text.profile.subtitle")}
+          </p>
         </div>
 
         {/* Info Akun */}
         <div className="bg-white rounded-2xl p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-5">
             <UserIcon size={16} className="text-blue-400" />
-            <span className="text-xs tracking-widest uppercase text-gray-400">Info akun</span>
+            <span className="text-xs tracking-widest uppercase text-gray-400">
+              {t("text.profile.accountInfo")}
+            </span>
           </div>
 
           {/* Avatar row */}
@@ -101,14 +101,22 @@ export default function ProfileUserPage() {
           <Divider />
 
           <div className="grid grid-cols-2 gap-5">
-            <div><Label>Nama lengkap</Label><Field>{user?.name ?? '—'}</Field></div>
-            <div><Label>Email</Label><Field>{user?.email ?? '—'}</Field></div>
             <div>
-              <Label>Phone</Label>
-              <Field muted={!user?.phone}>{user?.phone ?? 'Belum diisi'}</Field>
+              <Label>{t("text.profile.fullName")}</Label>
+              <Field>{user?.name ?? '—'}</Field>
             </div>
             <div>
-              <Label>Bergabung sejak</Label>
+              <Label>{t("text.profile.email")}</Label>
+              <Field>{user?.email ?? '—'}</Field>
+            </div>
+            <div>
+              <Label>{t("text.profile.phone")}</Label>
+              <Field muted={!user?.phone}>
+                {user?.phone ?? t("text.profile.phoneEmpty")}
+              </Field>
+            </div>
+            <div>
+              <Label>{t("text.profile.joinedSince")}</Label>
               <Field>{user?.createdAt ? formatDate(user.createdAt) : '—'}</Field>
             </div>
           </div>
@@ -129,7 +137,7 @@ export default function ProfileUserPage() {
             onClick={() => signOut({ callbackUrl: '/' })}
             className="w-full py-3.5 rounded-xl text-sm font-medium tracking-widest uppercase text-red-500 border border-gray-200 hover:bg-red-50 transition-colors duration-200"
           >
-            Keluar dari akun
+            {t("text.profile.logout")}
           </button>
         </div>
 
