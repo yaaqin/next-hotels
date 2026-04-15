@@ -145,6 +145,7 @@ export default function WhoWeAre() {
               src="https://cdn.yaaqin.xyz/hotel/1771948246446-amnts.jpg"
               alt="Marina by Sand Team"
               className="w-full h-full object-cover"
+              unoptimized
             />
           </div>
           <div className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/5" />

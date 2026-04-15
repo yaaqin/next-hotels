@@ -10,6 +10,7 @@ import { useCheckIn } from "@/src/hooks/mutation/userRecentActivity/checkIn";
 import { RecentActivityDrawer } from "@/src/components/organisms/userRecentActivity/drawer";
 import { RecentActivityCard } from "@/src/components/organisms/userRecentActivity/activityCard";
 import { useCheckOut } from "@/src/hooks/mutation/userRecentActivity/checkOut";
+import Image from "next/image";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type ActivityStatus =
@@ -173,7 +174,7 @@ export default function RecentActivityPage() {
         >
           <div className="flex items-center gap-3 mb-5">
             {session.user?.image && (
-              <img src={session.user.image} alt="avatar" className="w-9 h-9 rounded-full border-2 border-white shadow-sm" />
+              <Image width={200} height={200} src={session.user.image} alt="avatar" className="w-9 h-9 rounded-full border-2 border-white shadow-sm" />
             )}
             <div>
               <p className="text-xs text-gray-400">Welcome back,</p>

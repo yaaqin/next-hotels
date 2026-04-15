@@ -13,20 +13,20 @@ type BookingStatus = "confirmed" | "checked_in" | "completed" | "cancelled" | "p
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const STATUS_CONFIG: Record<BookingStatus, { label: string; dot: string; badge: string; text: string }> = {
-  pending:    { label: "Pending",    dot: "bg-amber-400",   badge: "bg-amber-50 border-amber-200",    text: "text-amber-600"   },
-  confirmed:  { label: "Confirmed",  dot: "bg-blue-400",    badge: "bg-blue-50 border-blue-200",      text: "text-blue-600"    },
+  pending: { label: "Pending", dot: "bg-amber-400", badge: "bg-amber-50 border-amber-200", text: "text-amber-600" },
+  confirmed: { label: "Confirmed", dot: "bg-blue-400", badge: "bg-blue-50 border-blue-200", text: "text-blue-600" },
   checked_in: { label: "Checked In", dot: "bg-emerald-400", badge: "bg-emerald-50 border-emerald-200", text: "text-emerald-600" },
-  completed:  { label: "Completed",  dot: "bg-gray-400",    badge: "bg-gray-50 border-gray-200",      text: "text-gray-500"    },
-  cancelled:  { label: "Cancelled",  dot: "bg-rose-400",    badge: "bg-rose-50 border-rose-200",      text: "text-rose-500"    },
+  completed: { label: "Completed", dot: "bg-gray-400", badge: "bg-gray-50 border-gray-200", text: "text-gray-500" },
+  cancelled: { label: "Cancelled", dot: "bg-rose-400", badge: "bg-rose-50 border-rose-200", text: "text-rose-500" },
 };
 
 const FILTERS: { label: string; value: BookingStatus | "all" }[] = [
-  { label: "All",        value: "all"        },
-  { label: "Pending",    value: "pending"    },
-  { label: "Confirmed",  value: "confirmed"  },
+  { label: "All", value: "all" },
+  { label: "Pending", value: "pending" },
+  { label: "Confirmed", value: "confirmed" },
   { label: "Checked In", value: "checked_in" },
-  { label: "Completed",  value: "completed"  },
-  { label: "Cancelled",  value: "cancelled"  },
+  { label: "Completed", value: "completed" },
+  { label: "Cancelled", value: "cancelled" },
 ];
 
 function formatDate(dateStr: string) {
@@ -234,10 +234,10 @@ function BookingDrawer({
               {/* Dates grid */}
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { label: "Check-in",  value: formatDate(booking.checkInDate)  },
+                  { label: "Check-in", value: formatDate(booking.checkInDate) },
                   { label: "Check-out", value: formatDate(booking.checkOutDate) },
-                  { label: "Nights",    value: `${nights} night${nights > 1 ? "s" : ""}` },
-                  { label: "Rooms",     value: `${booking.items?.length ?? 1} room${(booking.items?.length ?? 1) > 1 ? "s" : ""}` },
+                  { label: "Nights", value: `${nights} night${nights > 1 ? "s" : ""}` },
+                  { label: "Rooms", value: `${booking.items?.length ?? 1} room${(booking.items?.length ?? 1) > 1 ? "s" : ""}` },
                 ].map((item) => (
                   <div key={item.label} className="bg-gray-50 rounded-xl px-4 py-3">
                     <p className="text-xs text-gray-400 tracking-wide uppercase mb-1">{item.label}</p>
@@ -451,12 +451,14 @@ export default function BookingHistoryPage() {
   if (authStatus === "unauthenticated" || !session) return <GoogleLoginGate />;
 
   const bookings = data?.data?.bookings ?? [];
-  const filtered = activeFilter === "all" ? bookings : bookings.filter((b) => b.status === activeFilter);
 
   const total = bookings.length;
-  const completed = bookings.filter((b) => b.status === "completed").length;
-  const totalSpent = bookings.filter((b) => b.status !== "cancelled").reduce((sum, b) => sum + b.totalAmount, 0);
+  const filtered = activeFilter === "all"
+    ? bookings
+    : bookings.filter((b) => (b.payment?.status ?? b.status) === activeFilter);
 
+  const completed = bookings.filter((b) => (b.payment?.status ?? b.status) === "completed").length;
+  const totalSpent = bookings.filter((b) => (b.payment?.status ?? b.status) !== "CANCELLED").reduce((sum, b) => sum + b.totalAmount, 0);
   return (
     <div className="min-h-screen bg-gray-50/60">
       <div className="max-w-2xl mx-auto px-4 py-10">
@@ -482,9 +484,9 @@ export default function BookingHistoryPage() {
           className="grid grid-cols-3 gap-3 mb-8"
         >
           {[
-            { label: "Total Bookings",  value: isLoading ? "—" : total },
+            { label: "Total Bookings", value: isLoading ? "—" : total },
             { label: "Stays Completed", value: isLoading ? "—" : completed },
-            { label: "Total Spent",     value: isLoading ? "—" : formatPrice(totalSpent) },
+            { label: "Total Spent", value: isLoading ? "—" : formatPrice(totalSpent) },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-2xl border border-gray-100 px-4 py-4 text-center">
               <p className="text-lg font-bold text-gray-900">{s.value}</p>

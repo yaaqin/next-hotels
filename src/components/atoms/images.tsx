@@ -55,6 +55,7 @@ export default function Images({
       height={height}
       loading={priority ? 'eager' : loading ?? 'lazy'}
       style={imgStyle}
+      unoptimized
       onLoad={() => setLoaded(true)}
       {...props}
     />
