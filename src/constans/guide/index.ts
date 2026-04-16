@@ -20,6 +20,30 @@ export interface Guideline {
 
 export const simpleGuideline: Guideline[] = [
     {
+        id: "g02",
+        name: "Booking",
+        for: ["user"],
+        guide: [
+            {
+                type: "list",
+                content: [
+                    "Buka halaman utama, klik Pesan",
+                    "Pilih tanggal dan jumlah guest, lalu klik Reserve",
+                    "Pilih tipe kamar yang tersedia lalu klik Reserve",
+                    "Jika belum login, login terlebih dahulu menggunakan akun Google Anda",
+                    "Select room number yang available dan isi form data diri dengan lengkap",
+                    "Pilih payment method — jika VA: select nama bank, jika Crypto: pastikan sudah memiliki wallet",
+                    "Klik Confirm and Pay",
+                ],
+            },
+            {
+                type: "note",
+                content:
+                    "Untuk pembayaran, pilih guide Payment yang sesuai dengan metode transaksi Anda.",
+            },
+        ],
+    },
+    {
         id: "g01",
         name: "Refund",
         for: ["user"],
@@ -60,30 +84,6 @@ export const simpleGuideline: Guideline[] = [
     //         },
     //     ],
     // },
-    {
-        id: "g02",
-        name: "Booking",
-        for: ["user"],
-        guide: [
-            {
-                type: "list",
-                content: [
-                    "Buka halaman utama, klik Pesan",
-                    "Pilih tanggal dan jumlah guest, lalu klik Reserve",
-                    "Pilih tipe kamar yang tersedia lalu klik Reserve",
-                    "Jika belum login, login terlebih dahulu menggunakan akun Google Anda",
-                    "Select room number yang available dan isi form data diri dengan lengkap",
-                    "Pilih payment method — jika VA: select nama bank, jika Crypto: pastikan sudah memiliki wallet",
-                    "Klik Confirm and Pay",
-                ],
-            },
-            {
-                type: "note",
-                content:
-                    "Untuk pembayaran, pilih guide Payment yang sesuai dengan metode transaksi Anda.",
-            },
-        ],
-    },
     {
         id: "g03",
         name: "Price Proposal",

@@ -227,34 +227,6 @@ function SidebarContent({
 
       {/* Scrollable nav */}
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
-        {/* Admin group */}
-        {adminRoots.length > 0 && (
-          <div>
-            <p
-              className="text-[0.5rem] tracking-[0.18em] uppercase mb-2 px-1"
-              style={{ color: "#5B90C9" }}
-            >
-              Admin
-            </p>
-            <div className="space-y-0.5">
-              {adminRoots.map((item) => (
-                <SidebarItem
-                  key={item.id}
-                  item={item}
-                  allItems={simpleGuideline}
-                  selected={selected}
-                  onSelect={onSelect}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Divider */}
-        {adminRoots.length > 0 && userRoots.length > 0 && (
-          <div style={{ height: 1, background: "#B5CDE8", opacity: 0.5 }} />
-        )}
-
         {/* User group */}
         {userRoots.length > 0 && (
           <div>
@@ -277,6 +249,34 @@ function SidebarContent({
             </div>
           </div>
         )}
+
+        {/* Divider */}
+        {adminRoots.length > 0 && userRoots.length > 0 && (
+          <div style={{ height: 1, background: "#B5CDE8", opacity: 0.5 }} />
+        )}
+
+        {/* Admin group */}
+        {adminRoots.length > 0 && (
+          <div>
+            <p
+              className="text-[0.5rem] tracking-[0.18em] uppercase mb-2 px-1"
+              style={{ color: "#5B90C9" }}
+            >
+              Admin
+            </p>
+            <div className="space-y-0.5">
+              {adminRoots.map((item) => (
+                <SidebarItem
+                  key={item.id}
+                  item={item}
+                  allItems={simpleGuideline}
+                  selected={selected}
+                  onSelect={onSelect}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
@@ -286,7 +286,7 @@ function SidebarContent({
 
 export default function SimpleGuideline() {
   const firstWithGuide =
-    simpleGuideline.find((g) => g.guide.length > 0) ?? simpleGuideline[0];
+    simpleGuideline.find((g) => g.guide.length > 0) ?? simpleGuideline[1];
   const [selected, setSelected] = useState<Guideline>(firstWithGuide);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
