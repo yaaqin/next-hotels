@@ -295,11 +295,10 @@ axiosUser.interceptors.response.use(
     const message = (error.response?.data as { message?: string })?.message || 'Terjadi kesalahan'
 
     if (status === 401) {
-      // Access token rejected BE — signOut paksa
       if (isBrowser) {
         const { signOut } = await import('next-auth/react')
         toast.error('Sesi kamu sudah habis, silakan login ulang')
-        setTimeout(() => signOut({ callbackUrl: '/login' }), 1500)
+        setTimeout(() => signOut({ redirect: false }), 1500)
       }
       return Promise.reject(error)
     }
