@@ -148,7 +148,7 @@ export default function BookingPage2() {
       <WhyChoose />
       <Facility />
       <Amenities />
-      <section style={{ zIndex: 3 }} className='relative'>
+      <section className='relative'>
         <Footer />
       </section>
     </>

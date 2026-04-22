@@ -36,7 +36,7 @@ export default function Amenities() {
     { icon: DeliveryBox01Icon, label: t("text.home.amenities.roomService") },
   ];
   return (
-    <section className="w-full py-16 px-8 bg-white relative" style={{ zIndex: 3 }}>
+    <section className="w-full py-16 px-8 bg-white relative">
       <h2 className="text-center text-3xl font-bold tracking-[0.25em] uppercase text-gray-900 mb-12">
         Amenities
       </h2>

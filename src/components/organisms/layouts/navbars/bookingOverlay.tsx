@@ -38,7 +38,7 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-[100] flex items-center justify-center"
+          className="fixed inset-0 z-50 flex items-center justify-center"
           style={{ background: "#EEF3FA", fontFamily: "'Montserrat', sans-serif" }}
           initial={{ y: "-100%" }}
           animate={{ y: 0 }}
