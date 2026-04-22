@@ -174,7 +174,7 @@ export default function RecentActivityPage() {
         >
           <div className="flex items-center gap-3 mb-5">
             {session.user?.image && (
-              <Image width={200} height={200} src={session.user.image} alt="avatar" className="w-9 h-9 rounded-full border-2 border-white shadow-sm" />
+              <Image unoptimized width={200} height={200} src={session.user.image} alt="avatar" className="w-9 h-9 rounded-full border-2 border-white shadow-sm" />
             )}
             <div>
               <p className="text-xs text-gray-400">Welcome back,</p>
