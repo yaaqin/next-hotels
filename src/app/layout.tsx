@@ -19,9 +19,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MBSC - Booking Hotel",
-  description:
-    "Find and book hotels with the best prices. Easy booking, real-time availability, and secure payment for your perfect stay.",
+  title: 'MBS Hotel Booking — Demo Project',
+  description: 'Demo aplikasi reservasi hotel modern dengan Next.js, payment gateway, dan Web3 crypto payment.',
+  authors: [{ name: 'Nama Lu' }],
   keywords: [
     "hotel booking",
     "book hotel online",
@@ -31,6 +31,12 @@ export const metadata: Metadata = {
     "best hotel price",
     "travel accommodation",
   ],
+  openGraph: {
+    title: 'MBS Hotel Booking',
+    description: 'Demo aplikasi reservasi hotel — Next.js + Midtrans + SGT Crypto',
+    url: 'https://mbsc.yaaqin.xyz',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({
