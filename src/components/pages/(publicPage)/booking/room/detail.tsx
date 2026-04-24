@@ -7,6 +7,8 @@ import { publicRoomDetailState } from '@/src/models/public/room/detail'
 import { useBookingStore } from '@/src/stores/booking'
 import RoomImageGallery from '@/src/components/organisms/galleries/sliderImage/roomImageGallery'
 import { FACILITY_ICONS } from '@/src/constans/room'
+import { useSession } from 'next-auth/react'
+import { GoogleLoginGate } from '../../recentActivity'
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 function Skeleton() {
@@ -282,9 +284,16 @@ export default function PublicRoomDetailPage() {
   const checkin = searchParams.get('checkin') ?? ''
   const checkout = searchParams.get('checkout') ?? ''
 
+  const { data: session, status: authStatus } = useSession()
+
   const { data, isLoading, error } = useRoomDetailPublic(id)
   const room = data?.data
 
+  // 1. Cek auth dulu sebelum apapun
+  if (authStatus === 'loading') return <Skeleton />
+  if (authStatus === 'unauthenticated' || !session) return <GoogleLoginGate />
+
+  // 2. Baru cek data room
   if (isLoading) return <Skeleton />
 
   if (error || !room) {
@@ -300,4 +309,4 @@ export default function PublicRoomDetailPage() {
   }
 
   return <RoomDetailContent room={room} checkin={checkin} checkout={checkout} />
-}
+} 
