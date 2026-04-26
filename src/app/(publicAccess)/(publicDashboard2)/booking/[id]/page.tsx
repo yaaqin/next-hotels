@@ -4,4 +4,4 @@ export default function page() {
   return (
     <RoomTypeDetailPage/>
   )
-}
+} 

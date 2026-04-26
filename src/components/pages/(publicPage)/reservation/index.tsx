@@ -25,8 +25,8 @@ import { useSafeSession } from "@/src/hooks/custom/payment/useSafeSession"
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 
-type PaymentMethod = 'va_bca' | 'va_bni' | 'va_bri' | 'va_mandiri' | 'qris' | 'sgt'
-type PaymentCategory = 'va' | 'qris' | 'sgt'
+type PaymentMethod = 'va_bca' | 'va_bni' | 'va_bri' | 'va_mandiri' | 'qris' | 'sgt' | 'credit'
+type PaymentCategory = 'va' | 'qris' | 'sgt' | 'credit'
 
 // ─── Validation Types ────────────────────────────────────────────────────────
 
@@ -348,7 +348,6 @@ export default function ReservationPage() {
     setSelectedRoom(room)
     setRoomOpen(false)
     setRoomId(roomTypeId, room.id, roomImageUrl ?? '')
-    // Clear room error on select
     if (submitted) setErrors((prev) => ({ ...prev, roomNumber: undefined }))
   }
 
@@ -364,8 +363,8 @@ export default function ReservationPage() {
     setPaymentCategory(cat)
     setSelectedVA(null)
     if (cat === 'qris') setPaymentMethod('qris' as any)
+    if (cat === 'credit') setPaymentMethod('credit' as any)
     if (cat !== 'sgt') setSgtWalletAddress(null)
-    // Clear payment error on select
     if (submitted) setErrors((prev) => ({ ...prev, paymentMethod: undefined }))
   }
 
@@ -373,7 +372,6 @@ export default function ReservationPage() {
     setSelectedVA(method)
     setVaOpen(false)
     setPaymentMethod(method.replace('va_', '') as any)
-    // Clear payment error on bank select
     if (submitted) setErrors((prev) => ({ ...prev, paymentMethod: undefined }))
   }
 
@@ -400,12 +398,54 @@ export default function ReservationPage() {
     const newErrors = validateForm({ contact, selectedRoom, paymentCategory, selectedVA, sgtWalletAddress })
     setErrors(newErrors)
 
-    // Stop if there are validation errors
     if (Object.keys(newErrors).length > 0) return
-
     if (!isReadyToSubmit()) return
 
     const { items, ...rest } = payload
+
+    // ── Credit path ──────────────────────────────────────────────────────────
+    if (paymentCategory === 'credit') {
+      mutate(
+        {
+          ...rest,
+          items: items.map(({ imageUrl, ...item }) => item),
+          paymentMethod: 'credit',
+        } as BookingPayload,
+        {
+          onSuccess: (res) => {
+            const data = res?.data
+            // Credit cukup — langsung redirect ke success
+            const bookingCode = data?.booking?.bookingCode
+            reset()
+            router.push(`/payment/success?bookingCode=${bookingCode}`)
+          },
+          onError: (err: any) => {
+            const errBody = err?.response?.data?.message  
+
+            console.log(err?.response?.data?.message)
+
+            if (err?.response?.status === 422 && errBody?.data?.isPaid === false) {
+              const shortage = formatCurrency(errBody.data.shortage ?? 0)
+              const available = formatCurrency(errBody.data.creditAmount ?? 0)
+              toast.error(
+                `Kredit tidak mencukupi. Saldo: ${available}, kurang: ${shortage}`,
+                { duration: 5000 }
+              )
+              return
+            }
+
+            const message =
+              err?.response?.data?.message ??
+              err?.message ??
+              'Terjadi kesalahan, coba lagi.'
+            toast.error(message)
+          },
+        }
+      )
+      return
+    }
+
+    // ── SGT & Midtrans path (tidak berubah) ───────────────────────────────────
     mutate(
       {
         ...rest,
@@ -416,6 +456,7 @@ export default function ReservationPage() {
         onSuccess: async (res) => {
           const payment = res?.data?.payment
           const bookingCode = res?.data?.booking?.bookingCode
+
           if (paymentCategory === 'sgt' && payment?.type === 'SGT') {
             if (!payment.hotelWalletAddress || !payment.sgtAmountDue) {
               toast.error('Data pembayaran SGT tidak lengkap')
@@ -433,6 +474,7 @@ export default function ReservationPage() {
             }
             return
           }
+
           reset()
           router.push(`/reservation/${bookingCode}`)
         },
@@ -447,7 +489,6 @@ export default function ReservationPage() {
     )
   }
 
-  // canSubmit: tetap true biar button bisa diklik, validasi jalan di handleBooking
   const canSubmit = isAuthenticated && !isPending
 
   const { t } = useTranslation()
@@ -492,7 +533,7 @@ export default function ReservationPage() {
                 <div><Label>{t("text.reservation.bedType")}</Label><Field>{displayRoom?.bedType.name ?? '—'}</Field></div>
               </div>
 
-              {/* Room Number dengan error */}
+              {/* Room Number */}
               <div>
                 <Label>{t("text.reservation.roomNumber")}</Label>
                 <div className="relative mt-1">
@@ -546,9 +587,17 @@ export default function ReservationPage() {
                 <CreditCardIcon size={16} className="text-blue-400" />
                 <span className="text-xs tracking-widest uppercase text-gray-400">{t("text.reservation.payment")}</span>
               </div>
-              <div className="flex gap-2 mb-4">
-                {(['va', 'qris', 'sgt'] as PaymentCategory[]).map((cat) => {
+
+              {/* Payment Category Tabs */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                {(['va', 'qris', 'sgt', 'credit'] as PaymentCategory[]).map((cat) => {
                   const isDisabled = DISABLED_PAYMENT_METHODS.includes(cat)
+                  const label =
+                    cat === 'va' ? t("text.reservation.virtualAccount") :
+                      cat === 'sgt' ? t("text.reservation.crypto") :
+                        cat === 'credit' ? 'Credit' :
+                          cat.toUpperCase()
+
                   return (
                     <button
                       key={cat}
@@ -558,13 +607,13 @@ export default function ReservationPage() {
                         ${isDisabled
                           ? 'bg-gray-50 text-gray-200 cursor-not-allowed border border-dashed border-gray-200'
                           : paymentCategory === cat
-                            ? 'bg-blue-500 text-white shadow-sm shadow-blue-200'
+                            ? cat === 'credit'
+                              ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-200'
+                              : 'bg-blue-500 text-white shadow-sm shadow-blue-200'
                             : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
                         }`}
                     >
-                      <span className={isDisabled ? 'line-through' : ''}>
-                        {cat === 'va' ? t("text.reservation.virtualAccount") : cat === 'sgt' ? t("text.reservation.crypto") : cat.toUpperCase()}
-                      </span>
+                      <span className={isDisabled ? 'line-through' : ''}>{label}</span>
                       {isDisabled && (
                         <span className="ml-1.5 normal-case tracking-normal no-underline text-gray-300">
                           {t("text.reservation.comingSoon")}
@@ -575,6 +624,7 @@ export default function ReservationPage() {
                 })}
               </div>
 
+              {/* VA Bank Dropdown */}
               {paymentCategory === 'va' && (
                 <div className="relative mt-2">
                   <button
@@ -605,12 +655,14 @@ export default function ReservationPage() {
                 </div>
               )}
 
+              {/* QRIS Info */}
               {paymentCategory === 'qris' && (
                 <div className="mt-2 px-4 py-3 bg-blue-50 rounded-xl text-sm text-blue-600 text-center">
                   {t("text.reservation.qrisInfo")}
                 </div>
               )}
 
+              {/* SGT Wallet */}
               {paymentCategory === 'sgt' && (
                 <div className="mt-2 space-y-2">
                   <div className="px-4 py-3 bg-amber-50 border border-amber-100 rounded-xl space-y-1 mb-3">
@@ -632,7 +684,18 @@ export default function ReservationPage() {
                 </div>
               )}
 
-              {/* Error payment method (muncul di bawah semua opsi payment) */}
+              {/* Credit Info */}
+              {paymentCategory === 'credit' && (
+                <div className="mt-2 px-4 py-3 bg-emerald-50 border border-emerald-100 rounded-xl space-y-1">
+                  <p className="text-xs font-medium text-emerald-700">Bayar dengan Booking Credit</p>
+                  <p className="text-[11px] text-emerald-600 leading-relaxed">
+                    Saldo kredit kamu akan digunakan untuk melunasi pembayaran ini secara langsung.
+                    Jika saldo tidak mencukupi, kamu perlu memilih metode pembayaran lain.
+                  </p>
+                </div>
+              )}
+
+              {/* Payment error */}
               <ErrorMsg message={errors.paymentMethod} />
             </div>
 
@@ -666,23 +729,31 @@ export default function ReservationPage() {
                 disabled={!canSubmit || isLoading}
                 className={`w-full mt-5 py-3.5 rounded-xl text-sm tracking-widest uppercase font-medium transition-all duration-300
                   ${canSubmit && !isLoading
-                    ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-md shadow-blue-100'
+                    ? paymentCategory === 'credit'
+                      ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-md shadow-emerald-100'
+                      : 'bg-blue-500 text-white hover:bg-blue-600 shadow-md shadow-blue-100'
                     : 'bg-gray-100 text-gray-300 cursor-not-allowed'
                   }`}
               >
-                {isPending ? t("text.reservation.processing") : isLoading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="w-3.5 h-3.5 rounded-full border-2 border-gray-300 border-t-gray-400 animate-spin inline-block" />
-                    {t("text.reservation.loadingSession")}
-                  </span>
-                ) : t("text.reservation.confirmPay")}
+                {isPending
+                  ? t("text.reservation.processing")
+                  : isLoading
+                    ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="w-3.5 h-3.5 rounded-full border-2 border-gray-300 border-t-gray-400 animate-spin inline-block" />
+                        {t("text.reservation.loadingSession")}
+                      </span>
+                    )
+                    : paymentCategory === 'credit'
+                      ? 'Bayar dengan Credit'
+                      : t("text.reservation.confirmPay")
+                }
               </button>
               {isUnauthenticated && (
                 <p className="text-center text-[10px] text-gray-300 mt-2 tracking-wide">
                   {t("text.reservation.loginPrompt")}
                 </p>
               )}
-              {/* Hint jika ada error setelah submit */}
               {submitted && Object.keys(errors).length > 0 && (
                 <p className="text-center text-[10px] text-red-400 mt-2 tracking-wide">
                   Lengkapi semua data yang diperlukan

@@ -4,6 +4,7 @@ import Footer from '@/src/components/organisms/layouts/footers/publicFooter'
 import TopLanguageNavbar from '@/src/components/organisms/layouts/navbars/topNavbarLang'
 import Link from 'next/link'
 import { Suspense } from 'react'
+import { Toaster } from 'react-hot-toast'
 
 function HeaderSkeleton() {
   return (
@@ -31,6 +32,7 @@ export default function RootLayout({
 }>) {
   return (
       <section className="flex flex-col min-h-screen">
+        <Toaster/>
         {/* Top Language Bar */}
         <Suspense fallback={null}>
           <TopLanguageNavbar />
