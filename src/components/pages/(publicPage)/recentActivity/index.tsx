@@ -163,6 +163,8 @@ export default function RecentActivityPage() {
   const checkedIn = bookings.filter((b) => b.status === "CHECKED_IN").length;
   const totalActive = bookings.filter((b) => b.status !== "CANCELLED" && b.status !== "EXPIRED").length;
 
+
+
   return (
     <div className="min-h-screen bg-gray-50/60">
       <div className="max-w-2xl mx-auto px-4 py-10">

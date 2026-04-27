@@ -10,6 +10,8 @@ import { useCancelConfirm } from "@/src/hooks/mutation/userRecentActivity/cancel
 import { RefundModal } from "./RefundModal";
 import { RefundType } from "@/src/services/userRecentActivity/refund";
 import { useRefund } from "@/src/hooks/mutation/userRecentActivity/refund";
+import { useReschAvlbDate } from "@/src/hooks/query/reschedule/reschAvlbDate";
+import RescheduleCalendar from "../reschedule/rescheduleCalendar";
 
 type BookingStatus = "confirmed" | "checked_in" | "completed" | "cancelled" | "pending";
 
@@ -127,8 +129,51 @@ export function RecentActivityDrawer({
   const firstItem = booking.items?.[0];
   const imageUrl = firstItem?.roomType?.image?.url ?? null;
 
+  // ─── State ───────────────────────────────────────────────────────────────────
+
+  const [showReschedule, setShowReschedule] = useState(false)
+  const [bookingRescheduleId, setBookingRescheduleId] = useState('')
+
+  // ─── Query — hanya aktif kalau ada bookingRescheduleId ───────────────────────
+
+  const {
+    data: rescheduleData,
+    isLoading: rescheduleLoading,
+  } = useReschAvlbDate(bookingRescheduleId)
+
+  // ─── Handler — cukup set id, query otomatis jalan ────────────────────────────
+
+  const handleRescheduleClick = (bookingId: string) => {
+    setBookingRescheduleId(bookingId)
+    setShowReschedule(true)
+  }
+
+  const handleRescheduleClose = () => {
+    setShowReschedule(false)
+    setBookingRescheduleId('')  // reset biar query ga jalan lagi
+  }
+
   return (
     <>
+      {showReschedule && (
+        <>
+          {rescheduleLoading ? (
+            // Overlay loading sementara data belum ada
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+              <div className="bg-white rounded-2xl px-8 py-6 flex flex-col items-center gap-3">
+                <div className="w-6 h-6 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm text-gray-500">Memuat jadwal...</p>
+              </div>
+            </div>
+          ) : rescheduleData?.data ? (
+            <RescheduleCalendar
+              bookingId={bookingRescheduleId}
+              data={rescheduleData.data}
+              onClose={handleRescheduleClose}
+            />
+          ) : null}
+        </>
+      )}
       <CancelPreviewModal
         data={cancelPreviewRes?.data ?? null}
         isLoading={isLoadingPreview}
@@ -315,6 +360,15 @@ export function RecentActivityDrawer({
                     className="w-full py-3.5 rounded-xl text-sm font-medium tracking-widest uppercase transition-all duration-200 bg-orange-50 border border-orange-200 text-orange-500 hover:bg-orange-100"
                   >
                     Request Refund
+                  </button>
+                )}
+ 
+                {booking.status === 'PAID' && (
+                  <button
+                    onClick={() => handleRescheduleClick(booking.id)}
+                    className="w-full py-3.5 rounded-xl text-sm font-medium tracking-widest uppercase transition-all duration-200 bg-orange-50 border border-orange-200 text-orange-500 hover:bg-orange-100"
+                  >
+                    Reschedule
                   </button>
                 )}
 

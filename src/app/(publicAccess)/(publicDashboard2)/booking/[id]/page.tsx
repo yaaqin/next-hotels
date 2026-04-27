@@ -2,6 +2,6 @@ import RoomTypeDetailPage from '@/src/components/pages/(publicPage)/booking/deta
 
 export default function page() {
   return (
-    <RoomTypeDetailPage/>
+    <RoomTypeDetailPage/> 
   )
 } 
