@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Room } from "@/src/models/public/roomTypeDetail/publicRoomTypeDetail";
 import { useRoomTypeDetailPublic } from "@/src/hooks/query/roomTypes/publicDetail";
+import { SkeletonDetailBooking } from "@/src/components/organisms/(public)/booking/detailSkeleton";
 
 // ─── Date Utilities ───────────────────────────────────────────────────────────
 
@@ -226,28 +227,6 @@ function RoomCard({
   );
 }
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
-
-function Skeleton() {
-  return (
-    <div className="min-h-screen animate-pulse" style={{ background: "#EEF3FA" }}>
-      {/* Hero skeleton */}
-      <div className="w-full h-64 md:h-screen" style={{ background: "#DDE8F5" }} />
-      <div className="px-5 pt-6 space-y-4">
-        <div className="h-3 w-20 rounded-full" style={{ background: "#DDE8F5" }} />
-        <div className="h-7 w-44 rounded-xl" style={{ background: "#DDE8F5" }} />
-        <div className="h-4 w-60 rounded-full" style={{ background: "#DDE8F5" }} />
-        <div className="h-px" style={{ background: "#DDE8F5" }} />
-        <div className="grid grid-cols-2 gap-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-28 rounded-2xl" style={{ background: "#DDE8F5" }} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function RoomTypeDetailPage() {
@@ -282,7 +261,7 @@ export default function RoomTypeDetailPage() {
   const availableCount = roomType?.rooms.filter((r) => r.isAvailable).length ?? 0;
   const nights = checkin && checkout ? nightsBetween(checkin, checkout) : 0;
 
-  if (isLoading) return <Skeleton />;
+  if (isLoading) return <SkeletonDetailBooking />;
   if (error || !roomType) {
     return (
       <div className="min-h-screen flex items-center justify-center px-6" style={{ background: "#EEF3FA" }}>

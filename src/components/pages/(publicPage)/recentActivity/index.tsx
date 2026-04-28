@@ -280,14 +280,16 @@ export default function RecentActivityPage() {
         </div>
       </div>
 
-      <RecentActivityDrawer
-        booking={selected}
-        onClose={() => setSelected(null)}
-        onCheckIn={(bookingCode) => checkIn(bookingCode)}
-        onCheckOut={(bookingCode) => checkOut(bookingCode)}
-        isCheckingIn={isCheckingIn && checkingInCode === selected?.bookingCode}
-        isCheckingOut={isCheckingOut && checkingOutCode === selected?.bookingCode}
-      />
+      {selected && (
+        <RecentActivityDrawer
+          booking={selected}
+          onClose={() => setSelected(null)}
+          onCheckIn={(bookingCode) => checkIn(bookingCode)}
+          onCheckOut={(bookingCode) => checkOut(bookingCode)}
+          isCheckingIn={isCheckingIn && checkingInCode === selected?.bookingCode}
+          isCheckingOut={isCheckingOut && checkingOutCode === selected?.bookingCode}
+        />
+      )}
     </div>
   );
 }
