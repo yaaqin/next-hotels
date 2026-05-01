@@ -24,8 +24,13 @@ export default function LoginPage() {
                 password,
             },
             {
-                onSuccess: () => {
-                    router.push("/dashboard");
+                onSuccess: (res) => {
+                    const accountType = res.data?.accountType;
+                    if (accountType === 'RESTAURANT_ADMIN') {
+                        router.push('/restaurant');
+                    } else {
+                        router.push('/dashboard');
+                    }
                 },
             }
         );

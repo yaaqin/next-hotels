@@ -7,10 +7,12 @@ export const useLoginPinMutation = () => {
     mutationKey: ["login-pin"],
     mutationFn: loginWithPin,
 
-    onSuccess: (data) => {
+    onSuccess: (response) => {
+      const { data } = response;
+
       if (data?.accessToken) {
         setCookie("access_token", data.accessToken, {
-          maxAge: 60 * 60 * 24, 
+          maxAge: 60 * 60 * 24,
           secure: true,
           sameSite: "strict",
         });
@@ -18,7 +20,7 @@ export const useLoginPinMutation = () => {
 
       if (data?.refreshToken) {
         setCookie("refresh_token", data.refreshToken, {
-          maxAge: 60 * 60 * 24 * 7, 
+          maxAge: 60 * 60 * 24 * 7,
           secure: true,
           sameSite: "strict",
         });
