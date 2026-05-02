@@ -5,7 +5,7 @@ export const priceProposalList = async (): Promise<listPriceProposalProps> => {
   const res = await axiosPrivate.get(`/price-proposals`)
 
   if (!res) {
-    throw new Error('fail to get detail pice proposal')
+    throw new Error('fail to get list price proposal')
   }
 
   const data = await res.data
