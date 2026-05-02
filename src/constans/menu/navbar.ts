@@ -151,7 +151,7 @@ export const NAVIGATION: NavItem[] = [
       {
         key: 'resto-admin',
         label: 'Admin Restaurant',
-        path: '/dashboard/admin-resto',
+        path: '/dashboard/admin-restaurant',
         parentKey: 'food',
       },
       {
