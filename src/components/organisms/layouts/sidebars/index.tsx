@@ -26,7 +26,7 @@ export default function Sidebars() {
                             <Monocle01Icon />
                         ) : menu.code === 'OPERATIONAL' ? (
                             <ComputerUserIcon />
-                        ) : menu.code === 'FOOD' ? (
+                        ) : menu.code === 'RSTO' ? (
                             <Pizza01Icon />
                         ) : menu.code === 'FINANCE' && (
                             <MarketAnalysisIcon />

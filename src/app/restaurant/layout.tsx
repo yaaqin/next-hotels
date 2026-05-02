@@ -1,5 +1,5 @@
-import Sidebar from "@/src/components/organisms/restaurant/dashboard/sidebar";
-import Topbar from "@/src/components/organisms/restaurant/dashboard/topBar";
+import Sidebar from "@/src/components/organisms/restaurant/restoDashboard/sidebar";
+import Topbar from "@/src/components/organisms/restaurant/restoDashboard/topBar";
 
 export default function DashboardLayout({
   children,

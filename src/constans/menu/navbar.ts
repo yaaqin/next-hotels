@@ -132,26 +132,26 @@ export const NAVIGATION: NavItem[] = [
     ],
   },
   {
-    key: 'food',
+    key: 'rsto',
     label: 'Food',
     path: '/food',
     children: [
       {
-        key: 'food-history',
+        key: 'food-menu',
+        label: 'Food Menu',
+        path: '/dashboard/food',
+        parentKey: 'food',
+      },
+      {
+        key: 'partner-proposal',
+        label: 'Partnership',
+        path: '/dashboard/partner-proposal',
+        parentKey: 'food',
+      },
+      {
+        key: 'order-history',
         label: 'History',
-        path: '/food/history',
-        parentKey: 'food',
-      },
-      {
-        key: 'food-stock',
-        label: 'Stock',
-        path: '/food/stock',
-        parentKey: 'food',
-      },
-      {
-        key: 'food-order',
-        label: 'Order',
-        path: '/food/order',
+        path: '/dashboard/food-history',
         parentKey: 'food',
       },
     ],

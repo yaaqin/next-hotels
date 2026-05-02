@@ -1,7 +1,7 @@
-import AdminList from "@/src/components/organisms/restaurant/dashboard/adminDataList";
-import RevenueChart from "@/src/components/organisms/restaurant/dashboard/revenueResto";
-import SummaryCards from "@/src/components/organisms/restaurant/dashboard/summary";
-import TopProducts from "@/src/components/organisms/restaurant/dashboard/topProducts";
+import AdminList from "@/src/components/organisms/restaurant/restoDashboard/adminDataList";
+import RevenueChart from "@/src/components/organisms/restaurant/restoDashboard/revenueResto";
+import SummaryCards from "@/src/components/organisms/restaurant/restoDashboard/summary";
+import TopProducts from "@/src/components/organisms/restaurant/restoDashboard/topProducts";
 
 
 export default function DashboardRestoPage() {
