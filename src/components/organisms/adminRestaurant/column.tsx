@@ -102,7 +102,7 @@ export function useAdminRestoColumns(): ColumnDef<adminRestoListState>[] {
         const admin = row.original
         return (
           <Link
-            href={`/dashboard/admin-resto/${admin.id}`}
+            href={`/dashboard/admin-restaurant/${admin.id}`}
             className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors flex items-center gap-1 w-fit"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
