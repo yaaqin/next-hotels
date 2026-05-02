@@ -149,6 +149,12 @@ export const NAVIGATION: NavItem[] = [
         parentKey: 'food',
       },
       {
+        key: 'resto-admin',
+        label: 'Admin Restaurant',
+        path: '/dashboard/admin-resto',
+        parentKey: 'food',
+      },
+      {
         key: 'order-history',
         label: 'History',
         path: '/dashboard/food-history',

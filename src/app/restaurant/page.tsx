@@ -1,4 +1,4 @@
-import DashboardRestoPage from '@/src/components/pages/restaurant/dashboard'
+import DashboardRestoPage from '@/src/components/pages/restaurant/restoDashboard'
 
 export default function page() {
   return (
