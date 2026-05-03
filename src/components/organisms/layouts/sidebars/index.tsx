@@ -1,6 +1,7 @@
 import Images from '@/src/components/atoms/images'
 import Tooltips from '@/src/components/atoms/tooltips'
 import { useMenuList } from '@/src/hooks/query/menu/list';
+import { logout } from '@/src/libs/auth';
 import { useNavigationStore } from '@/src/stores/layouts/useNavigationStore';
 import { sidebarMap } from '@/src/utils/menu';
 import { Building03Icon, ComputerUserIcon, DashboardCircleIcon, Logout01Icon, MarketAnalysisIcon, Monocle01Icon, Pizza01Icon } from 'hugeicons-react'
@@ -35,7 +36,7 @@ export default function Sidebars() {
                     </Link>
                 ))}
             </div>
-            <div className="relative group text-white">
+            <div onClick={logout} className="relative group text-white">
                 <Logout01Icon />
                 <Tooltips label={'Exit'} />
             </div>
