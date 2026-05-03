@@ -1,5 +1,6 @@
 import { SelectOption } from "@/src/components/molecules/inputs/selects"
 import { adminRestoListState } from "@/src/models/adminResto/list"
+import { foodCategoryListState } from "@/src/models/foodCategory/list"
 import { restaurantListState } from "@/src/models/restaurant/list"
 import { Staff } from "@/src/models/restaurant/restoDashboard/adminResto/list"
 import { BranchRestoListState } from "@/src/models/restaurant/restoDashboard/branch/list"
@@ -37,5 +38,15 @@ export const mapBranchToOptions = (data: BranchRestoListState[]): SelectOption[]
       id: item.id,
       value: item.siteCode,
       label: `${item.siteCode} — ${item.site.nama}`,
+    }))
+}
+
+export const mapFoodCategoryToOptions = (data: foodCategoryListState[]): SelectOption[] => {
+  return data
+    .filter((item) => item.status === 'ACTIVE' && item.isActive)
+    .map((item) => ({
+      id: item.id,
+      value: item.id,
+      label: `${item.code} - ${item.name}`,
     }))
 }
