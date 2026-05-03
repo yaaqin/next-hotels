@@ -3,6 +3,7 @@ import { AdminRestoRow } from "@/src/components/organisms/restaurant/restoDashbo
 import AdminRestoTable from "@/src/components/organisms/restaurant/restoDashboard/admin/table"
 import { useRestoDataAdminRestoList } from "@/src/hooks/query/restaurant/restoDashboard/adminResto/list"
 import { Owner, Staff } from "@/src/models/restaurant/restoDashboard/adminResto/list"
+import Link from "next/link"
 
 export default function AdminRestoSection() {
   const { data, isLoading } = useRestoDataAdminRestoList()
@@ -40,6 +41,26 @@ export default function AdminRestoSection() {
             {rows.length} anggota tim
           </p>
         </div>
+
+        <Link
+          href="/restaurant/admin/assignment"
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-xl transition-colors"
+        >
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          Assign Staff
+        </Link>
       </div>
 
       <AdminRestoTable data={rows} />
