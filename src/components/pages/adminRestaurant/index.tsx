@@ -13,12 +13,26 @@ export default function AdminRestoPage() {
     <div>
       <section className="flex justify-between items-center mb-4">
         <h6 className="text-xl font-semibold">List Admin Restaurant</h6>
-        <Link
-          href="/dashboard/admin-restaurant/create"
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
-        >
-          {t('label.create')}
-        </Link>
+        <div className='flex items-center gap-4'>
+          <Link
+            href="/dashboard/admin-restaurant/create"
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+          >
+            {t('label.create')}
+          </Link>
+          <Link
+            href="/dashboard/restaurant/assign-owner"
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+          >
+            Assign Owner
+          </Link>
+          <Link
+            href="/dashboard/restaurant/assign-admin"
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+          >
+            Assign Resto
+          </Link>
+        </div>
       </section>
 
       {isLoading ? (

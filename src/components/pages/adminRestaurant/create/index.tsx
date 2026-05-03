@@ -74,7 +74,7 @@ export default function CreateAdminRestoPage() {
 
         mutate(form, {
             onSuccess: () => {
-                router.push('/dashboard/admin-resto')
+                router.push('/dashboard/admin-restaurant')
             },
             onError: (err) => {
                 console.error(err)

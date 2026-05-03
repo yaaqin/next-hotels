@@ -107,11 +107,11 @@ export const summaryStats = {
 };
 
 export const navItems = [
-  { label: "Dashboard", href: "/dashboard", icon: "grid" },
+  { label: "Dashboard", href: "/restaurant", icon: "grid" },
   { label: "Menu", href: "/restaurant/menu", icon: "book-open" },
-  { label: "Pesanan", href: "/restaurant/orders", icon: "shopping-bag" },
-  { label: "Meja", href: "/restaurant/tables", icon: "layout" },
-  { label: "Laporan", href: "/restaurant/reports", icon: "bar-chart-2" },
+  // { label: "Pesanan", href: "/restaurant/orders", icon: "shopping-bag" },
+  // { label: "Meja", href: "/restaurant/tables", icon: "layout" },
+  // { label: "Laporan", href: "/restaurant/reports", icon: "bar-chart-2" },
   { label: "Admin", href: "/restaurant/admin", icon: "users" },
-  { label: "Pengaturan", href: "/restaurant/settings", icon: "settings" },
+  // { label: "Pengaturan", href: "/restaurant/settings", icon: "settings" },
 ];
