@@ -5,6 +5,7 @@ import { menuRestoPublicState } from "@/src/models/public/menuResto/list";
 import { ShoppingCart, Search, Minus, Plus, X } from "lucide-react";
 import { useMenuRestoPublicList } from "@/src/hooks/query/restaurant/restoDashboard/menu/publicList";
 import { useCartStore } from "@/src/stores/restaurant/cartStore";
+import { useRouter } from "next/navigation";
 
 // ─── Palette (ngikutin room map) ──────────────────────────────
 const C = {
@@ -422,6 +423,7 @@ function CartDrawer({
   onRemove: (id: string) => void;
   formatPrice: (n: number) => string;
 }) {
+  const router = useRouter()
   return (
     <>
       <div
@@ -494,6 +496,7 @@ function CartDrawer({
             <span style={{ fontSize: 16, fontWeight: 800, color: C.primary }}>{formatPrice(totalPrice)}</span>
           </div>
           <button
+          onClick={() => router.push("/food/payment")}
             style={{
               width: "100%", padding: "13px 0", borderRadius: 12,
               background: C.primary, color: "#fff",

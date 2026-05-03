@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -24,9 +25,17 @@ function ProjectCard({
   style?: React.CSSProperties;
 }) {
   const [hovered, setHovered] = useState(false);
+  const router = useRouter()
+
+  const handleClick = () => {
+    if (project.id === "restaurant") {
+      router.push("/food")
+    }
+  }
 
   return (
     <div
+      onClick={handleClick}
       className={`
         relative rounded-[20px] overflow-hidden cursor-pointer group
         transition-all duration-700
