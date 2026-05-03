@@ -113,5 +113,6 @@ export const navItems = [
   // { label: "Meja", href: "/restaurant/tables", icon: "layout" },
   // { label: "Laporan", href: "/restaurant/reports", icon: "bar-chart-2" },
   { label: "Admin", href: "/restaurant/admin", icon: "users" },
+  { label: "Branch", href: "/restaurant/branch", icon: "layout" },
   // { label: "Pengaturan", href: "/restaurant/settings", icon: "settings" },
 ];
