@@ -1,7 +1,7 @@
-import React from 'react'
+import AssignmentPage from '@/src/components/pages/restaurant/restoDashboard/admin/assignment'
 
 export default function page() {
   return (
-    <div>page</div>
+    <AssignmentPage/>
   )
 }
