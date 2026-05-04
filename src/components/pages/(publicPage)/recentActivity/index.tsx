@@ -10,26 +10,152 @@ import { useCheckIn } from "@/src/hooks/mutation/userRecentActivity/checkIn";
 import { RecentActivityDrawer } from "@/src/components/organisms/userRecentActivity/drawer";
 import { RecentActivityCard } from "@/src/components/organisms/userRecentActivity/activityCard";
 import { useCheckOut } from "@/src/hooks/mutation/userRecentActivity/checkOut";
+import { orderFoodHistoryState } from "@/src/models/public/food/orderHistory";
 import Image from "next/image";
+import { useFoodOrderHistory } from "@/src/hooks/query/recentActivity/foodOrderHistory";
 
 // ── Types ──────────────────────────────────────────────────────────────────
-type ActivityStatus =
-  'all'
-  | 'PENDING'
-  | 'PAID'
-  | 'CONFIRMED'
-  | 'CHECKED_IN'
-  | 'CHECKED_OUT'
-  | 'CANCELLED'
-  | 'EXPIRED';
+type ActivityStatus = 'all' | 'PENDING' | 'PAID' | 'CONFIRMED' | 'CHECKED_IN' | 'CHECKED_OUT' | 'CANCELLED' | 'EXPIRED';
+type FoodStatus = 'all' | 'PENDING' | 'CONFIRMED' | 'IN_PROGRESS' | 'READY' | 'COMPLETED' | 'CANCELLED';
+type MainTab = 'booking' | 'food';
 
-// ── Filters ────────────────────────────────────────────────────────────────
-const FILTERS: { label: string; value: ActivityStatus | "all" }[] = [
+const BOOKING_FILTERS: { label: string; value: ActivityStatus }[] = [
   { label: "All", value: "all" },
   { label: "Pending", value: "PENDING" },
   { label: "Confirmed", value: "CONFIRMED" },
   { label: "Checked In", value: "CHECKED_IN" },
 ];
+
+const FOOD_FILTERS: { label: string; value: FoodStatus }[] = [
+  { label: "All", value: "all" },
+  { label: "Pending", value: "PENDING" },
+  { label: "Confirmed", value: "CONFIRMED" },
+  { label: "Selesai", value: "COMPLETED" },
+  { label: "Batal", value: "CANCELLED" },
+];
+
+// ── Status Badge ───────────────────────────────────────────────────────────
+function FoodStatusBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; bg: string; text: string }> = {
+    PENDING:     { label: "Menunggu", bg: "#fefce8", text: "#854d0e" },
+    CONFIRMED:   { label: "Dikonfirmasi", bg: "#eff6ff", text: "#1e3a8a" },
+    IN_PROGRESS: { label: "Diproses", bg: "#fff7ed", text: "#7c2d12" },
+    READY:       { label: "Siap", bg: "#f0fdf4", text: "#14532d" },
+    COMPLETED:   { label: "Selesai", bg: "#f0fdf4", text: "#14532d" },
+    CANCELLED:   { label: "Dibatal", bg: "#fef2f2", text: "#7f1d1d" },
+  };
+  const s = map[status] ?? { label: status, bg: "#f1f5f9", text: "#475569" };
+  return (
+    <span style={{
+      fontSize: 10, fontWeight: 700, padding: "2px 8px",
+      borderRadius: 6, background: s.bg, color: s.text,
+    }}>
+      {s.label}
+    </span>
+  );
+}
+
+function PaymentStatusBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; bg: string; text: string }> = {
+    PENDING: { label: "Belum Bayar", bg: "#fefce8", text: "#854d0e" },
+    SUCCESS: { label: "Lunas", bg: "#f0fdf4", text: "#14532d" },
+    FAILED:  { label: "Gagal", bg: "#fef2f2", text: "#7f1d1d" },
+    EXPIRED: { label: "Expired", bg: "#f1f5f9", text: "#475569" },
+  };
+  const s = map[status] ?? { label: status, bg: "#f1f5f9", text: "#475569" };
+  return (
+    <span style={{
+      fontSize: 10, fontWeight: 700, padding: "2px 8px",
+      borderRadius: 6, background: s.bg, color: s.text,
+    }}>
+      {s.label}
+    </span>
+  );
+}
+
+// ── Food Order Card ────────────────────────────────────────────────────────
+function FoodOrderCard({ order, index }: { order: orderFoodHistoryState; index: number }) {
+  const formatPrice = (n: number) =>
+    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
+
+  const formatDate = (d: string) =>
+    new Date(d).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+  const tableNote = order.note?.match(/\[Meja: (.+?)\]/)?.[1] ?? null;
+  const extraNote = order.note?.replace(/\[Meja: .+?\]\s*-?\s*/, "").trim() || null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ delay: index * 0.04, duration: 0.3 }}
+      className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm"
+    >
+      {/* Header */}
+      <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-gray-50">
+        {order.restaurantSite.restaurant.logoUrl ? (
+          <img
+            src={order.restaurantSite.restaurant.logoUrl}
+            alt={order.restaurantSite.restaurant.name}
+            className="w-10 h-10 rounded-xl object-cover shrink-0"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 text-lg">
+            🍽️
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-700 text-gray-900 truncate font-semibold">
+            {order.restaurantSite.restaurant.name}
+          </p>
+          <p className="text-[10px] text-gray-400 font-mono">{order.orderCode}</p>
+        </div>
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          <FoodStatusBadge status={order.status} />
+          <PaymentStatusBadge status={order.payment.status} />
+        </div>
+      </div>
+
+      {/* Items */}
+      <div className="px-4 py-3 space-y-1.5">
+        {order.items.map((item) => (
+          <div key={item.id} className="flex justify-between items-center">
+            <span className="text-xs text-gray-600">
+              <span className="font-medium">{item.quantity}×</span> {item.productName}
+            </span>
+            <span className="text-xs font-semibold text-gray-800">{formatPrice(item.subtotal)}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Meta */}
+      <div className="px-4 pb-4 flex flex-col gap-2">
+        {tableNote && (
+          <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
+            <span>📍</span>
+            <span>{tableNote}</span>
+          </div>
+        )}
+        {extraNote && (
+          <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
+            <span>📝</span>
+            <span>{extraNote}</span>
+          </div>
+        )}
+        <div className="flex items-center justify-between mt-1">
+          <span className="text-[11px] text-gray-400">{formatDate(order.createdAt)}</span>
+          <span className="text-sm font-bold text-gray-900">{formatPrice(order.totalAmount)}</span>
+        </div>
+        {order.payment.status === "PENDING" && order.status !== "CANCELLED" && (
+          <div className="mt-1 px-3 py-2 bg-amber-50 border border-amber-100 rounded-xl text-[11px] text-amber-700 text-center font-medium">
+            ⏳ Menunggu pembayaran
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
 
 // ── Google Login Gate ──────────────────────────────────────────────────────
 export function GoogleLoginGate() {
@@ -79,44 +205,6 @@ export function GoogleLoginGate() {
   );
 }
 
-// ── Empty State ────────────────────────────────────────────────────────────
-function EmptyActivityState() {
-  const router = useRouter();
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-      className="flex flex-col items-center justify-center py-16 px-4 text-center"
-    >
-      <div className="w-full max-w-xs">
-        <div className="relative mx-auto w-40 h-40 mb-8">
-          <div className="absolute inset-0 rounded-3xl bg-blue-50 rotate-6" />
-          <div className="absolute inset-0 rounded-3xl bg-blue-100 -rotate-3" />
-          <div className="absolute inset-0 rounded-3xl bg-white border border-blue-100 shadow-sm flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-5xl mb-1">🛏️</div>
-              <div className="flex gap-1 justify-center">
-                {[...Array(3)].map((_, i) => (
-                  <motion.div key={i} className="w-1.5 h-1.5 rounded-full bg-blue-300"
-                    animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Tidak ada aktivitas</h3>
-        <p className="text-sm text-gray-400 leading-relaxed mb-8">Booking kamu yang sedang berjalan akan muncul di sini.</p>
-        <button
-          onClick={() => router.push("/")}
-          className="w-full py-4 rounded-xl bg-blue-500 text-white text-sm tracking-widest uppercase font-medium hover:bg-blue-600 transition-all duration-300 shadow-lg shadow-blue-100"
-        >
-          Cari Kamar Sekarang
-        </button>
-      </div>
-    </motion.div>
-  );
-}
-
 // ── Skeletons ──────────────────────────────────────────────────────────────
 function SkeletonCard() {
   return (
@@ -126,6 +214,29 @@ function SkeletonCard() {
         <div className="h-3 bg-gray-100 rounded w-1/3" />
         <div className="h-4 bg-gray-100 rounded w-2/3" />
         <div className="h-3 bg-gray-100 rounded w-1/2" />
+      </div>
+    </div>
+  );
+}
+
+function FoodSkeletonCard() {
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden animate-pulse">
+      <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-gray-50">
+        <div className="w-10 h-10 rounded-xl bg-gray-100 shrink-0" />
+        <div className="flex-1 space-y-2">
+          <div className="h-3 bg-gray-100 rounded w-1/2" />
+          <div className="h-2 bg-gray-100 rounded w-1/3" />
+        </div>
+        <div className="w-16 h-5 bg-gray-100 rounded" />
+      </div>
+      <div className="px-4 py-3 space-y-2">
+        <div className="h-3 bg-gray-100 rounded" />
+        <div className="h-3 bg-gray-100 rounded w-2/3" />
+      </div>
+      <div className="px-4 pb-4 flex justify-between">
+        <div className="h-3 bg-gray-100 rounded w-1/3" />
+        <div className="h-4 bg-gray-100 rounded w-1/4" />
       </div>
     </div>
   );
@@ -143,27 +254,58 @@ function AuthSkeleton() {
   );
 }
 
+// ── Empty State ────────────────────────────────────────────────────────────
+function EmptyState({ type }: { type: "booking" | "food" }) {
+  const router = useRouter();
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+      className="flex flex-col items-center justify-center py-16 px-4 text-center"
+    >
+      <div className="text-5xl mb-4">{type === "food" ? "🍽️" : "🛏️"}</div>
+      <h3 className="text-base font-semibold text-gray-900 mb-2">
+        {type === "food" ? "Belum ada pesanan makanan" : "Tidak ada aktivitas"}
+      </h3>
+      <p className="text-sm text-gray-400 leading-relaxed mb-6">
+        {type === "food"
+          ? "Pesanan food kamu akan muncul di sini."
+          : "Booking kamu yang sedang berjalan akan muncul di sini."}
+      </p>
+      <button
+        onClick={() => router.push(type === "food" ? "/food" : "/")}
+        className="px-6 py-3 rounded-xl bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition-all shadow-lg shadow-blue-100"
+      >
+        {type === "food" ? "Pesan Sekarang" : "Cari Kamar Sekarang"}
+      </button>
+    </motion.div>
+  );
+}
+
 // ── Main Page ──────────────────────────────────────────────────────────────
 export default function RecentActivityPage() {
   const { data: session, status: authStatus } = useSession();
   const { data, isLoading, error, refetch } = useRecentActivity();
+  const { data: foodData, isLoading: foodLoading, error: foodError, refetch: foodRefetch } = useFoodOrderHistory();
   const { mutate: checkIn, isPending: isCheckingIn, variables: checkingInCode } = useCheckIn();
   const { mutate: checkOut, isPending: isCheckingOut, variables: checkingOutCode } = useCheckOut();
 
-  const [activeFilter, setActiveFilter] = useState<ActivityStatus | "all">("all");
+  const [mainTab, setMainTab] = useState<MainTab>("booking");
+  const [bookingFilter, setBookingFilter] = useState<ActivityStatus>("all");
+  const [foodFilter, setFoodFilter] = useState<FoodStatus>("all");
   const [selected, setSelected] = useState<userRecentActivityListState | null>(null);
 
   if (authStatus === "loading") return <AuthSkeleton />;
   if (authStatus === "unauthenticated" || !session) return <GoogleLoginGate />;
 
   const bookings = data?.data?.bookings ?? [];
-  const filtered = activeFilter === "all" ? bookings : bookings.filter((b) => b.status === activeFilter);
+  const foodOrders = foodData?.data ?? [];
 
-  const total = bookings.length;
+  const filteredBookings = bookingFilter === "all" ? bookings : bookings.filter((b) => b.status === bookingFilter);
+  const filteredFood = foodFilter === "all" ? foodOrders : foodOrders.filter((o) => o.status === foodFilter);
+
   const checkedIn = bookings.filter((b) => b.status === "CHECKED_IN").length;
   const totalActive = bookings.filter((b) => b.status !== "CANCELLED" && b.status !== "EXPIRED").length;
-
-
+  const foodPending = foodOrders.filter((o) => o.payment.status === "PENDING" && o.status !== "CANCELLED").length;
 
   return (
     <div className="min-h-screen bg-gray-50/60">
@@ -176,7 +318,8 @@ export default function RecentActivityPage() {
         >
           <div className="flex items-center gap-3 mb-5">
             {session.user?.image && (
-              <Image unoptimized width={200} height={200} src={session.user.image} alt="avatar" className="w-9 h-9 rounded-full border-2 border-white shadow-sm" />
+              <Image unoptimized width={200} height={200} src={session.user.image} alt="avatar"
+                className="w-9 h-9 rounded-full border-2 border-white shadow-sm" />
             )}
             <div>
               <p className="text-xs text-gray-400">Welcome back,</p>
@@ -185,99 +328,165 @@ export default function RecentActivityPage() {
           </div>
           <p className="text-xs tracking-widest uppercase text-blue-400 mb-1">My Account</p>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Recent Activity</h1>
-          <p className="text-sm text-gray-400 mt-1">Booking yang sedang berjalan</p>
+          <p className="text-sm text-gray-400 mt-1">Semua aktivitas booking & pesanan kamu</p>
         </motion.div>
 
         {/* Stats */}
         <motion.div
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.45 }}
-          className="grid grid-cols-3 gap-3 mb-8"
+          className="grid grid-cols-3 gap-3 mb-6"
         >
           {[
-            { label: "Active Bookings", value: isLoading ? "—" : total },
+            { label: "Total Booking", value: isLoading ? "—" : bookings.length },
             { label: "Checked In", value: isLoading ? "—" : checkedIn },
-            { label: "Total Active", value: isLoading ? "—" : totalActive },
+            { label: "Food Pending", value: foodLoading ? "—" : foodPending,
+              highlight: foodPending > 0 },
           ].map((s) => (
-            <div key={s.label} className="bg-white rounded-2xl border border-gray-100 px-4 py-4 text-center">
-              <p className="text-lg font-bold text-gray-900">{s.value}</p>
-              <p className="text-xs text-gray-400 mt-0.5 leading-tight">{s.label}</p>
+            <div key={s.label} className={`rounded-2xl border px-4 py-4 text-center transition-all
+              ${s.highlight ? "bg-amber-50 border-amber-100" : "bg-white border-gray-100"}`}>
+              <p className={`text-lg font-bold ${s.highlight ? "text-amber-600" : "text-gray-900"}`}>{s.value}</p>
+              <p className={`text-xs mt-0.5 leading-tight ${s.highlight ? "text-amber-500" : "text-gray-400"}`}>{s.label}</p>
             </div>
           ))}
         </motion.div>
 
-        {/* Filter tabs */}
+        {/* Main Tabs */}
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }}
-          className="flex gap-2 overflow-x-auto pb-1 mb-6 scrollbar-hide"
+          className="flex gap-2 mb-5"
         >
-          {FILTERS.map((f) => (
+          {([
+            { value: "booking", label: "🏨 Hotel Booking", count: bookings.length },
+            { value: "food", label: "🍽️ Food Order", count: foodOrders.length },
+          ] as { value: MainTab; label: string; count: number }[]).map((tab) => (
             <button
-              key={f.value}
-              onClick={() => setActiveFilter(f.value)}
-              className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-all duration-200
-                ${activeFilter === f.value
+              key={tab.value}
+              onClick={() => setMainTab(tab.value)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all duration-200
+                ${mainTab === tab.value
                   ? "bg-blue-500 text-white border-blue-500 shadow-md shadow-blue-100"
                   : "bg-white text-gray-500 border-gray-200 hover:border-blue-300 hover:text-blue-500"
                 }`}
             >
-              {f.label}
+              {tab.label}
+              <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold
+                ${mainTab === tab.value ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"}`}>
+                {tab.count}
+              </span>
             </button>
           ))}
         </motion.div>
 
-        {/* List */}
-        <div className="flex flex-col gap-3">
-          {isLoading && (
-            <div className="flex flex-col gap-3">
-              {[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}
-            </div>
-          )}
-
-          {error && !isLoading && (
+        {/* ── Booking Tab ── */}
+        <AnimatePresence mode="wait">
+          {mainTab === "booking" && (
             <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="flex flex-col items-center justify-center py-20 text-center"
+              key="booking"
+              initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 12 }}
+              transition={{ duration: 0.2 }}
             >
-              <div className="text-4xl mb-4 opacity-30">⚠️</div>
-              <p className="text-sm font-medium text-gray-400">Failed to load activity</p>
-              <button
-                onClick={() => refetch()}
-                className="mt-4 px-5 py-2 rounded-xl border border-blue-200 text-blue-500 text-xs hover:bg-blue-50 transition"
-              >
-                Try Again
-              </button>
+              {/* Filter pills */}
+              <div className="flex gap-2 overflow-x-auto pb-1 mb-4 scrollbar-hide">
+                {BOOKING_FILTERS.map((f) => (
+                  <button
+                    key={f.value}
+                    onClick={() => setBookingFilter(f.value)}
+                    className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-all duration-200
+                      ${bookingFilter === f.value
+                        ? "bg-blue-500 text-white border-blue-500 shadow-md shadow-blue-100"
+                        : "bg-white text-gray-500 border-gray-200 hover:border-blue-300 hover:text-blue-500"
+                      }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex flex-col gap-3">
+                {isLoading && [...Array(3)].map((_, i) => <SkeletonCard key={i} />)}
+                {error && !isLoading && (
+                  <div className="flex flex-col items-center py-16 text-center">
+                    <p className="text-sm text-gray-400 mb-3">Gagal memuat booking</p>
+                    <button onClick={() => refetch()} className="px-4 py-2 rounded-xl border border-blue-200 text-blue-500 text-xs">
+                      Coba Lagi
+                    </button>
+                  </div>
+                )}
+                {!isLoading && !error && bookings.length === 0 && <EmptyState type="booking" />}
+                {!isLoading && !error && bookings.length > 0 && filteredBookings.length === 0 && (
+                  <div className="flex flex-col items-center py-12 text-center">
+                    <p className="text-sm text-gray-400 mb-3">Tidak ada booking dengan status ini</p>
+                    <button onClick={() => setBookingFilter("all")} className="px-4 py-2 rounded-xl border border-gray-200 text-gray-500 text-xs">
+                      Tampilkan Semua
+                    </button>
+                  </div>
+                )}
+                <AnimatePresence mode="popLayout">
+                  {!isLoading && !error && filteredBookings.map((booking, i) => (
+                    <RecentActivityCard
+                      key={booking.id}
+                      booking={booking}
+                      index={i}
+                      onClick={() => setSelected(booking)}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
             </motion.div>
           )}
 
-          {!isLoading && !error && bookings.length === 0 && <EmptyActivityState />}
-
-          {!isLoading && !error && bookings.length > 0 && filtered.length === 0 && (
+          {/* ── Food Tab ── */}
+          {mainTab === "food" && (
             <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="flex flex-col items-center justify-center py-16 text-center"
+              key="food"
+              initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }}
+              transition={{ duration: 0.2 }}
             >
-              <div className="text-4xl mb-3 opacity-30">🔍</div>
-              <p className="text-sm font-medium text-gray-400">No bookings with this status</p>
-              <button
-                onClick={() => setActiveFilter("all")}
-                className="mt-4 px-5 py-2 rounded-xl border border-gray-200 text-gray-500 text-xs hover:border-blue-300 hover:text-blue-500 transition"
-              >
-                Show All
-              </button>
+              {/* Filter pills */}
+              <div className="flex gap-2 overflow-x-auto pb-1 mb-4 scrollbar-hide">
+                {FOOD_FILTERS.map((f) => (
+                  <button
+                    key={f.value}
+                    onClick={() => setFoodFilter(f.value)}
+                    className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-all duration-200
+                      ${foodFilter === f.value
+                        ? "bg-blue-500 text-white border-blue-500 shadow-md shadow-blue-100"
+                        : "bg-white text-gray-500 border-gray-200 hover:border-blue-300 hover:text-blue-500"
+                      }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex flex-col gap-3">
+                {foodLoading && [...Array(3)].map((_, i) => <FoodSkeletonCard key={i} />)}
+                {foodError && !foodLoading && (
+                  <div className="flex flex-col items-center py-16 text-center">
+                    <p className="text-sm text-gray-400 mb-3">Gagal memuat pesanan</p>
+                    <button onClick={() => foodRefetch()} className="px-4 py-2 rounded-xl border border-blue-200 text-blue-500 text-xs">
+                      Coba Lagi
+                    </button>
+                  </div>
+                )}
+                {!foodLoading && !foodError && foodOrders.length === 0 && <EmptyState type="food" />}
+                {!foodLoading && !foodError && foodOrders.length > 0 && filteredFood.length === 0 && (
+                  <div className="flex flex-col items-center py-12 text-center">
+                    <p className="text-sm text-gray-400 mb-3">Tidak ada pesanan dengan status ini</p>
+                    <button onClick={() => setFoodFilter("all")} className="px-4 py-2 rounded-xl border border-gray-200 text-gray-500 text-xs">
+                      Tampilkan Semua
+                    </button>
+                  </div>
+                )}
+                <AnimatePresence mode="popLayout">
+                  {!foodLoading && !foodError && filteredFood.map((order, i) => (
+                    <FoodOrderCard key={order.id} order={order} index={i} />
+                  ))}
+                </AnimatePresence>
+              </div>
             </motion.div>
           )}
-
-          <AnimatePresence mode="popLayout">
-            {!isLoading && !error && filtered.map((booking, i) => (
-              <RecentActivityCard
-                key={booking.id}
-                booking={booking}
-                index={i}
-                onClick={() => setSelected(booking)}
-              />
-            ))}
-          </AnimatePresence>
-        </div>
+        </AnimatePresence>
       </div>
 
       {selected && (
