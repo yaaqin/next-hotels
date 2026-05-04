@@ -1,6 +1,4 @@
 'use client'
-import Image from 'next/image'
-import mbs1 from '../../../../../public/img/geloo.webp'
 import Navbar2 from '@/src/components/organisms/layouts/navbars/navbarPublic'
 import Amenities from '@/src/components/organisms/home/amenities'
 import { useEffect, useRef, useState } from 'react'
@@ -11,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import WhyChoose from '@/src/components/organisms/home/whyChoose'
 import WhoWeAre from '@/src/components/organisms/home/weAre'
 import Facility from '@/src/components/organisms/home/allFacility'
+import Images from '@/src/components/atoms/images'
 
 export default function BookingPage2() {
   const { scrollY } = useScroll()
@@ -56,7 +55,7 @@ export default function BookingPage2() {
   return (
     <>
       <section className='relative h-screen w-full' style={{ zIndex: 3 }}>
-        <Image src={"https://cdn.yaaqin.xyz/hotel/1777900018445-frames-for-your-heart-zSG-kd-L6vw-unsplash.jpg"} alt={'mbs'} fill className='z-0 object-cover' />
+        <Images src={"https://cdn.yaaqin.xyz/hotel/1777900018445-frames-for-your-heart-zSG-kd-L6vw-unsplash.jpg"} alt={'mbs'} fill className='z-0 object-cover' />
         <Navbar2 />
         <motion.section
           style={{
