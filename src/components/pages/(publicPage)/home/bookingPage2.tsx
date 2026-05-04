@@ -56,7 +56,7 @@ export default function BookingPage2() {
   return (
     <>
       <section className='relative h-screen w-full' style={{ zIndex: 3 }}>
-        <Image src={mbs1} alt={'mbs'} fill className='z-0 object-cover' />
+        <Image src={"https://cdn.yaaqin.xyz/hotel/1777900018445-frames-for-your-heart-zSG-kd-L6vw-unsplash.jpg"} alt={'mbs'} fill className='z-0 object-cover' />
         <Navbar2 />
         <motion.section
           style={{
