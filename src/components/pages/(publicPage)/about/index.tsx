@@ -1,3 +1,4 @@
+import { FoodOrderSection } from "@/src/components/organisms/(public)/about/foodSection";
 import React from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -147,7 +148,7 @@ const principles: string[] = [
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+export function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <p className="text-[11px] tracking-widest uppercase text-zinc-400 font-medium mb-5">
       {children}
@@ -309,6 +310,8 @@ export default function AboutPage() {
           </span>
         </div>
       </div>
+
+      <FoodOrderSection/>
 
       {/* Tech Stack */}
       <div className="mb-12">
