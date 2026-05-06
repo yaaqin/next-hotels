@@ -302,7 +302,7 @@ function ProductCard({
       transition: "box-shadow 0.15s ease",
     }}>
       {/* Image */}
-      <div style={{ position: "relative", aspectRatio: "1/1", background: C.bg }}>
+      <div style={{ position: "relative", height: 140, overflow: "hidden", background: C.bg, flexShrink: 0 }}>
         {product.images[0] ? (
           <img
             src={product.images[0].url}
@@ -496,7 +496,7 @@ function CartDrawer({
             <span style={{ fontSize: 16, fontWeight: 800, color: C.primary }}>{formatPrice(totalPrice)}</span>
           </div>
           <button
-          onClick={() => router.push("/food/payment")}
+            onClick={() => router.push("/food/payment")}
             style={{
               width: "100%", padding: "13px 0", borderRadius: 12,
               background: C.primary, color: "#fff",
