@@ -1,5 +1,5 @@
-import Image from "next/image"
 import { columns, MenuRestoRow } from "./column"
+import Images from "@/src/components/atoms/images"
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("id-ID", {
@@ -46,7 +46,7 @@ export default function MenuRestoTable({ data }: Props) {
                   <td className="px-5 py-3.5">
                     {row.images.length > 0 ? (
                       <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-orange-100">
-                        <Image
+                        <Images
                           src={row.images[0].url}
                           alt={row.name}
                           fill
