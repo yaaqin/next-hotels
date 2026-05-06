@@ -6,6 +6,7 @@ import { ShoppingCart, Search, Minus, Plus, X } from "lucide-react";
 import { useMenuRestoPublicList } from "@/src/hooks/query/restaurant/restoDashboard/menu/publicList";
 import { useCartStore } from "@/src/stores/restaurant/cartStore";
 import { useRouter } from "next/navigation";
+import Images from "../../atoms/images";
 
 // ─── Palette (ngikutin room map) ──────────────────────────────
 const C = {
@@ -304,7 +305,7 @@ function ProductCard({
       {/* Image */}
       <div style={{ position: "relative", height: 140, overflow: "hidden", background: C.bg, flexShrink: 0 }}>
         {product.images[0] ? (
-          <img
+          <Images
             src={product.images[0].url}
             alt={product.name}
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
