@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { ChevronLeft, Minus, Plus, MapPin, MessageSquare, Loader2, User, ShoppingBag } from 'lucide-react';
@@ -28,6 +28,13 @@ const C = {
 declare global {
   interface Window { snap: any; }
 }
+
+// Detect mobile device
+const isMobileDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+         window.innerWidth < 768;
+};
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -60,22 +67,62 @@ export default function CheckoutPage() {
         items: items.map((i) => ({ productId: i.id, quantity: i.quantity })),
       });
 
-      // Langsung buka Snap — user pilih payment method di sana
-      window.snap.pay(res.data.snapToken, {
-        onSuccess: () => {
-          clearCart();
-          router.push(`/food/order/${res.data.orderId}?status=success`);
-        },
-        onPending: () => {
-          clearCart();
-          router.push(`/food/order/${res.data.orderId}?status=pending`);
-        },
-        onError: () => {
-          toast.error('Pembayaran gagal. Silakan coba lagi.');
-          setLoading(false);
-        },
-        onClose: () => setLoading(false),
-      });
+      const { snapToken, paymentUrl, orderId } = res.data;
+
+      // Mobile: redirect ke Midtrans langsung (lebih可靠)
+      if (isMobileDevice()) {
+        if (paymentUrl) {
+          window.location.href = paymentUrl;
+          return;
+        }
+        // Fallback: open di new tab
+        window.open(paymentUrl || `https://app.midtrans.com/snap/v2/voucher/${snapToken}`, '_blank');
+        return;
+      }
+
+      // Desktop: coba popup method, fallback ke redirect
+      if (window.snap) {
+        try {
+          window.snap.pay(snapToken, {
+            onSuccess: () => {
+              clearCart();
+              router.push(`/food/order/${orderId}?status=success`);
+            },
+            onPending: () => {
+              clearCart();
+              router.push(`/food/order/${orderId}?status=pending`);
+            },
+            onError: () => {
+              // Fallback ke redirect
+              if (paymentUrl) {
+                window.location.href = paymentUrl;
+              } else {
+                toast.error('Pembayaran gagal. Silakan coba lagi.');
+                setLoading(false);
+              }
+            },
+            onClose: () => {
+              // User close popup tanpa transaksi, fallback ke redirect
+              if (paymentUrl) {
+                window.location.href = paymentUrl;
+              } else {
+                setLoading(false);
+              }
+            },
+          });
+          return;
+        } catch (err) {
+          // Popup gagal, fallback ke redirect
+        }
+      }
+
+      // Fallback: redirect langsung
+      if (paymentUrl) {
+        window.location.href = paymentUrl;
+      } else {
+        toast.error('Terjadi kesalahan. Silakan coba lagi.');
+        setLoading(false);
+      }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? 'Terjadi kesalahan');
       setLoading(false);
