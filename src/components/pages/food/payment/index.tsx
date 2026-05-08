@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { ChevronLeft, Minus, Plus, MapPin, MessageSquare, Loader2, User, ShoppingBag } from 'lucide-react';
@@ -54,7 +54,7 @@ export default function CheckoutPage() {
 
   const tableNoteError = submitted && !tableNote.trim() ? 'Lokasi meja wajib diisi' : '';
 
-  const handleCheckout = async () => {
+   const handleCheckout = async () => {
     setSubmitted(true);
     if (!tableNote.trim() || items.length === 0) return;
 
@@ -67,62 +67,17 @@ export default function CheckoutPage() {
         items: items.map((i) => ({ productId: i.id, quantity: i.quantity })),
       });
 
-      const { snapToken, paymentUrl, orderId } = res.data;
+      const { paymentUrl } = res.data;
 
-      // Mobile: redirect ke Midtrans langsung (lebih可靠)
-      if (isMobileDevice()) {
-        if (paymentUrl) {
-          window.location.href = paymentUrl;
-          return;
-        }
-        // Fallback: open di new tab
-        window.open(paymentUrl || `https://app.midtrans.com/snap/v2/voucher/${snapToken}`, '_blank');
+      if (!paymentUrl) {
+        toast.error('URL pembayaran tidak tersedia. Silakan coba lagi.');
+        setLoading(false);
         return;
       }
 
-      // Desktop: coba popup method, fallback ke redirect
-      if (window.snap) {
-        try {
-          window.snap.pay(snapToken, {
-            onSuccess: () => {
-              clearCart();
-              router.push(`/food/order/${orderId}?status=success`);
-            },
-            onPending: () => {
-              clearCart();
-              router.push(`/food/order/${orderId}?status=pending`);
-            },
-            onError: () => {
-              // Fallback ke redirect
-              if (paymentUrl) {
-                window.location.href = paymentUrl;
-              } else {
-                toast.error('Pembayaran gagal. Silakan coba lagi.');
-                setLoading(false);
-              }
-            },
-            onClose: () => {
-              // User close popup tanpa transaksi, fallback ke redirect
-              if (paymentUrl) {
-                window.location.href = paymentUrl;
-              } else {
-                setLoading(false);
-              }
-            },
-          });
-          return;
-        } catch (err) {
-          // Popup gagal, fallback ke redirect
-        }
-      }
+      clearCart();
+      window.location.href = paymentUrl;
 
-      // Fallback: redirect langsung
-      if (paymentUrl) {
-        window.location.href = paymentUrl;
-      } else {
-        toast.error('Terjadi kesalahan. Silakan coba lagi.');
-        setLoading(false);
-      }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? 'Terjadi kesalahan');
       setLoading(false);
