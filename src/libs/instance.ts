@@ -297,8 +297,11 @@ axiosUser.interceptors.response.use(
     if (status === 401) {
       if (isBrowser) {
         const { signOut } = await import('next-auth/react')
+        await signOut({ redirect: false })
         toast.error('Sesi kamu sudah habis, silakan login ulang')
-        setTimeout(() => signOut({ redirect: false }), 1500)
+        setTimeout(() => {
+          window.location.reload()
+        }, 500)
       }
       return Promise.reject(error)
     }
