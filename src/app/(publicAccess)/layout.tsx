@@ -31,7 +31,6 @@ export default function PublicAccessLayout({
       <IdleRobotHelper />
       <ChatWidget
         token={"session?.accessToken"}
-        apiEndpoint="/api/chatbot/message"
         hotelName="Hotel Grand Lampung"
       />
     </SessionWrapper>
