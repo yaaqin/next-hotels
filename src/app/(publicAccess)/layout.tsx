@@ -1,3 +1,4 @@
+import ChatWidget from '@/src/components/organisms/layouts/chatWinget'
 import IdleRobotHelper from '@/src/components/organisms/layouts/robotHelper'
 import SessionWrapper from '@/src/components/providers/sessionWrapper'
 import { Suspense } from 'react'
@@ -19,7 +20,7 @@ export default function PublicAccessLayout({
   children: React.ReactNode
 }>) {
   return (
-     <SessionWrapper>
+    <SessionWrapper>
       <section className="flex flex-col min-h-screen">
         <main className="flex-1">
           <Suspense fallback={<PageSkeleton />}>
@@ -27,7 +28,12 @@ export default function PublicAccessLayout({
           </Suspense>
         </main>
       </section>
-      <IdleRobotHelper /> 
+      <IdleRobotHelper />
+      <ChatWidget
+        token={"session?.accessToken"}
+        apiEndpoint="/api/chatbot/message"
+        hotelName="Hotel Grand Lampung"
+      />
     </SessionWrapper>
   )
 }
