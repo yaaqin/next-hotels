@@ -145,7 +145,7 @@ export default function ChatWidget({
             : {}),
         },
         body: JSON.stringify({
-          waNumber: "628123456789",
+          waNumber: "62812345679988",
           message: content,
         }),
       });
