@@ -30,8 +30,7 @@ export default function PublicAccessLayout({
       </section>
       <IdleRobotHelper />
       <ChatWidget
-        token={"session?.accessToken"}
-        hotelName="Hotel Grand Lampung"
+        hotelName="Marina by Sand"
       />
     </SessionWrapper>
   )

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, KeyboardEvent } from "react";
+import { getSession } from "next-auth/react";
 
 // ─────────────────────────────────────────────────────────────
 // TYPES
@@ -16,7 +17,6 @@ interface Message {
 }
 
 interface ChatWidgetProps {
-  token?: string;
   hotelName?: string;
   apiEndpoint?: string;
 }
@@ -80,27 +80,31 @@ const QUICK_REPLIES = [
 // ─────────────────────────────────────────────────────────────
 
 export default function ChatWidget({
-  token,
   hotelName = "Hotel Assistant",
   apiEndpoint = "https://agent-hotel.yaaqin.xyz/agent",
 }: ChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
 
-  const [messages, setMessages] = useState<Message[]>([
-    WELCOME_MESSAGE,
-  ]);
-
+  const [messages, setMessages] = useState<Message[]>([WELCOME_MESSAGE]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
   const endRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // ── Ambil token dari NextAuth session saat mount ────────────
+  useEffect(() => {
+    getSession().then((session) => {
+      if (session?.accessToken) {
+        setToken(session.accessToken as string);
+      }
+    });
+  }, []);
+
   // auto scroll
   useEffect(() => {
-    endRef.current?.scrollIntoView({
-      behavior: "smooth",
-    });
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
   // autofocus
@@ -118,7 +122,6 @@ export default function ChatWidget({
 
   const sendMessage = async (text?: string) => {
     const content = (text ?? input).trim();
-
     if (!content || loading) return;
 
     const userMessage: Message = {
@@ -129,7 +132,6 @@ export default function ChatWidget({
     };
 
     setMessages((prev) => [...prev, userMessage]);
-
     setInput("");
     setLoading(true);
 
@@ -138,44 +140,35 @@ export default function ChatWidget({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token
-            ? {
-                Authorization: `Bearer ${token}`,
-              }
-            : {}),
+          // Kirim token kalau ada, kalau gak ada agent bakal tanya email saat booking
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
-          waNumber: "62801238769988",
           message: content,
+          // waNumber tidak dikirim — agent pakai userId dari token kalau ada
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Request failed");
-      }
+      if (!response.ok) throw new Error("Request failed");
 
       const data = await response.json();
 
       const assistantMessage: Message = {
         id: uid(),
         role: "assistant",
-        content:
-          data.reply ??
-          "Mohon maaf, terjadi kesalahan pada server.",
+        content: data.reply ?? "Mohon maaf, terjadi kesalahan pada server.",
         timestamp: new Date(),
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error(error);
-
       setMessages((prev) => [
         ...prev,
         {
           id: uid(),
           role: "assistant",
-          content:
-            "Koneksi ke server gagal. Silakan coba kembali.",
+          content: "Koneksi ke server gagal. Silakan coba kembali.",
           timestamp: new Date(),
         },
       ]);
@@ -188,9 +181,7 @@ export default function ChatWidget({
   // ENTER SEND
   // ───────────────────────────────────────────────────────────
 
-  const handleKeyDown = (
-    e: KeyboardEvent<HTMLTextAreaElement>
-  ) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
@@ -237,30 +228,19 @@ export default function ChatWidget({
                   Virtual Assistant
                 </p>
 
-                <h2 className="mt-1 text-xl text-white">
-                  {hotelName}
-                </h2>
+                <h2 className="mt-1 text-xl text-white">{hotelName}</h2>
 
                 <div className="mt-2 flex items-center gap-2">
                   <div className="h-2 w-2 rounded-full bg-green-400" />
-
-                  <span className="text-xs text-[#7CA6C9]">
-                    Online
-                  </span>
+                  <span className="text-xs text-[#7CA6C9]">Online</span>
                 </div>
               </div>
 
               <button
                 onClick={() => setIsOpen(false)}
                 className="
-                  flex
-                  h-8
-                  w-8
-                  items-center
-                  justify-center
-                  rounded-full
-                  text-white
-                  hover:bg-[#12304A]
+                  flex h-8 w-8 items-center justify-center
+                  rounded-full text-white hover:bg-[#12304A]
                 "
               >
                 ✕
@@ -277,26 +257,12 @@ export default function ChatWidget({
               return (
                 <div
                   key={msg.id}
-                  className={`mb-4 flex ${
-                    isUser
-                      ? "justify-end"
-                      : "justify-start"
-                  }`}
+                  className={`mb-4 flex ${isUser ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`
-                      max-w-[80%]
-                      rounded-2xl
-                      px-4
-                      py-3
-                      text-sm
-                      leading-relaxed
-                      whitespace-pre-wrap
-                    `}
+                    className="max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap"
                     style={{
-                      background: isUser
-                        ? "#12304A"
-                        : "#0B1F33",
+                      background: isUser ? "#12304A" : "#0B1F33",
                       color: "#FFFFFF",
                       border: "1px solid #173A57",
                     }}
@@ -304,18 +270,8 @@ export default function ChatWidget({
                     <p>{msg.content}</p>
 
                     <div
-                      className={`
-                        mt-2
-                        text-[10px]
-                        ${
-                          isUser
-                            ? "text-right"
-                            : "text-left"
-                        }
-                      `}
-                      style={{
-                        color: "#8AA9C2",
-                      }}
+                      className={`mt-2 text-[10px] ${isUser ? "text-right" : "text-left"}`}
+                      style={{ color: "#8AA9C2" }}
                     >
                       {formatTime(msg.timestamp)}
                     </div>
@@ -328,17 +284,7 @@ export default function ChatWidget({
 
             {loading && (
               <div className="flex justify-start">
-                <div
-                  className="
-                    rounded-2xl
-                    border
-                    border-[#173A57]
-                    bg-[#0B1F33]
-                    px-4
-                    py-3
-                    text-white
-                  "
-                >
+                <div className="rounded-2xl border border-[#173A57] bg-[#0B1F33] px-4 py-3 text-white">
                   mengetik...
                 </div>
               </div>
@@ -356,15 +302,9 @@ export default function ChatWidget({
                   key={item}
                   onClick={() => sendMessage(item)}
                   className="
-                    rounded-full
-                    border
-                    border-[#1C4A6B]
-                    px-3
-                    py-2
-                    text-xs
-                    text-[#A5C4DE]
-                    transition
-                    hover:bg-[#12304A]
+                    rounded-full border border-[#1C4A6B]
+                    px-3 py-2 text-xs text-[#A5C4DE]
+                    transition hover:bg-[#12304A]
                   "
                 >
                   {item}
@@ -386,30 +326,14 @@ export default function ChatWidget({
                 onKeyDown={handleKeyDown}
                 onChange={(e) => {
                   setInput(e.target.value);
-
                   const t = e.target;
-
                   t.style.height = "auto";
-                  t.style.height = `${Math.min(
-                    t.scrollHeight,
-                    120
-                  )}px`;
+                  t.style.height = `${Math.min(t.scrollHeight, 120)}px`;
                 }}
                 className="
-                  min-h-[44px]
-                  max-h-[120px]
-                  flex-1
-                  resize-none
-                  overflow-y-auto
-                  rounded-xl
-                  border
-                  border-[#173A57]
-                  bg-[#0B1F33]
-                  px-4
-                  py-3
-                  text-sm
-                  text-white
-                  outline-none
+                  min-h-[44px] max-h-[120px] flex-1 resize-none overflow-y-auto
+                  rounded-xl border border-[#173A57] bg-[#0B1F33]
+                  px-4 py-3 text-sm text-white outline-none
                   placeholder:text-[#6D8AA3]
                 "
               />
@@ -418,20 +342,10 @@ export default function ChatWidget({
                 disabled={!input.trim() || loading}
                 onClick={() => sendMessage()}
                 className="
-                  flex
-                  h-11
-                  w-11
-                  items-center
-                  justify-center
-                  rounded-xl
-                  border
-                  border-[#1C4A6B]
-                  bg-[#12304A]
-                  text-white
-                  transition
-                  hover:bg-[#173A57]
-                  disabled:cursor-not-allowed
-                  disabled:opacity-40
+                  flex h-11 w-11 items-center justify-center
+                  rounded-xl border border-[#1C4A6B] bg-[#12304A]
+                  text-white transition hover:bg-[#173A57]
+                  disabled:cursor-not-allowed disabled:opacity-40
                 "
               >
                 <SendIcon className="h-4 w-4" />
@@ -446,22 +360,10 @@ export default function ChatWidget({
       <button
         onClick={() => setIsOpen((prev) => !prev)}
         className="
-          fixed
-          bottom-6
-          right-6
-          z-[999999]
-          flex
-          h-16
-          w-16
-          items-center
-          justify-center
-          rounded-full
-          border
-          border-[#1C4A6B]
-          bg-[#05111F]
-          shadow-2xl
-          transition
-          hover:scale-105
+          fixed bottom-6 right-6 z-[999999]
+          flex h-16 w-16 items-center justify-center
+          rounded-full border border-[#1C4A6B] bg-[#05111F]
+          shadow-2xl transition hover:scale-105
         "
       >
         <span className="text-2xl text-white">✦</span>
