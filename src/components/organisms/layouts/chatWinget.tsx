@@ -36,6 +36,20 @@ function formatTime(date: Date) {
   });
 }
 
+/**
+ * Ambil atau buat guest ID dari localStorage.
+ * Dipakai sebagai waNumber fallback kalau user belum login.
+ * Format: "guest_<random>" biar gampang dibedain di log.
+ */
+function getOrCreateGuestId(): string {
+  const KEY = "chat_guest_id";
+  const existing = localStorage.getItem(KEY);
+  if (existing) return existing;
+  const newId = `guest_${uid()}${uid()}`;
+  localStorage.setItem(KEY, newId);
+  return newId;
+}
+
 // ─────────────────────────────────────────────────────────────
 // ICONS
 // ─────────────────────────────────────────────────────────────
@@ -85,6 +99,7 @@ export default function ChatWidget({
 }: ChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+  const [guestId, setGuestId] = useState<string | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([WELCOME_MESSAGE]);
   const [input, setInput] = useState("");
@@ -93,8 +108,12 @@ export default function ChatWidget({
   const endRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // ── Ambil token dari NextAuth session saat mount ────────────
+  // ── Init: ambil token dari NextAuth + guest ID dari localStorage ───
   useEffect(() => {
+    // Guest ID sebagai fallback — dibuat sekali, persist di browser
+    setGuestId(getOrCreateGuestId());
+
+    // Token dari NextAuth kalau user sudah login
     getSession().then((session) => {
       if (session?.accessToken) {
         setToken(session.accessToken as string);
@@ -140,12 +159,14 @@ export default function ChatWidget({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Kirim token kalau ada, kalau gak ada agent bakal tanya email saat booking
+          // Kirim token kalau sudah login
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           message: content,
-          // waNumber tidak dikirim — agent pakai userId dari token kalau ada
+          // Kalau sudah login, backend pakai userId dari token (lintas device)
+          // Kalau belum login, kirim guestId sebagai waNumber (per browser)
+          ...(token ? {} : { waNumber: guestId }),
         }),
       });
 
@@ -199,18 +220,10 @@ export default function ChatWidget({
       {isOpen && (
         <div
           className="
-            fixed
-            bottom-24
-            right-6
-            z-[999999]
-            flex
-            flex-col
-            overflow-hidden
-            rounded-2xl
-            border
-            shadow-2xl
-            bg-[#05111F]
-            border-[#12304A]
+            fixed bottom-24 right-6 z-[999999]
+            flex flex-col overflow-hidden
+            rounded-2xl border shadow-2xl
+            bg-[#05111F] border-[#12304A]
           "
           style={{
             width: 380,
@@ -238,10 +251,7 @@ export default function ChatWidget({
 
               <button
                 onClick={() => setIsOpen(false)}
-                className="
-                  flex h-8 w-8 items-center justify-center
-                  rounded-full text-white hover:bg-[#12304A]
-                "
+                className="flex h-8 w-8 items-center justify-center rounded-full text-white hover:bg-[#12304A]"
               >
                 ✕
               </button>
