@@ -121,6 +121,7 @@ export default function BookingPublicPage() {
                 <Popover>
                     <PopoverTrigger asChild>
                         <button
+                            data-cy="btn-open-calendar"
                             className="text-sm tracking-[0.15em] uppercase transition-colors duration-200 text-left flex items-center gap-1"
                             style={{ color: "#C8DCEF", fontFamily: "'Montserrat', sans-serif" }}
                             onMouseEnter={(e) => (e.currentTarget.style.color = "#ffffff")}

@@ -420,7 +420,7 @@ export default function ReservationPage() {
             router.push(`/payment/success?bookingCode=${bookingCode}`)
           },
           onError: (err: any) => {
-            const errBody = err?.response?.data?.message  
+            const errBody = err?.response?.data?.message
 
             console.log(err?.response?.data?.message)
 
@@ -538,6 +538,7 @@ export default function ReservationPage() {
                 <Label>{t("text.reservation.roomNumber")}</Label>
                 <div className="relative mt-1">
                   <button
+                    data-cy="btn-select-room"
                     onClick={() => setRoomOpen(!roomOpen)}
                     disabled={roomLoading || !roomData?.data?.length}
                     className={`w-full flex items-center justify-between px-4 py-3 border rounded-xl text-sm hover:border-blue-300 transition disabled:opacity-50 disabled:cursor-not-allowed
@@ -552,6 +553,7 @@ export default function ReservationPage() {
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-100 rounded-xl shadow-lg z-10 overflow-hidden max-h-52 overflow-y-auto">
                       {roomData.data.filter((r) => r.isAvailable).map((room) => (
                         <button
+                          data-cy="room-option"
                           key={room.id}
                           onClick={() => handleSelectRoom(room)}
                           className={`w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-gray-50 transition text-left
@@ -600,6 +602,7 @@ export default function ReservationPage() {
 
                   return (
                     <button
+                      data-cy={`btn-payment-${cat}`}
                       key={cat}
                       onClick={() => !isDisabled && handleSelectPayment(cat)}
                       disabled={isDisabled}
@@ -628,6 +631,7 @@ export default function ReservationPage() {
               {paymentCategory === 'va' && (
                 <div className="relative mt-2">
                   <button
+                    data-cy="btn-select-va"
                     onClick={() => setVaOpen(!vaOpen)}
                     className={`w-full flex items-center justify-between px-4 py-3 border rounded-xl text-sm hover:border-blue-300 transition
                       ${errors.paymentMethod ? 'border-red-300' : 'border-gray-200'}`}
@@ -641,6 +645,7 @@ export default function ReservationPage() {
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-100 rounded-xl shadow-lg z-10 overflow-hidden">
                       {VA_BANKS.map((bank) => (
                         <button
+                          data-cy={`va-option-${bank.value}`}
                           key={bank.value}
                           onClick={() => handleSelectVA(bank.value as PaymentMethod)}
                           className={`w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition text-left
@@ -725,6 +730,7 @@ export default function ReservationPage() {
                 <span className="text-lg font-bold text-gray-900">{pricing ? formatCurrency(pricing.totalPrice) : '—'}</span>
               </div>
               <button
+                data-cy="btn-confirm-booking"
                 onClick={handleBooking}
                 disabled={!canSubmit || isLoading}
                 className={`w-full mt-5 py-3.5 rounded-xl text-sm tracking-widest uppercase font-medium transition-all duration-300

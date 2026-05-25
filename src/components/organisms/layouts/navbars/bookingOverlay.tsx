@@ -142,6 +142,7 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
                 <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                   <PopoverTrigger asChild>
                     <Button
+                      data-cy="btn-open-calendar"
                       variant="outline"
                       className={cn(
                         "w-full justify-start text-left font-normal rounded-xl px-4 py-3 h-auto text-sm hover:bg-transparent transition-all duration-200",
@@ -205,6 +206,7 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
               {/* Book Button */}
               <button
                 onClick={handleBook}
+                data-cy="btn-reserve"
                 disabled={!checkin}
                 className="w-full py-4 rounded-xl text-[0.68rem] tracking-[0.18em] uppercase font-normal transition-all duration-300"
                 style={

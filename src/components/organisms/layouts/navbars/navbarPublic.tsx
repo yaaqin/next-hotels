@@ -62,6 +62,7 @@ export default function Navbar({
           {isMain && (
             <button
               onClick={() => setBookingOpen(true)}
+              data-cy="btn-booking"
               className={`text-xs md:text-sm font-medium cursor-pointer tracking-widest uppercase transition-colors duration-500 ease-in-out
           ${scrolled ? "text-gray-900" : "text-white"}`}
             >
