@@ -10,6 +10,7 @@ import WhyChoose from '@/src/components/organisms/home/whyChoose'
 import WhoWeAre from '@/src/components/organisms/home/weAre'
 import Facility from '@/src/components/organisms/home/allFacility'
 import Images from '@/src/components/atoms/images'
+import HotelBookingSelector from '@/src/components/organisms/home/actionBoard'
 
 export default function BookingPage2() {
   const { scrollY } = useScroll()
@@ -75,6 +76,7 @@ export default function BookingPage2() {
         </motion.section>
       </section>
 
+      <HotelBookingSelector />
       <WhoWeAre />
 
       {/* Text Section */}

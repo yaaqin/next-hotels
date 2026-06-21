@@ -13,10 +13,8 @@ describe("Booking Flow", () => {
         cy.visit("/");
         cy.get('[data-cy="btn-booking"]').click();
 
-        // Tunggu overlay muncul dulu
         cy.get('[data-cy="btn-reserve"]').should("be.visible");
 
-        // Baru buka calendar
         cy.get('[data-cy="btn-open-calendar"]').should("be.visible").click();
 
         const target = new Date();
