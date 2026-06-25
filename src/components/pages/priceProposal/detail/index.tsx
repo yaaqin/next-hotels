@@ -19,6 +19,8 @@ export default function DetailPriceProposalPage() {
     mutate(id)
   }
 
+  console.log(myData?.data?.role)
+
   return (
     <div>
       <h4 className='mb-4 text-2xl font-semibold'>Detail</h4>
@@ -28,7 +30,7 @@ export default function DetailPriceProposalPage() {
         <PriceCalendar data={data.data} />
       )}
       <section className='w-full flex py-4 px-6 justify-end'>
-        {(myData?.data?.role === 'SUPERADMIN' || myData?.data?.role === 'OWNER') && data?.data.status === "DRAFT" && (
+        {(myData?.data?.role.name === 'SUPERADMIN' || myData?.data?.role.name === 'OWNER') && data?.data.status === "DRAFT" && (
           <Buttons
             label={isPending ? "Approve data..." : "Approve"}
             onClick={handleApprove}

@@ -7,5 +7,10 @@ export interface meProps {
 export interface meState {
   username: string
   email: string
-  role: string
+  role: roles
+}
+
+export interface roles {
+  name: string;
+  level: number
 }
