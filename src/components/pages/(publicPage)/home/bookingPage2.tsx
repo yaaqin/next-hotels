@@ -76,7 +76,7 @@ export default function BookingPage2() {
         </motion.section>
       </section>
 
-      <HotelBookingSelector />
+      {/* <HotelBookingSelector /> */}
       <WhoWeAre />
 
       {/* Text Section */}
