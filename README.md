@@ -1,23 +1,63 @@
+<div align="center">
+
 # 🏨 Next Hotels
 
-A modern, fullstack hotel booking platform built with **Next.js 16**, **TypeScript**, and **Tailwind CSS**. Designed for a seamless booking experience with real-time features, authentication, and Web3 integration.
+### Book smarter. Pay with crypto. Chat in real-time.
 
-🌐 **Live Demo:** [https://mbsc.yaaqin.xyz](https://mbsc.yaaqin.xyz)
+A modern fullstack hotel booking platform — where traditional hospitality meets Web3.
+
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38BDF8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Sui](https://img.shields.io/badge/Sui-Blockchain-4DA2FF?logo=sui&logoColor=white)](https://sui.io)
+
+🌐 **[Live Demo → mbsc.yaaqin.xyz](https://mbsc.yaaqin.xyz)**
+
+</div>
+
+---
+
+## 🎯 What is Next Hotels?
+
+Next Hotels isn't just another booking app. It's a full-featured hospitality platform that combines a polished booking experience with **Sui blockchain payments**, **real-time updates**, and a data-rich **admin dashboard** — all wrapped in a fast, mobile-first UI.
+
+Whether you're a guest booking your next stay or an admin monitoring revenue, everything happens in one seamless flow.
 
 ---
 
 ## ✨ Features
 
-- 🔐 **Authentication** — JWT-based auth with `next-auth` and cookie management
-- 🏨 **Hotel Booking** — Browse, search, and book hotels with date picker support
-- 💳 **Payment Integration** — Seamless payment flow within the booking system
-- 🌐 **Web3 / SUI Blockchain** — Wallet integration via `@mysten/dapp-kit` and `@mysten/sui`
-- 📊 **Admin Dashboard** — Data visualization with Chart.js and Recharts
-- 🌍 **Internationalization** — Multi-language support via `i18next` and `react-i18next`
-- 🔄 **Real-time** — Socket.IO client for live updates
-- 📱 **Responsive UI** — Mobile-first design with Tailwind CSS v4
-- 🎨 **Smooth Animations** — Powered by Framer Motion
-- 🧩 **Component Library** — Built on shadcn/ui and Radix UI primitives
+### For Guests
+- 🏨 **Smart Hotel Booking** — Browse, search, and book with an intuitive date picker flow
+- 💳 **Flexible Payments** — Seamless payment experience built into the booking journey
+- 🌐 **Pay with Crypto** — Native Sui wallet integration via `@mysten/dapp-kit`
+- 🌍 **Speaks Your Language** — Full internationalization with `i18next`
+- 📱 **Beautiful Everywhere** — Mobile-first responsive design with buttery-smooth Framer Motion animations
+
+### For Admins
+- 📊 **Rich Dashboard** — Revenue and booking insights visualized with Chart.js & Recharts
+- 📋 **Powerful Data Tables** — Sorting, filtering, and pagination powered by TanStack Table
+
+### Under the Hood
+- 🔐 **Secure Auth** — JWT-based authentication with `next-auth` and cookie management
+- 🔄 **Real-time Core** — Socket.IO client for live updates across the app
+- 🧩 **Composable UI** — Built on shadcn/ui and Radix UI primitives
+
+---
+
+## 🗺️ Roadmap
+
+### 💬 Real-time Chat — *Coming Soon* 🚧
+
+Direct messaging is on the way! Here's how it'll work:
+
+- ✅ **Google account holders get access** — already signed in with Gmail? You're in.
+- 🏷️ **Claim your username first** — pick a unique handle before you can start chatting.
+- 💬 **Username-to-username DMs** — find and chat with other users directly by their handle.
+- ⚡ **Powered by WebSockets** — instant delivery on the existing Socket.IO real-time layer.
+
+> Have a feature idea? Open an issue and let's talk!
 
 ---
 
@@ -164,4 +204,10 @@ This project is private and not open for public distribution.
 
 ---
 
-> Built with ❤️ by [yaaqin](https://github.com/yaaqin)
+<div align="center">
+
+**Built by [yaaqin](https://github.com/yaaqin)**
+
+⭐ Star this repo if you find it interesting!
+
+</div>
