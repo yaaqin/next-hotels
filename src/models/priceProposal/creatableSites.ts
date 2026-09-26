@@ -15,4 +15,6 @@ export interface creatableSite {
   nama: string
   slug: string | null
   city: string | null
+  // Mata uang harga cabang — semua angka di proposal dalam mata uang ini
+  currency: string
 }

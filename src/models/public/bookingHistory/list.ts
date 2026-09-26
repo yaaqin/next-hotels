@@ -16,6 +16,11 @@ export interface bookingHistoryListState {
   checkInDate: string
   checkOutDate: string
   totalAmount: number
+  // Snapshot mata uang saat booking — null untuk transaksi lama
+  displayCurrency?: string | null
+  displayAmount?: number | null
+  rateSnapshot?: number | null
+  rateAt?: string | null
   status: string
   createdAt: string
   createdBy: any

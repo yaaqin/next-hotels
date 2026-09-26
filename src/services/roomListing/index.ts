@@ -8,6 +8,7 @@ import {
   SearchListingResult,
 } from '@/src/models/public/roomListing'
 import { DEFAULT_LANG, LANGUAGE_COOKIE, toSupportedLang } from '@/src/utils/languageCookie'
+import { CURRENCY_COOKIE, resolveCurrency } from '@/src/utils/currencyCookie'
 
 // Dipanggil di server saat SSR — Googlebot cuma melihat HTML hasil render,
 // kombinasi filter dikirim lewat body POST dan tidak pernah jadi URL API.
@@ -26,11 +27,27 @@ export async function getRequestLang() {
   return toSupportedLang(cookieStore.get(LANGUAGE_COOKIE)?.value)
 }
 
-// x-lang ikut jadi bagian cache key fetch, jadi cache tiap bahasa terpisah
-async function request<T>(path: string, lang: string, init: RequestInit & { next?: { revalidate: number } }) {
+// Mata uang tampilan dari cookie; tanpa cookie ikut bahasa (Googlebot → IDR)
+export async function getRequestCurrency() {
+  const cookieStore = await cookies()
+  return resolveCurrency(cookieStore.get(CURRENCY_COOKIE)?.value, cookieStore.get(LANGUAGE_COOKIE)?.value)
+}
+
+// x-lang & x-currency ikut jadi bagian cache key fetch, jadi cache tiap bahasa/mata uang terpisah
+async function request<T>(
+  path: string,
+  lang: string,
+  init: RequestInit & { next?: { revalidate: number } },
+  currency?: string,
+) {
   const res = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
-    headers: { 'Content-Type': 'application/json', 'x-lang': lang, ...init.headers },
+    headers: {
+      'Content-Type': 'application/json',
+      'x-lang': lang,
+      ...(currency && { 'x-currency': currency }),
+      ...init.headers,
+    },
   })
   if (!res.ok) {
     throw new ApiError(res.status, `[${res.status}] ${path}`)
@@ -57,16 +74,20 @@ const resolveByKey = cache(async (path: string, lang: string) => {
 export const resolveRoomListing = (segments: string[], lang: string = DEFAULT_LANG) =>
   resolveByKey(segments.join('/'), lang)
 
-const searchByKey = cache(async (body: string, lang: string) =>
-  request<SearchListingResult>('/public/room-listing/search', lang, {
-    method: 'POST',
-    body,
-    cache: 'no-store',
-  }),
+const searchByKey = cache(async (body: string, lang: string, currency: string) =>
+  request<SearchListingResult>(
+    '/public/room-listing/search',
+    lang,
+    { method: 'POST', body, cache: 'no-store' },
+    currency,
+  ),
 )
 
-export const searchRoomListing = (payload: SearchListingPayload, lang: string = DEFAULT_LANG) =>
-  searchByKey(JSON.stringify(payload), lang)
+export const searchRoomListing = (
+  payload: SearchListingPayload,
+  lang: string = DEFAULT_LANG,
+  currency: string = 'IDR',
+) => searchByKey(JSON.stringify(payload), lang, currency)
 
 export const getPublicSites = cache(async () =>
   request<PublicSiteWithRooms[]>('/public/sites', DEFAULT_LANG, { next: { revalidate: 300 } }),

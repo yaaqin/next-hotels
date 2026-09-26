@@ -380,5 +380,21 @@
     "linkRooms": "Kamar {{type}}",
     "intro": "{{title}}. Cek harga terbaru, pilih kamar, dan pesan langsung dengan pembayaran aman via Virtual Account & Crypto.",
     "address": "Alamat: {{address}}."
+  },
+  "currency": {
+    "label": "Mata uang",
+    "original": "Harga asli",
+    "rate": "Kurs",
+    "updated": "Diperbarui",
+    "approxHint": "Perkiraan — pembayaran tetap dalam Rupiah (IDR)",
+    "modalTitle": "Pembayaran dalam Rupiah (IDR)",
+    "modalBody": "Kamu melihat harga dalam {{currency}}. {{method}} menagih dalam Rupiah, jadi totalnya dikonversi dengan kurs saat ini.",
+    "modalShown": "Harga yang kamu lihat",
+    "modalRate": "Kurs yang dipakai",
+    "modalPay": "Yang akan dibayar",
+    "modalConfirm": "Lanjut bayar {{amount}}",
+    "modalCancel": "Batal",
+    "snapshotTitle": "Harga saat booking",
+    "snapshotRate": "Kurs saat booking"
   }
 }

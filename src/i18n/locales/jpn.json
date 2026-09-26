@@ -380,5 +380,21 @@
     "linkRooms": "{{type}}客室",
     "intro": "{{title}}。最新料金を確認し、客室を選んで、バーチャルアカウントまたは暗号資産で安全に直接予約できます。",
     "address": "住所：{{address}}"
+  },
+  "currency": {
+    "label": "通貨",
+    "original": "元の料金",
+    "rate": "為替レート",
+    "updated": "更新日",
+    "approxHint": "概算です。お支払いはインドネシア・ルピア（IDR）となります",
+    "modalTitle": "インドネシア・ルピア（IDR）でのお支払い",
+    "modalBody": "{{currency}}で料金を表示しています。{{method}}はインドネシア・ルピアで請求されるため、合計は現在のレートで換算されます。",
+    "modalShown": "表示中の料金",
+    "modalRate": "適用レート",
+    "modalPay": "お支払い金額",
+    "modalConfirm": "{{amount}}を支払う",
+    "modalCancel": "キャンセル",
+    "snapshotTitle": "予約時の料金",
+    "snapshotRate": "予約時のレート"
   }
 }

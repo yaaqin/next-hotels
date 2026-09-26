@@ -4,6 +4,7 @@ import qs from 'qs'
 import { getCookie, deleteCookie, setCookie } from 'cookies-next'
 import { getAccessTokenClient } from '../utils/auth/token'
 import { getLanguage } from '../utils'
+import { getClientCurrency } from '../utils/currencyCookie'
 import { getSession } from 'next-auth/react'
 
 console.log('ENV ==>', process.env.NEXT_PUBLIC_API_BASE_URL)
@@ -94,6 +95,7 @@ axiosPrivate.interceptors.request.use(
     }
 
     config.headers['x-lang'] = lang
+    config.headers['x-currency'] = getClientCurrency()
 
     return config
   },
@@ -203,6 +205,7 @@ axiosPublic.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const lang = getLanguage()
     config.headers['x-lang'] = lang
+    config.headers['x-currency'] = getClientCurrency()
     return config
   },
   (error) => Promise.reject(error)
@@ -286,6 +289,7 @@ axiosUser.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const lang = getLanguage()
     config.headers['x-lang'] = lang
+    config.headers['x-currency'] = getClientCurrency()
 
     // Ambil session dari NextAuth
     const session = await getSession()

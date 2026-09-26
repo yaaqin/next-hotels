@@ -1,5 +1,7 @@
 // Kontrak BE: /public/room-listing/* dan /public/sites
 
+import type { DisplayPricing } from '../currency'
+
 export interface ApiResponse<T> {
   success: boolean
   message: string
@@ -103,6 +105,7 @@ export interface ListingRoom {
     checkOut: string
     nights: number
     totalPrice: number
+    display?: DisplayPricing
   }
 }
 

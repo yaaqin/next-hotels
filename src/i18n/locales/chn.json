@@ -380,5 +380,21 @@
     "linkRooms": "{{type}}客房",
     "intro": "{{title}}。查看最新價格、選擇客房，並透過虛擬帳戶或加密貨幣安全地直接預訂。",
     "address": "地址：{{address}}"
+  },
+  "currency": {
+    "label": "貨幣",
+    "original": "原價",
+    "rate": "匯率",
+    "updated": "更新時間",
+    "approxHint": "此為估算，實際以印尼盾（IDR）付款",
+    "modalTitle": "以印尼盾（IDR）付款",
+    "modalBody": "您正在以{{currency}}查看價格。{{method}}以印尼盾收費，總額將按當前匯率換算。",
+    "modalShown": "您看到的價格",
+    "modalRate": "使用的匯率",
+    "modalPay": "實際支付金額",
+    "modalConfirm": "繼續支付 {{amount}}",
+    "modalCancel": "取消",
+    "snapshotTitle": "預訂時價格",
+    "snapshotRate": "預訂時匯率"
   }
 }

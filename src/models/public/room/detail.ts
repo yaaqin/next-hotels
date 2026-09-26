@@ -1,3 +1,4 @@
+import type { DisplayPricing } from '@/src/models/public/currency'
 export interface publicRoomDetailProps {
   success: boolean
   message: string
@@ -28,6 +29,8 @@ export interface Pricing {
   nights: number
   totalPrice: number
   nightlyBreakdown: number[]
+  // Harga dalam mata uang pilihan user (x-currency)
+  display?: DisplayPricing
 }
 
 export interface Site {

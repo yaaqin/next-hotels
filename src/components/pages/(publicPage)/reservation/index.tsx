@@ -24,6 +24,9 @@ import { axiosPublic } from '@/src/libs/instance'
 import { useSafeSession } from "@/src/hooks/custom/payment/useSafeSession"
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
+import { PriceTag } from '@/src/components/molecules/priceTag'
+import { usePriceTagConfig } from '@/src/hooks/usePriceTagConfig'
+import { PaymentCurrencyModal } from '@/src/components/organisms/reservation/PaymentCurrencyModal'
 
 type PaymentMethod = 'va_bca' | 'va_bni' | 'va_bri' | 'va_mandiri' | 'qris' | 'sgt' | 'credit'
 type PaymentCategory = 'va' | 'qris' | 'sgt' | 'credit'
@@ -379,6 +382,18 @@ export default function ReservationPage() {
   const { reset } = useBookingStore()
   const router = useRouter()
 
+  // Harga dilihat dalam mata uang lain, tapi VA/QRIS (Midtrans) menagih IDR → konfirmasi dulu
+  const [showCurrencyModal, setShowCurrencyModal] = useState(false)
+  const needsCurrencyNotice =
+    (paymentCategory === 'va' || paymentCategory === 'qris') &&
+    !!pricing?.display &&
+    pricing.display.currency !== 'IDR'
+  const paymentMethodLabel =
+    paymentCategory === 'qris'
+      ? 'QRIS'
+      : VA_BANKS.find((b) => b.value === selectedVA)?.label ?? 'Virtual Account'
+  const priceTag = usePriceTagConfig()
+
   const preselectedRoomId = items[0]?.roomId
   useEffect(() => {
     if (!preselectedRoomId || !roomData?.data || selectedRoom) return
@@ -401,6 +416,14 @@ export default function ReservationPage() {
     if (Object.keys(newErrors).length > 0) return
     if (!isReadyToSubmit()) return
 
+    if (needsCurrencyNotice) {
+      setShowCurrencyModal(true)
+      return
+    }
+    submitBooking()
+  }
+
+  const submitBooking = async () => {
     const { items, ...rest } = payload
 
     // ── Credit path ──────────────────────────────────────────────────────────
@@ -497,6 +520,18 @@ export default function ReservationPage() {
 
   return (
     <div className="min-h-screen bg-[#f5f4f0] py-10 px-4">
+      {showCurrencyModal && pricing?.display && (
+        <PaymentCurrencyModal
+          display={pricing.display}
+          totalIdr={pricing.totalPrice}
+          methodLabel={paymentMethodLabel}
+          onCancel={() => setShowCurrencyModal(false)}
+          onConfirm={() => {
+            setShowCurrencyModal(false)
+            submitBooking()
+          }}
+        />
+      )}
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
@@ -717,8 +752,13 @@ export default function ReservationPage() {
               {pricing ? (
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between text-gray-500">
-                    <span>{formatCurrency(pricing.price)} × {pricing.nights} {t("text.reservation.nights")}</span>
-                    <span className="text-gray-900">{formatCurrency(pricing.totalPrice)}</span>
+                    <span>
+                      <PriceTag display={pricing.display} amountIdr={pricing.price} {...priceTag} />
+                      {' '}× {pricing.nights} {t("text.reservation.nights")}
+                    </span>
+                    <span className="text-gray-900">
+                      <PriceTag display={pricing.display} field="totalPrice" amountIdr={pricing.totalPrice} align="right" {...priceTag} />
+                    </span>
                   </div>
                 </div>
               ) : (
@@ -727,7 +767,11 @@ export default function ReservationPage() {
               <div className="border-t border-dashed border-gray-200 my-4" />
               <div className="flex justify-between items-center">
                 <span className="text-xs tracking-widest uppercase text-gray-400">{t("text.reservation.total")}</span>
-                <span className="text-lg font-bold text-gray-900">{pricing ? formatCurrency(pricing.totalPrice) : '—'}</span>
+                <span className="text-lg font-bold text-gray-900">
+                  {pricing ? (
+                    <PriceTag display={pricing.display} field="totalPrice" amountIdr={pricing.totalPrice} align="right" {...priceTag} />
+                  ) : '—'}
+                </span>
               </div>
               <button
                 data-cy="btn-confirm-booking"

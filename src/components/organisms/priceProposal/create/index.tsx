@@ -117,6 +117,9 @@ export default function CreatePriceProposalForm({
                         <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 font-medium">
                             {selectedSite.nama}
                         </span>
+                        <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 font-medium">
+                            Harga dalam {selectedSite.currency}
+                        </span>
                         {!lockedSiteCode && (
                             <button
                                 type="button"

@@ -9,6 +9,8 @@ import I18nProvider from "../components/organisms/providers/I18nProvider";
 import { SuiProvider } from "../components/providers/suiProvider";
 import { cookies } from "next/headers";
 import { LANGUAGE_COOKIE, toSupportedLang } from "../utils/languageCookie";
+import { CURRENCY_COOKIE, resolveCurrency } from "../utils/currencyCookie";
+import CurrencyProvider from "../components/organisms/providers/CurrencyProvider";
 
 // Kode bahasa aplikasi → atribut lang HTML
 const HTML_LANG: Record<string, string> = { idn: "id", eng: "en", jpn: "ja", chn: "zh" };
@@ -50,7 +52,10 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   // Bahasa dari cookie supaya teks yang dirender server sama dengan di browser
-  const lang = toSupportedLang((await cookies()).get(LANGUAGE_COOKIE)?.value);
+  const cookieStore = await cookies();
+  const lang = toSupportedLang(cookieStore.get(LANGUAGE_COOKIE)?.value);
+  // Mata uang tampilan: cookie pilihan user, atau ikut bahasa
+  const currency = resolveCurrency(cookieStore.get(CURRENCY_COOKIE)?.value, lang);
 
   return (
     <html lang={HTML_LANG[lang]} suppressHydrationWarning>
@@ -58,14 +63,16 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${saira.className} antialiased`}
       >
         <I18nProvider lang={lang}>
-          <Providers>
-            <SyncUserToken />
-            <Suspense fallback={<div>Loading...</div>}>
-              <SuiProvider>
-                {children}
-              </SuiProvider>
-            </Suspense>
-          </Providers>
+          <CurrencyProvider currency={currency}>
+            <Providers>
+              <SyncUserToken />
+              <Suspense fallback={<div>Loading...</div>}>
+                <SuiProvider>
+                  {children}
+                </SuiProvider>
+              </Suspense>
+            </Providers>
+          </CurrencyProvider>
         </I18nProvider>
       </body>
     </html>

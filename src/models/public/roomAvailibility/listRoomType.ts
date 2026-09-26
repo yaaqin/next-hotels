@@ -1,3 +1,4 @@
+import type { DisplayPricing } from '@/src/models/public/currency'
 export interface roomListAvailableProps {
   success: boolean
   message: string
@@ -29,4 +30,6 @@ export interface Pricing {
   isDiscounted: boolean
   originalPrice: number | null
   originalTotalPrice: number | null
+  // Harga dalam mata uang pilihan user (x-currency)
+  display?: DisplayPricing
 }

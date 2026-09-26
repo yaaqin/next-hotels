@@ -1,3 +1,4 @@
+import type { DisplayPricing } from '@/src/models/public/currency'
 export interface roomNumberListProps {
   success: boolean
   message: string
@@ -31,4 +32,6 @@ export interface Pricing {
   checkOut: string
   nights: number
   totalPrice: number
+  // Harga dalam mata uang pilihan user (x-currency)
+  display?: DisplayPricing
 }

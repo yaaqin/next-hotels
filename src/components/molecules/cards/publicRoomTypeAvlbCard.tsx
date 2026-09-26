@@ -1,5 +1,9 @@
 "use client"
 
+import { PriceTag } from "@/src/components/molecules/priceTag"
+import { usePriceTagConfig } from "@/src/hooks/usePriceTagConfig"
+import type { DisplayPricing } from "@/src/models/public/currency"
+
 import { Bathtub01Icon, MarketingIcon, RulerIcon } from "hugeicons-react"
 
 export interface RoomFeature {
@@ -18,6 +22,8 @@ export interface RoomCardProps {
   features: RoomFeature[]
   price: number
   currency?: string
+  // Blok display dari BE — harga ditampilkan dalam mata uang pilihan user
+  display?: DisplayPricing | null
   bedInfo: string
   onViewDetail?: () => void
   onViewPackage?: () => void
@@ -55,10 +61,12 @@ export default function RoomAvlbCard({
   features,
   price,
   currency = "IDR",
+  display,
   bedInfo,
   onViewDetail,
   onViewPackage,
 }: RoomCardProps) {
+  const priceTag = usePriceTagConfig()
   return (
     <div
       className="p-5 rounded-2xl"
@@ -190,7 +198,11 @@ export default function RoomAvlbCard({
                 fontSize: "1.6rem",
               }}
             >
-              {formatCurrency(price, currency)}
+              {display ? (
+                <PriceTag display={display} field="totalPrice" amountIdr={price} {...priceTag} />
+              ) : (
+                formatCurrency(price, currency)
+              )}
               <span
                 className="text-sm ml-1"
                 style={{ color: "#6A9EC5", fontFamily: "'Montserrat', sans-serif" }}

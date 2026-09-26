@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useBookingDetail } from '@/src/hooks/query/bookings/detail'
+import { BookingPriceSnapshot, type BookingDisplaySnapshot } from '@/src/components/molecules/bookingPriceSnapshot'
 import { Payment } from '@/src/models/bookings/detail'
 import { usePaymentStatus } from '@/src/hooks/custom/payment/usePaymentStatus'
 import { useTranslation } from 'react-i18next'
@@ -93,7 +94,7 @@ function QrisSandboxWarning() {
     )
 }
 
-function PaymentInfoPanel({ payment, totalAmount }: { payment: Payment; totalAmount: number }) {
+function PaymentInfoPanel({ payment, totalAmount, snapshot }: { payment: Payment; totalAmount: number; snapshot: BookingDisplaySnapshot }) {
     const { t } = useTranslation()
     const qrisUrl = (payment as any).qrisUrl as string | undefined
 
@@ -147,6 +148,7 @@ function PaymentInfoPanel({ payment, totalAmount }: { payment: Payment; totalAmo
                 <div className="bg-green-50 border border-green-100 rounded-xl px-4 py-3">
                     <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{t('text.reservation.totalPayment')}</p>
                     <p className="text-2xl font-bold text-green-600">{formatRupiah(totalAmount)}</p>
+                    <BookingPriceSnapshot snapshot={snapshot} className="mt-2 pt-2 border-t border-green-100" />
                 </div>
 
                 <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
@@ -191,6 +193,7 @@ function PaymentInfoPanel({ payment, totalAmount }: { payment: Payment; totalAmo
             <div className="bg-green-50 border border-green-100 rounded-xl px-4 py-3">
                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{t('text.reservation.totalPayment')}</p>
                 <p className="text-2xl font-bold text-green-600">{formatRupiah(totalAmount)}</p>
+                    <BookingPriceSnapshot snapshot={snapshot} className="mt-2 pt-2 border-t border-green-100" />
             </div>
 
             <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
@@ -379,7 +382,7 @@ export default function PaymentStatus() {
                         <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-5">
                             {t('text.reservation.paymentInfo')}
                         </p>
-                        <PaymentInfoPanel payment={booking.payment} totalAmount={booking.totalAmount} />
+                        <PaymentInfoPanel payment={booking.payment} totalAmount={booking.totalAmount} snapshot={booking} />
                     </div>
 
                     <div className="block md:hidden h-px bg-gray-100 mx-5" />

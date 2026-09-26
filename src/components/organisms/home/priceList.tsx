@@ -1,4 +1,6 @@
 'use client'
+import { PriceTag } from '@/src/components/molecules/priceTag'
+import { usePriceTagConfig } from '@/src/hooks/usePriceTagConfig'
 
 import Link from 'next/link'
 import { useCallback, useRef } from 'react'
@@ -18,14 +20,6 @@ function getTodayAndTomorrow() {
         `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 
     return { checkin: fmt(today), checkout: fmt(tomorrow) }
-}
-
-function formatRupiah(amount: number) {
-    return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 2,
-    }).format(amount)
 }
 
 // ─── Skeleton Card ────────────────────────────────────────────────────────────
@@ -56,6 +50,7 @@ function RoomCard({
     onSelect: (room: roomListAvailableState) => void
 }) {
     const { t } = useTranslation()
+    const priceTag = usePriceTagConfig()
 
     return (
         <div className="flex-shrink-0 w-[260px] rounded-3xl border border-gray-100 overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col">
@@ -94,7 +89,12 @@ function RoomCard({
                 {/* Price coret */}
                 {room.pricing.isDiscounted && room.pricing.originalPrice ? (
                     <p className="text-[11px] text-red-500 line-through">
-                        {formatRupiah(room.pricing.originalPrice)}
+                        <PriceTag
+                            display={room.pricing.display}
+                            field="originalPrice"
+                            amountIdr={room.pricing.originalPrice}
+                            {...priceTag}
+                        />
                     </p>
                 ) : (
                     // Placeholder biar tinggi tetap sama waktu gada harga coret
@@ -103,7 +103,7 @@ function RoomCard({
 
                 {/* Price */}
                 <p className="text-sm font-bold text-gray-900">
-                    {formatRupiah(room.pricing.price)}
+                    <PriceTag display={room.pricing.display} amountIdr={room.pricing.price} {...priceTag} />
                     <span className="text-[11px] font-normal text-gray-400">/{t("label.night")}</span>
                 </p>
 

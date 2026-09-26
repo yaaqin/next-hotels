@@ -1,4 +1,5 @@
 "use client";
+import { BookingPriceSnapshot } from '@/src/components/molecules/bookingPriceSnapshot'
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -299,6 +300,7 @@ function BookingDrawer({
                 <div>
                   <p className="text-xs text-blue-400 tracking-widest uppercase">Total Payment</p>
                   <p className="text-xl font-bold text-blue-600 mt-0.5">{formatPrice(booking.totalAmount)}</p>
+                  <BookingPriceSnapshot snapshot={booking} className="mt-2" />
                 </div>
                 <div className="text-3xl opacity-20">🏨</div>
               </div>

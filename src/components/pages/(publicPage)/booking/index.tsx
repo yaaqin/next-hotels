@@ -203,6 +203,7 @@ export default function BookingPublicPage() {
                                 { icon: "bath", label: "Kamar mandi mewah dengan bak berendam" },
                             ]}
                             price={roomType.pricing.totalPrice}
+                            display={roomType.pricing.display}
                             bedInfo="2 Tempat Tidur Queen & Tempat Tidur King tersedia"
                             onViewDetail={() => handleViewDetail(roomType)}
                             onViewPackage={() => handleSelectRoom(roomType)}

@@ -1,17 +1,20 @@
 import Link from 'next/link'
 import Images from '@/src/components/atoms/images'
 import { ListingRoom } from '@/src/models/public/roomListing'
-import { formatRupiah, roomPath } from '@/src/app/(publicAccess)/(publicDashboard2)/hotel/hotel.helper'
+import { roomPath } from '@/src/app/(publicAccess)/(publicDashboard2)/hotel/hotel.helper'
 import { ServerT } from '@/src/i18n/server'
+import { PriceTag, type PriceTagLabels } from '@/src/components/molecules/priceTag'
 
 interface RoomListingCardProps {
   room: ListingRoom
   // Tanggal dibawa ke detail kamar; tanpa tanggal detail pakai hari ini
   stayQuery: string
   t: ServerT
+  locale: string
+  priceLabels: PriceTagLabels
 }
 
-export default function RoomListingCard({ room, stayQuery, t }: RoomListingCardProps) {
+export default function RoomListingCard({ room, stayQuery, t, locale, priceLabels }: RoomListingCardProps) {
   const { pricing } = room
   const href = `${roomPath(room)}${stayQuery}`
 
@@ -61,10 +64,24 @@ export default function RoomListingCard({ room, stayQuery, t }: RoomListingCardP
                 : t('roomListing.nights', { count: pricing.nights })}
             </p>
             {pricing.originalPrice && (
-              <p className="text-xs text-gray-400 line-through">{formatRupiah(pricing.originalPrice)}</p>
+              <p className="text-xs text-gray-400 line-through">
+                <PriceTag
+                  display={pricing.display}
+                  field={pricing.isStartingPrice ? 'originalPrice' : 'originalTotalPrice'}
+                  amountIdr={pricing.isStartingPrice ? pricing.originalPrice : pricing.originalPrice * pricing.nights}
+                  locale={locale}
+                  labels={priceLabels}
+                />
+              </p>
             )}
             <p className="text-lg font-bold text-[#05111F]">
-              {formatRupiah(pricing.isStartingPrice ? pricing.price : pricing.totalPrice)}
+              <PriceTag
+                display={pricing.display}
+                field={pricing.isStartingPrice ? 'price' : 'totalPrice'}
+                amountIdr={pricing.isStartingPrice ? pricing.price : pricing.totalPrice}
+                locale={locale}
+                labels={priceLabels}
+              />
             </p>
             {pricing.isStartingPrice && <p className="text-[10px] text-gray-400">{t('roomListing.perNight')}</p>}
           </div>

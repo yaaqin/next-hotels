@@ -380,5 +380,21 @@
     "linkRooms": "{{type}} Rooms",
     "intro": "{{title}}. Check the latest prices, choose a room, and book directly with secure payment via Virtual Account & Crypto.",
     "address": "Address: {{address}}."
+  },
+  "currency": {
+    "label": "Currency",
+    "original": "Original price",
+    "rate": "Rate",
+    "updated": "Updated",
+    "approxHint": "Estimate — payment is charged in Indonesian Rupiah (IDR)",
+    "modalTitle": "Payment in Indonesian Rupiah (IDR)",
+    "modalBody": "You're viewing prices in {{currency}}. {{method}} charges in Indonesian Rupiah, so the total is converted at the current rate.",
+    "modalShown": "Price you see",
+    "modalRate": "Exchange rate used",
+    "modalPay": "You will pay",
+    "modalConfirm": "Continue and pay {{amount}}",
+    "modalCancel": "Cancel",
+    "snapshotTitle": "Price at booking",
+    "snapshotRate": "Rate at booking"
   }
 }

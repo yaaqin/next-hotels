@@ -9,8 +9,9 @@ import ListingPagination from '@/src/components/organisms/roomListing/ListingPag
 import RelatedLinks from '@/src/components/organisms/roomListing/RelatedLinks'
 import RoomListingCard from '@/src/components/organisms/roomListing/RoomListingCard'
 import { ResolvedListing } from '@/src/models/public/roomListing'
-import { getRequestLang, resolveRoomListing, searchRoomListing } from '@/src/services/roomListing'
-import LanguageSync from '@/src/components/organisms/roomListing/LanguageSync'
+import { getRequestCurrency, getRequestLang, resolveRoomListing, searchRoomListing } from '@/src/services/roomListing'
+import PreferenceSync from '@/src/components/organisms/roomListing/PreferenceSync'
+import { LANG_LOCALE } from '@/src/utils/currencyCookie'
 import { getServerT } from '@/src/i18n/server'
 import {
   breadcrumbJsonLd,
@@ -33,20 +34,21 @@ type PageProps = {
 // Satu route untuk semua RLP: /hotel, /hotel/{lokasi}, /hotel/{lokasi}/{tipe}/{facet},
 // dan detail kamar /hotel/{cabang}/kamar/{slug}. Arti tiap segment diputuskan BE.
 async function load({ params, searchParams }: PageProps) {
-  const [{ segments = [] }, rawSearchParams, lang] = await Promise.all([
+  const [{ segments = [] }, rawSearchParams, lang, currency] = await Promise.all([
     params,
     searchParams,
     getRequestLang(),
+    getRequestCurrency(),
   ])
   const resolved = await resolveRoomListing(segments.map(decodeURIComponent), lang)
   const query = parseListingQuery(rawSearchParams)
 
   const result =
     resolved?.kind === 'listing' && !resolved.redirect
-      ? await searchRoomListing(searchPayload(resolved, query), lang)
+      ? await searchRoomListing(searchPayload(resolved, query), lang, currency)
       : null
 
-  return { resolved, query, result, rawSearchParams, lang }
+  return { resolved, query, result, rawSearchParams, lang, currency }
 }
 
 function searchPayload(resolved: ResolvedListing, query: ListingQuery) {
@@ -68,8 +70,15 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 }
 
 export default async function HotelListingPage(props: PageProps) {
-  const { resolved, query, result, rawSearchParams, lang } = await load(props)
+  const { resolved, query, result, rawSearchParams, lang, currency } = await load(props)
   const t = getServerT(lang)
+  const locale = LANG_LOCALE[lang]
+  const priceLabels = {
+    original: t('currency.original'),
+    rate: t('currency.rate'),
+    updated: t('currency.updated'),
+    hint: t('currency.approxHint'),
+  }
 
   if (!resolved) notFound()
   // Alias / urutan segment lain → 301 ke path resmi, query user ikut dibawa
@@ -83,7 +92,7 @@ export default async function HotelListingPage(props: PageProps) {
     }
     return (
       <>
-        <LanguageSync serverLang={lang} />
+        <PreferenceSync serverLang={lang} serverCurrency={currency} />
         <JsonLd data={breadcrumbJsonLd(resolved.breadcrumb)} />
         <div className="bg-[#05111F] px-5 py-3">
           <Breadcrumbs items={resolved.breadcrumb} t={t} />
@@ -106,7 +115,7 @@ export default async function HotelListingPage(props: PageProps) {
 
   return (
     <div className="min-h-screen bg-[#EEF3FA]" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-      <LanguageSync serverLang={lang} />
+      <PreferenceSync serverLang={lang} serverCurrency={currency} />
       <JsonLd data={breadcrumbJsonLd(resolved.breadcrumb)} />
       {items.length > 0 && <JsonLd data={itemListJsonLd(items, (meta.page - 1) * meta.pageSize + 1)} />}
       {site && <JsonLd data={hotelJsonLd(site, priceRange)} />}
@@ -155,7 +164,14 @@ export default async function HotelListingPage(props: PageProps) {
         {items.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {items.map((room) => (
-              <RoomListingCard key={room.id} room={room} stayQuery={stayQuery} t={t} />
+              <RoomListingCard
+                key={room.id}
+                room={room}
+                stayQuery={stayQuery}
+                t={t}
+                locale={locale}
+                priceLabels={priceLabels}
+              />
             ))}
           </div>
         ) : (

@@ -1,12 +1,15 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { UserIcon, Clock01Icon, Settings01Icon, BookOpen02Icon, Globe02Icon } from "hugeicons-react";
+import { UserIcon, Clock01Icon, Settings01Icon, BookOpen02Icon, Globe02Icon, CoinsSwapIcon } from "hugeicons-react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useLanguageStore } from "@/src/stores/languageStore";
 import { useCurrentLanguage } from '@/src/hooks/useCurrentLanguage'
+import { useCurrency } from '@/src/components/organisms/providers/CurrencyProvider'
+import { CURRENCY_OPTIONS } from '@/src/constans/currency'
+import type { SupportedCurrency } from '@/src/utils/currencyCookie'
 import { useQueryClient } from "@tanstack/react-query";
 
 interface MenuOverlayProps {
@@ -33,6 +36,16 @@ export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
   const handleChangeLanguage = (lang: Lang) => {
     setLanguage(lang);
     setLangOpen(false);
+    queryClient.invalidateQueries();
+  };
+
+  const [currOpen, setCurrOpen] = useState(false);
+  const { currency, setCurrency } = useCurrency();
+
+  // Sama seperti ganti bahasa: data harga di-fetch ulang dengan x-currency baru
+  const handleChangeCurrency = (next: SupportedCurrency) => {
+    setCurrency(next);
+    setCurrOpen(false);
     queryClient.invalidateQueries();
   };
 
@@ -206,6 +219,65 @@ export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
                             <span className="text-sm">{lang.flag}</span>
                             <span>{lang.label}</span>
                             {selected === lang.value && (
+                              <span className="ml-auto text-blue-400 text-[10px]">✓</span>
+                            )}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+
+                {/* Currency Switcher */}
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.35 + MENU_ITEMS.length * 0.08, duration: 0.4 }}
+                  className="relative"
+                >
+                  <button
+                    onClick={() => setCurrOpen((prev) => !prev)}
+                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl border border-blue-100 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 group"
+                  >
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 group-hover:bg-blue-100 transition-colors flex-shrink-0">
+                      <CoinsSwapIcon size={15} className="text-blue-500" />
+                    </span>
+                    <div className="text-left min-w-0">
+                      <p className="text-xs font-semibold text-gray-800 group-hover:text-blue-600 transition-colors leading-none mb-0.5">
+                        {t("currency.label")}
+                      </p>
+                      <p className="text-[11px] text-gray-400 truncate">
+                        {currency} · {CURRENCY_OPTIONS.find((c) => c.value === currency)?.symbol}
+                      </p>
+                    </div>
+                    <span
+                      className={`ml-auto text-gray-300 group-hover:text-blue-400 transition-all duration-200 text-sm flex-shrink-0 ${currOpen ? "rotate-90" : ""
+                        }`}
+                    >
+                      →
+                    </span>
+                  </button>
+                  <AnimatePresence>
+                    {currOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4, scaleY: 0.97 }}
+                        animate={{ opacity: 1, y: 0, scaleY: 1 }}
+                        exit={{ opacity: 0, y: -4, scaleY: 0.97 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute left-0 right-0 top-[calc(100%+4px)] z-10 bg-white border border-blue-100 rounded-xl shadow-md overflow-hidden"
+                      >
+                        {CURRENCY_OPTIONS.map((opt) => (
+                          <button
+                            key={opt.value}
+                            onClick={() => handleChangeCurrency(opt.value)}
+                            className={`w-full flex items-center gap-2 px-4 py-2 text-xs transition-colors hover:bg-blue-50 ${currency === opt.value
+                                ? "font-semibold text-blue-600 bg-blue-50/60"
+                                : "text-gray-600"
+                              }`}
+                          >
+                            <span>{opt.value}</span>
+                            <span className="text-gray-400">{opt.symbol}</span>
+                            {currency === opt.value && (
                               <span className="ml-auto text-blue-400 text-[10px]">✓</span>
                             )}
                           </button>
