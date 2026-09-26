@@ -15,13 +15,14 @@ export default function RoomListingCard({ room, stayQuery }: RoomListingCardProp
 
   return (
     <article className="bg-white rounded-2xl overflow-hidden border border-[#DCE6F2] shadow-sm flex flex-col">
-      <Link href={href} className="relative block aspect-[4/3] bg-[#EEF3FA]">
+      {/* Tinggi dikunci rasio 16:10 — gambar diposisikan absolut supaya tidak ikut ukuran aslinya */}
+      <Link href={href} className="relative block aspect-[16/10] overflow-hidden bg-[#EEF3FA]">
         {room.roomType.imageUrl ? (
           <Images
             src={room.roomType.imageUrl}
             alt={`Kamar ${room.roomType.name ?? ''} ${room.number} — ${room.site.nama}`}
             fill
-            className="object-cover"
+            className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-3xl">🛏️</div>
