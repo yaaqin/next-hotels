@@ -4,6 +4,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { addDays, format, parse } from 'date-fns'
 import { DatePicker } from '@/src/components/molecules/inputs/datePicker'
+import { Selects } from '@/src/components/molecules/inputs/selects'
 
 // Query string pakai format yyyy-MM-dd; DatePicker pakai Date (waktu lokal)
 const toDate = (value: string | null) => (value ? parse(value, 'yyyy-MM-dd', new Date()) : undefined)
@@ -25,9 +26,9 @@ export interface ListingFiltersLabels {
 // Label dikirim dari server (bahasa cookie) supaya HTML SSR & hasil hidrasi sama.
 export default function ListingFilters({ labels }: { labels: ListingFiltersLabels }) {
   const sortOptions = [
-    { value: 'price_asc', label: labels.sortPriceAsc },
-    { value: 'price_desc', label: labels.sortPriceDesc },
-    { value: 'number', label: labels.sortNumber },
+    { id: 'price_asc', value: 'price_asc', label: labels.sortPriceAsc },
+    { id: 'price_desc', value: 'price_desc', label: labels.sortPriceDesc },
+    { id: 'number', value: 'number', label: labels.sortNumber },
   ]
 
   const router = useRouter()
@@ -97,18 +98,15 @@ export default function ListingFilters({ labels }: { labels: ListingFiltersLabel
         </button>
       )}
 
-      <label className="md:ml-auto block">
-        <span className="block text-[0.58rem] tracking-[0.18em] uppercase mb-2 text-[#2C4E72]">{labels.sortBy}</span>
-        <select
-          value={sort}
-          onChange={(e) => push({ sort: e.target.value === 'price_asc' ? null : e.target.value })}
-          className="w-full rounded-xl px-4 py-3 text-sm text-[#0A1828] bg-[#EEF3FA] border-[0.5px] border-[#B5CDE8]"
-        >
-          {sortOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
-        </select>
-      </label>
+      <Selects
+        variant="public"
+        containerClassName="md:ml-auto md:w-52"
+        label={labels.sortBy}
+        value={sort}
+        onChange={(value) => push({ sort: value === 'price_asc' ? null : value })}
+        options={sortOptions}
+        showPlaceholder={false}
+      />
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { forwardRef, type SelectHTMLAttributes } from 'react';
+import { cn } from '@/lib/utils';
 
 export interface SelectOption {
   id: string | number;
@@ -19,6 +20,8 @@ interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'onC
   selectClassName?: string;
   required?: boolean;
   showPlaceholder?: boolean;
+  // 'public' = gaya halaman publik, sama dengan DatePicker (default = gaya dashboard)
+  variant?: 'default' | 'public';
 }
 
 export const Selects = forwardRef<HTMLSelectElement, SelectProps>(
@@ -37,6 +40,7 @@ export const Selects = forwardRef<HTMLSelectElement, SelectProps>(
       disabled = false,
       required = false,
       showPlaceholder = true,
+      variant = 'default',
       ...restProps
     },
     ref
@@ -46,18 +50,23 @@ export const Selects = forwardRef<HTMLSelectElement, SelectProps>(
     };
 
     const hasError = !!error;
+    const isPublic = variant === 'public';
 
     return (
       <div className={containerClassName}>
         {/* Label */}
-        <label 
-          className={
-            labelClassName || 
-            'block text-lg font-medium mb-1 md:mb-2'
-          }
+        <label
+          className={cn(
+            isPublic
+              ? 'block text-[0.58rem] tracking-[0.18em] uppercase mb-2 text-[#2C4E72]'
+              : 'block text-lg font-medium mb-1 md:mb-2',
+            labelClassName,
+          )}
         >
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && (
+            <span className={isPublic ? 'ml-1 text-[#1A56A0]' : 'text-red-500 ml-1'}>*</span>
+          )}
         </label>
 
         {/* Select */}
@@ -71,19 +80,18 @@ export const Selects = forwardRef<HTMLSelectElement, SelectProps>(
             aria-describedby={
               error ? `${label}-error` : helperText ? `${label}-helper` : undefined
             }
-            className={`
-              w-full px-4 py-2 text-gray-700 border rounded-lg
-              appearance-none bg-white cursor-pointer
-              transition-colors duration-200
-              ${
-                hasError
-                  ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500'
-                  : disabled
-                  ? 'bg-gray-100 border-gray-300 cursor-not-allowed focus:ring-0 focus:outline-none'
-                  : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
-              }
-              ${selectClassName || ''}
-            `}
+            className={cn(
+              'w-full appearance-none cursor-pointer transition-colors duration-200',
+              isPublic
+                ? 'pl-4 pr-10 py-3 text-sm rounded-xl border-[0.5px] border-[#B5CDE8] bg-[#EEF3FA] text-[#0A1828] focus:outline-none focus:ring-2 focus:ring-[#1A56A0]/30'
+                : 'px-4 py-2 text-gray-700 border rounded-lg bg-white',
+              hasError
+                ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500'
+                : disabled
+                ? 'bg-gray-100 border-gray-300 cursor-not-allowed focus:ring-0 focus:outline-none'
+                : !isPublic && 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none',
+              selectClassName,
+            )}
             {...restProps}
           >
             {/* Placeholder Option */}
@@ -104,7 +112,10 @@ export const Selects = forwardRef<HTMLSelectElement, SelectProps>(
           {/* Arrow Icon */}
           <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
             <svg
-              className={`w-5 h-5 ${disabled ? 'text-gray-400' : 'text-gray-700'}`}
+              className={cn(
+                isPublic ? 'w-4 h-4' : 'w-5 h-5',
+                disabled ? 'text-gray-400' : isPublic ? 'text-[#1A56A0]' : 'text-gray-700',
+              )}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
