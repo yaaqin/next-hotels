@@ -256,7 +256,7 @@
       "qrisWarningWait": "约 15 分钟",
       "qrisWarningDesc3": "直到此付款过期后再试。",
       "closeWarning": "关闭提示",
-       "expiredTitle": "支付已过期",
+      "expiredTitle": "支付已过期",
       "expiredDesc": "支付时间已截止，请重新创建预订。",
       "notFoundTitle": "未找到预订",
       "notFoundDesc": "预订数据不可用或已失效。",
@@ -338,5 +338,37 @@
   },
   "title": {
     "listRoomType": "房型列表"
+  },
+  "roomListing": {
+    "home": "首頁",
+    "floor": "樓層",
+    "room": "客房",
+    "promo": "優惠",
+    "startingFrom": "起價",
+    "nights": "{{count}}晚",
+    "perNight": "每晚",
+    "viewRoom": "查看客房",
+    "roomAlt": "{{type}}客房 {{number}} — {{site}}",
+    "totalRooms": "{{count}}間客房",
+    "availableForDates": "您選擇的日期有{{count}}間客房可預訂",
+    "emptyPromoTitle": "目前沒有優惠",
+    "emptyTitle": "目前沒有可預訂的客房",
+    "emptyHint": "請嘗試其他日期，或查看下方的客房選項。",
+    "otherRoomTypes": "其他房型",
+    "otherBranches": "其他分店",
+    "branchesIn": "{{city}}的分店",
+    "pages": "頁面",
+    "prev": "上一頁",
+    "next": "下一頁",
+    "filters": {
+      "checkin": "入住",
+      "checkout": "退房",
+      "checkAvailability": "查詢空房",
+      "clearDates": "清除日期",
+      "sortBy": "排序",
+      "sortPriceAsc": "價格由低到高",
+      "sortPriceDesc": "價格由高到低",
+      "sortNumber": "房號"
+    }
   }
 }

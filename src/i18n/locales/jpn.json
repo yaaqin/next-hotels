@@ -256,7 +256,7 @@
       "qrisWarningWait": "約15分",
       "qrisWarningDesc3": "この支払いが期限切れになるまでお待ちください。",
       "closeWarning": "警告を閉じる",
-       "expiredTitle": "支払い期限切れ",
+      "expiredTitle": "支払い期限切れ",
       "expiredDesc": "支払い期限が過ぎました。新しい予約を作成してください。",
       "notFoundTitle": "予約が見つかりません",
       "notFoundDesc": "予約データが存在しないか、無効になっています。",
@@ -338,5 +338,37 @@
   },
   "title": {
     "listRoomType": "部屋タイプ一覧"
+  },
+  "roomListing": {
+    "home": "ホーム",
+    "floor": "階",
+    "room": "客室",
+    "promo": "プロモ",
+    "startingFrom": "最低料金",
+    "nights": "{{count}}泊",
+    "perNight": "1泊あたり",
+    "viewRoom": "客室を見る",
+    "roomAlt": "{{type}} 客室 {{number}} — {{site}}",
+    "totalRooms": "{{count}}室",
+    "availableForDates": "ご指定の日程で{{count}}室ご利用いただけます",
+    "emptyPromoTitle": "現在プロモーションはありません",
+    "emptyTitle": "予約可能な客室はまだありません",
+    "emptyHint": "別の日程をお試しいただくか、下の客室をご覧ください。",
+    "otherRoomTypes": "その他の客室タイプ",
+    "otherBranches": "その他の支店",
+    "branchesIn": "{{city}}の支店",
+    "pages": "ページ",
+    "prev": "前へ",
+    "next": "次へ",
+    "filters": {
+      "checkin": "チェックイン",
+      "checkout": "チェックアウト",
+      "checkAvailability": "空室を確認",
+      "clearDates": "日程をクリア",
+      "sortBy": "並び替え",
+      "sortPriceAsc": "料金が安い順",
+      "sortPriceDesc": "料金が高い順",
+      "sortNumber": "客室番号順"
+    }
   }
 }

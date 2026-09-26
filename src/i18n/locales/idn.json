@@ -338,5 +338,37 @@
   },
   "title": {
     "listRoomType": "List Tipe Ruangan"
+  },
+  "roomListing": {
+    "home": "Beranda",
+    "floor": "Lantai",
+    "room": "Kamar",
+    "promo": "Promo",
+    "startingFrom": "Mulai dari",
+    "nights": "{{count}} malam",
+    "perNight": "per malam",
+    "viewRoom": "Lihat kamar",
+    "roomAlt": "Kamar {{type}} {{number}} — {{site}}",
+    "totalRooms": "{{count}} kamar",
+    "availableForDates": "{{count}} kamar tersedia untuk tanggal pilihanmu",
+    "emptyPromoTitle": "Belum ada promo saat ini",
+    "emptyTitle": "Belum ada kamar yang bisa dipesan",
+    "emptyHint": "Coba tanggal lain atau lihat pilihan kamar di bawah.",
+    "otherRoomTypes": "Tipe kamar lainnya",
+    "otherBranches": "Cabang lainnya",
+    "branchesIn": "Cabang di {{city}}",
+    "pages": "Halaman",
+    "prev": "Sebelumnya",
+    "next": "Berikutnya",
+    "filters": {
+      "checkin": "Check-in",
+      "checkout": "Check-out",
+      "checkAvailability": "Cek ketersediaan",
+      "clearDates": "Hapus tanggal",
+      "sortBy": "Urutkan",
+      "sortPriceAsc": "Harga terendah",
+      "sortPriceDesc": "Harga tertinggi",
+      "sortNumber": "Nomor kamar"
+    }
   }
 }

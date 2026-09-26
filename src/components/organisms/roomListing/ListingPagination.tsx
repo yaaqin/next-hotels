@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ServerT } from '@/src/i18n/server'
 
 interface ListingPaginationProps {
   basePath: string
@@ -6,6 +7,7 @@ interface ListingPaginationProps {
   totalPages: number
   // Query lain (tanggal, sort) yang dipertahankan antar halaman
   searchParams: Record<string, string | string[] | undefined>
+  t: ServerT
 }
 
 function hrefFor(basePath: string, page: number, searchParams: ListingPaginationProps['searchParams']) {
@@ -19,14 +21,14 @@ function hrefFor(basePath: string, page: number, searchParams: ListingPagination
   return qs ? `${basePath}?${qs}` : basePath
 }
 
-export default function ListingPagination({ basePath, page, totalPages, searchParams }: ListingPaginationProps) {
+export default function ListingPagination({ basePath, page, totalPages, searchParams, t }: ListingPaginationProps) {
   if (totalPages <= 1) return null
 
   return (
-    <nav aria-label="Halaman" className="flex items-center justify-center gap-1.5">
+    <nav aria-label={t('roomListing.pages')} className="flex items-center justify-center gap-1.5">
       {page > 1 && (
         <Link rel="prev" href={hrefFor(basePath, page - 1, searchParams)} className="px-3 py-1.5 rounded-lg text-sm text-[#05111F] hover:bg-white">
-          ‹ Sebelumnya
+          ‹ {t('roomListing.prev')}
         </Link>
       )}
       {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
@@ -43,7 +45,7 @@ export default function ListingPagination({ basePath, page, totalPages, searchPa
       ))}
       {page < totalPages && (
         <Link rel="next" href={hrefFor(basePath, page + 1, searchParams)} className="px-3 py-1.5 rounded-lg text-sm text-[#05111F] hover:bg-white">
-          Berikutnya ›
+          {t('roomListing.next')} ›
         </Link>
       )}
     </nav>

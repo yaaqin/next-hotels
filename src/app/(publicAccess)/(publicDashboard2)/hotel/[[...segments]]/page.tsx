@@ -11,6 +11,7 @@ import RoomListingCard from '@/src/components/organisms/roomListing/RoomListingC
 import { ResolvedListing } from '@/src/models/public/roomListing'
 import { getRequestLang, resolveRoomListing, searchRoomListing } from '@/src/services/roomListing'
 import LanguageSync from '@/src/components/organisms/roomListing/LanguageSync'
+import { getServerT } from '@/src/i18n/server'
 import {
   breadcrumbJsonLd,
   buildListingMetadata,
@@ -67,6 +68,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 export default async function HotelListingPage(props: PageProps) {
   const { resolved, query, result, rawSearchParams, lang } = await load(props)
+  const t = getServerT(lang)
 
   if (!resolved) notFound()
   // Alias / urutan segment lain → 301 ke path resmi, query user ikut dibawa
@@ -83,7 +85,7 @@ export default async function HotelListingPage(props: PageProps) {
         <LanguageSync serverLang={lang} />
         <JsonLd data={breadcrumbJsonLd(resolved.breadcrumb)} />
         <div className="bg-[#05111F] px-5 py-3">
-          <Breadcrumbs items={resolved.breadcrumb} />
+          <Breadcrumbs items={resolved.breadcrumb} t={t} />
         </div>
         <Suspense>
           <PublicRoomDetailPage roomId={resolved.room.id} />
@@ -110,7 +112,7 @@ export default async function HotelListingPage(props: PageProps) {
       {/* ── Header ── */}
       <header className="bg-[#05111F] px-6 py-8 md:py-10">
         <div className="max-w-6xl mx-auto space-y-4">
-          <Breadcrumbs items={resolved.breadcrumb} />
+          <Breadcrumbs items={resolved.breadcrumb} t={t} />
           <h1 className="text-2xl md:text-3xl font-semibold text-[#C8DCEF]">{resolved.meta.title}</h1>
           <p className="max-w-3xl text-sm text-[#6A9EC5]">{resolved.meta.description}</p>
         </div>
@@ -118,34 +120,47 @@ export default async function HotelListingPage(props: PageProps) {
 
       <main className="max-w-6xl mx-auto px-6 py-8 space-y-8">
         <Suspense>
-          <ListingFilters />
+          <ListingFilters
+            labels={{
+              checkin: t('roomListing.filters.checkin'),
+              checkout: t('roomListing.filters.checkout'),
+              checkAvailability: t('roomListing.filters.checkAvailability'),
+              clearDates: t('roomListing.filters.clearDates'),
+              sortBy: t('roomListing.filters.sortBy'),
+              sortPriceAsc: t('roomListing.filters.sortPriceAsc'),
+              sortPriceDesc: t('roomListing.filters.sortPriceDesc'),
+              sortNumber: t('roomListing.filters.sortNumber'),
+            }}
+          />
         </Suspense>
 
         {/* Hub kota: daftar cabang di kota ini */}
         {resolved.location?.kind === 'city' && (
           <RelatedLinks
-            title={`Cabang di ${resolved.location.label}`}
+            title={t('roomListing.branchesIn', { city: resolved.location.label })}
             links={resolved.location.sites.map((s) => ({ label: s.nama, path: `/hotel/${s.slug}` }))}
           />
         )}
 
         <p className="text-sm text-gray-500">
-          {meta.total} kamar{meta.hasDates ? ' tersedia untuk tanggal pilihanmu' : ''}
+          {meta.hasDates
+            ? t('roomListing.availableForDates', { count: meta.total })
+            : t('roomListing.totalRooms', { count: meta.total })}
         </p>
 
         {items.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {items.map((room) => (
-              <RoomListingCard key={room.id} room={room} stayQuery={stayQuery} />
+              <RoomListingCard key={room.id} room={room} stayQuery={stayQuery} t={t} />
             ))}
           </div>
         ) : (
           <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-[#DCE6F2] space-y-2">
             <p className="text-3xl">🛏️</p>
             <p className="text-base font-semibold text-[#05111F]">
-              {resolved.promo ? 'Belum ada promo saat ini' : 'Belum ada kamar yang bisa dipesan'}
+              {resolved.promo ? t('roomListing.emptyPromoTitle') : t('roomListing.emptyTitle')}
             </p>
-            <p className="text-sm text-gray-500">Coba tanggal lain atau lihat pilihan kamar di bawah.</p>
+            <p className="text-sm text-gray-500">{t('roomListing.emptyHint')}</p>
           </div>
         )}
 
@@ -154,10 +169,11 @@ export default async function HotelListingPage(props: PageProps) {
           page={meta.page}
           totalPages={meta.totalPages}
           searchParams={rawSearchParams}
+          t={t}
         />
 
-        <RelatedLinks title="Tipe kamar lainnya" links={resolved.links.roomTypes} />
-        <RelatedLinks title="Cabang lainnya" links={resolved.links.locations} />
+        <RelatedLinks title={t('roomListing.otherRoomTypes')} links={resolved.links.roomTypes} />
+        <RelatedLinks title={t('roomListing.otherBranches')} links={resolved.links.locations} />
       </main>
     </div>
   )

@@ -338,5 +338,37 @@
   },
   "title": {
     "listRoomType": "Room Type List"
+  },
+  "roomListing": {
+    "home": "Home",
+    "floor": "Floor",
+    "room": "Room",
+    "promo": "Promo",
+    "startingFrom": "Starting from",
+    "nights": "{{count}} nights",
+    "perNight": "per night",
+    "viewRoom": "View room",
+    "roomAlt": "{{type}} room {{number}} — {{site}}",
+    "totalRooms": "{{count}} rooms",
+    "availableForDates": "{{count}} rooms available for your dates",
+    "emptyPromoTitle": "No promos right now",
+    "emptyTitle": "No rooms available to book yet",
+    "emptyHint": "Try other dates or browse the room options below.",
+    "otherRoomTypes": "Other room types",
+    "otherBranches": "Other branches",
+    "branchesIn": "Branches in {{city}}",
+    "pages": "Pages",
+    "prev": "Previous",
+    "next": "Next",
+    "filters": {
+      "checkin": "Check-in",
+      "checkout": "Check-out",
+      "checkAvailability": "Check availability",
+      "clearDates": "Clear dates",
+      "sortBy": "Sort by",
+      "sortPriceAsc": "Lowest price",
+      "sortPriceDesc": "Highest price",
+      "sortNumber": "Room number"
+    }
   }
 }
