@@ -10,6 +10,8 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
 
+const DEFAULT_SITE_CODE = "MERAK"
+
 // ─── Date Utilities ───────────────────────────────────────────────────────────
 
 function formatInputDate(date: Date): string {
@@ -46,6 +48,8 @@ export default function BookingPublicPage() {
 
     const { setStay, setItem, setRoomDetail } = useBookingStore()
 
+    // Cabang dari ?site=KODE — flow booking lama default ke cabang pertama (Merak)
+    const siteCode = searchParams.get("site") ?? DEFAULT_SITE_CODE
     const checkinParam = searchParams.get("checkin")
     const checkoutParam = searchParams.get("checkOut")
 
@@ -62,7 +66,7 @@ export default function BookingPublicPage() {
         }
     }, [checkinParam])
 
-    const { data, isLoading } = usePublicRoomTypeAvailibility(checkin, checkout)
+    const { data, isLoading } = usePublicRoomTypeAvailibility(checkin, checkout, siteCode)
 
     const handleChangeDate = useCallback(
         (date: Date | undefined) => {
@@ -78,7 +82,7 @@ export default function BookingPublicPage() {
     const handleSelectRoom = useCallback(
         (roomType: roomListAvailableState) => {
             setStay({
-                siteCode: 'MERAK',
+                siteCode,
                 checkInDate: checkin,
                 checkOutDate: checkout,
             })
@@ -94,7 +98,7 @@ export default function BookingPublicPage() {
             })
             router.push('/reservation')
         },
-        [checkin, checkout, setStay, setItem, setRoomDetail, router],
+        [siteCode, checkin, checkout, setStay, setItem, setRoomDetail, router],
     )
 
     const handleViewDetail = (id: string) => {

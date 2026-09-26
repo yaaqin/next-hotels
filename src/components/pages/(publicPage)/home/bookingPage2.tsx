@@ -3,7 +3,7 @@ import Navbar2 from '@/src/components/organisms/layouts/navbars/navbarPublic'
 import Amenities from '@/src/components/organisms/home/amenities'
 import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
-import Footer from '@/src/components/organisms/layouts/footers/publicFooter'
+import Footer, { FooterBranch } from '@/src/components/organisms/layouts/footers/publicFooter'
 import RoomTypeCarousel from '@/src/components/organisms/home/priceList'
 import { useTranslation } from 'react-i18next'
 import WhyChoose from '@/src/components/organisms/home/whyChoose'
@@ -12,7 +12,7 @@ import Facility from '@/src/components/organisms/home/allFacility'
 import Images from '@/src/components/atoms/images'
 import HotelBookingSelector from '@/src/components/organisms/home/actionBoard'
 
-export default function BookingPage2() {
+export default function BookingPage2({ branches = [] }: { branches?: FooterBranch[] }) {
   const { scrollY } = useScroll()
 
   const rawOpacity = useTransform(scrollY, [32, 200], [1, 0])
@@ -150,7 +150,7 @@ export default function BookingPage2() {
       <Facility />
       <Amenities />
       <section className='relative'>
-        <Footer />
+        <Footer branches={branches} />
       </section>
     </>
   )

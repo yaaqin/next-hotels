@@ -6,6 +6,7 @@ interface PriceProposalStore {
   form: PriceProposalFormState;
 
   // Form field setters
+  setSiteCode: (siteCode: string) => void;
   setTitle: (title: string) => void;
   setDescription: (description: string) => void;
   setStartDate: (date: string) => void;
@@ -42,6 +43,7 @@ const defaultItem = (): PriceItem => ({
 });
 
 const initialForm: PriceProposalFormState = {
+  site_code: '',
   title: '',
   description: '',
   start_date: '',
@@ -56,6 +58,7 @@ const initialState = {
 export const usePriceProposalStore = create<PriceProposalStore>((set, get) => ({
   ...initialState,
 
+  setSiteCode: (site_code) => set((s) => ({ form: { ...s.form, site_code } })),
   setTitle: (title) => set((s) => ({ form: { ...s.form, title } })),
   setDescription: (description) => set((s) => ({ form: { ...s.form, description } })),
   setStartDate: (start_date) => set((s) => ({ form: { ...s.form, start_date } })),
@@ -119,6 +122,7 @@ export const usePriceProposalStore = create<PriceProposalStore>((set, get) => ({
   getPayload: (): CreatePriceProposalPayload => {
     const { form } = get();
     return {
+      ...(form.site_code && { site_code: form.site_code }),
       title: form.title,
       description: form.description,
       start_date: form.start_date,
@@ -130,5 +134,6 @@ export const usePriceProposalStore = create<PriceProposalStore>((set, get) => ({
     };
   },
 
-  reset: () => set({ ...initialState }),
+  // Cabang yang sudah dipilih tetap dipertahankan saat form di-reset
+  reset: () => set((s) => ({ form: { ...initialForm, site_code: s.form.site_code } })),
 }));

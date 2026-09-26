@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { publicRoomAvailibility } from "@/src/services/roomAvailibility/publicRoomTypeList";
 import { roomListAvailableProps } from "@/src/models/public/roomAvailibility/listRoomType";
 
-export const usePublicRoomTypeAvailibility = (check_in: string, checkOut: string) => {
+export const usePublicRoomTypeAvailibility = (check_in: string, checkOut: string, siteCode: string) => {
     const searchParams = useSearchParams();
     const page = searchParams.get("page") || "1";
     const {
@@ -12,8 +12,8 @@ export const usePublicRoomTypeAvailibility = (check_in: string, checkOut: string
         error,
         refetch,
     } = useQuery<roomListAvailableProps>({
-        queryKey: ["public-room-type-availibility", check_in, checkOut],
-        queryFn: () => publicRoomAvailibility(check_in, checkOut),
+        queryKey: ["public-room-type-availibility", check_in, checkOut, siteCode],
+        queryFn: () => publicRoomAvailibility(check_in, checkOut, siteCode),
         enabled: !!page,
     });
 

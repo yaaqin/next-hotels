@@ -276,10 +276,11 @@ function RoomDetailContent({ room, checkin, checkout }: {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function PublicRoomDetailPage() {
+// roomId diisi dari route RLP (/hotel/{cabang}/kamar/{slug}); route lama pakai param [id]
+export default function PublicRoomDetailPage({ roomId }: { roomId?: string } = {}) {
   const params = useParams<{ id: string }>()
   const searchParams = useSearchParams()
-  const id = params.id
+  const id = roomId ?? params.id
 
   const checkin = searchParams.get('checkin') ?? ''
   const checkout = searchParams.get('checkout') ?? ''

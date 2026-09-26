@@ -1,9 +1,16 @@
 "use client"
 
 import { Facebook01Icon, InstagramIcon, Mail01Icon, PhoneLockIcon } from "hugeicons-react"
+import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
-export default function Footer() {
+export interface FooterBranch {
+  label: string
+  href: string
+}
+
+// branches diisi dari server (homepage) supaya link cabang ada di HTML awal untuk crawler
+export default function Footer({ branches = [] }: { branches?: FooterBranch[] }) {
 
   const { t } = useTranslation()
 
@@ -105,6 +112,24 @@ export default function Footer() {
 
           </div>
         </div>
+
+        {branches.length > 0 && (
+          <nav aria-label="Cabang hotel" className="mt-14 text-center">
+            <h3 className="uppercase tracking-[0.18em] text-[0.62rem] mb-4 text-[#C8DCEF]">Cabang Kami</h3>
+            <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[0.72rem]">
+              <li>
+                <Link href="/hotel" className="hover:text-[#C8DCEF] transition-colors duration-300">Semua Cabang</Link>
+              </li>
+              {branches.map((branch) => (
+                <li key={branch.href}>
+                  <Link href={branch.href} className="hover:text-[#C8DCEF] transition-colors duration-300">
+                    {branch.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
 
         {/* Divider */}
         <div className="border-t border-[#0A1E38] mt-14 mb-10" />

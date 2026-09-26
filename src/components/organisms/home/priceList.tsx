@@ -121,10 +121,13 @@ function RoomCard({
     )
 }
 
+// Carousel homepage menampilkan cabang utama — daftar lintas cabang ada di /hotel
+const HOME_SITE_CODE = 'MERAK'
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function RoomTypeCarousel() {
     const { checkin, checkout } = getTodayAndTomorrow()
-    const { data, isLoading } = usePublicRoomTypeAvailibility(checkin, checkout)
+    const { data, isLoading } = usePublicRoomTypeAvailibility(checkin, checkout, HOME_SITE_CODE)
 
     const { t } = useTranslation()
 
@@ -143,7 +146,7 @@ export default function RoomTypeCarousel() {
     const handleSelectRoom = useCallback(
         (roomType: roomListAvailableState) => {
             setStay({
-                siteCode: 'MERAK',
+                siteCode: HOME_SITE_CODE,
                 checkInDate: checkin,
                 checkOutDate: checkout,
             })

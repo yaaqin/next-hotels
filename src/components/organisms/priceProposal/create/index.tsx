@@ -9,6 +9,9 @@ import { useRouter } from "next/navigation";
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { CalendarIcon } from "lucide-react"
+import { useEffect } from "react";
+import { usePriceProposalCreatableSites } from "@/src/hooks/query/priceProposal/creatableSites";
+import { SelectSiteModal } from "./SelectSiteModal";
 
 function formatInputDate(date: Date): string {
     const yyyy = date.getFullYear()
@@ -40,6 +43,7 @@ export default function CreatePriceProposalForm({
 }: CreatePriceProposalFormProps) {
     const {
         form,
+        setSiteCode,
         setTitle,
         setDescription,
         setStartDate,
@@ -52,25 +56,78 @@ export default function CreatePriceProposalForm({
     const router = useRouter();
     const { mutate, isPending } = useCreatePriceProposal()
 
+    // Akun cabang → cabang dikunci dari akun. Akun pusat → pilih lewat popup.
+    const { data: creatable, isLoading: isLoadingSites, error: sitesError } = usePriceProposalCreatableSites();
+    const lockedSiteCode = creatable?.data.lockedSiteCode ?? null;
+    const sites = creatable?.data.sites ?? [];
+    const selectedSite = sites.find((s) => s.siteCode === form.site_code);
+
+    useEffect(() => {
+        if (!creatable) return;
+        if (lockedSiteCode) {
+            if (form.site_code !== lockedSiteCode) setSiteCode(lockedSiteCode);
+        } else if (form.site_code && !selectedSite) {
+            // Sisa pilihan dari sesi/akun lain yang tidak berlaku lagi
+            setSiteCode('');
+        }
+    }, [creatable, lockedSiteCode, form.site_code, selectedSite, setSiteCode]);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const payload = getPayload();
         mutate(payload, {
             onSuccess: () => {
                 reset();
+                if (!lockedSiteCode) setSiteCode('');
                 router.push('/dashboard/price-proposal');
             },
         });
     };
 
+    if (isLoadingSites) {
+        return <div className="py-16 text-center text-sm text-gray-400">Memuat...</div>;
+    }
+
+    if (sitesError) {
+        return (
+            <div className="py-16 text-center text-sm text-gray-500">
+                Akun kamu tidak punya akses untuk membuat price proposal.
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6 w-full mx-auto">
+            {!lockedSiteCode && !form.site_code && (
+                <SelectSiteModal
+                    sites={sites}
+                    onSelect={setSiteCode}
+                    onClose={() => router.push('/dashboard/price-proposal')}
+                />
+            )}
+
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-xl font-bold text-gray-800">Create Price Proposal</h2>
                     <p className="text-sm text-gray-500 mt-0.5">Fill in the proposal details and add room pricing items.</p>
                 </div>
+                {selectedSite && (
+                    <div className="flex items-center gap-2 text-sm">
+                        <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 font-medium">
+                            {selectedSite.nama}
+                        </span>
+                        {!lockedSiteCode && (
+                            <button
+                                type="button"
+                                onClick={() => setSiteCode('')}
+                                className="text-xs text-gray-500 hover:text-gray-700 underline"
+                            >
+                                Ganti cabang
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Proposal Info */}

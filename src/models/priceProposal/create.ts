@@ -38,6 +38,8 @@ export interface PriceItemPayload {
 }
 
 export interface CreatePriceProposalPayload {
+  // Kosong untuk akun cabang — BE otomatis pakai cabang akunnya
+  site_code?: string;
   title: string;
   description: string;
   start_date: string;
@@ -46,6 +48,7 @@ export interface CreatePriceProposalPayload {
 }
 
 export interface PriceProposalFormState {
+  site_code: string;
   title: string;
   description: string;
   start_date: string;
