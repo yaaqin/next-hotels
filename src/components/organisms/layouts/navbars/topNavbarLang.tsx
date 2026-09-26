@@ -1,6 +1,7 @@
 "use client"
 
 import { useLanguageStore } from "@/src/stores/languageStore"
+import { useCurrentLanguage } from '@/src/hooks/useCurrentLanguage'
 import { Globe02Icon } from "hugeicons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
@@ -16,7 +17,8 @@ const languages: { value: Lang; label: string }[] = [
 
 export default function TopLanguageNavbar() {
   const [open, setOpen] = useState(false)
-  const { language: selected, setLanguage } = useLanguageStore()
+  const { setLanguage } = useLanguageStore()
+  const selected = useCurrentLanguage()
   const queryClient = useQueryClient()
 
   const handleChangeLanguage = (lang: Lang) => {

@@ -1,4 +1,4 @@
-import { setCookie } from 'cookies-next'
+import { getCookie, setCookie } from 'cookies-next'
 
 // Bahasa disimpan di localStorage (dibaca axios di client) DAN cookie (dibaca server saat SSR).
 // Nama sama dengan key localStorage supaya gampang dilacak.
@@ -18,4 +18,13 @@ export function setLanguageCookie(lang: string) {
     maxAge: 60 * 60 * 24 * 365,
     sameSite: 'lax',
   })
+}
+
+// Browser: bahasa dari cookie (null kalau belum pernah diset — user lama / kunjungan pertama)
+export function readLanguageCookie(): SupportedLang | null {
+  if (typeof document === 'undefined') return null
+  const value = getCookie(LANGUAGE_COOKIE)
+  return typeof value === 'string' && SUPPORTED_LANGS.includes(value as SupportedLang)
+    ? (value as SupportedLang)
+    : null
 }

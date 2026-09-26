@@ -369,6 +369,15 @@
       "sortPriceAsc": "價格由低到高",
       "sortPriceDesc": "價格由高到低",
       "sortNumber": "房號"
-    }
+    },
+    "crumbHotel": "酒店",
+    "allBranches": "所有分店",
+    "headingHotel": "{{place}}的酒店",
+    "headingRooms": "{{place}}的{{type}}客房",
+    "headingPromoHotel": "{{place}}的客房優惠",
+    "headingPromoRooms": "{{place}}的{{type}}客房優惠",
+    "linkRooms": "{{type}}客房",
+    "intro": "{{title}}。查看最新價格、選擇客房，並透過虛擬帳戶或加密貨幣安全地直接預訂。",
+    "address": "地址：{{address}}"
   }
 }

@@ -19,6 +19,7 @@ import {
   formatRupiah,
   hotelJsonLd,
   itemListJsonLd,
+  listingDisplayText,
   ListingQuery,
   parseListingQuery,
   toQueryString,
@@ -95,6 +96,7 @@ export default async function HotelListingPage(props: PageProps) {
   }
 
   const { items, meta } = result!
+  const { heading, intro } = listingDisplayText(resolved, lang, t)
   const stayQuery = query.checkin ? `?checkin=${query.checkin}&checkout=${query.checkout}` : ''
   const site = resolved.location?.kind === 'site' ? resolved.location.site : null
   const prices = items.map((i) => i.pricing.price)
@@ -113,8 +115,8 @@ export default async function HotelListingPage(props: PageProps) {
       <header className="bg-[#05111F] px-6 py-8 md:py-10">
         <div className="max-w-6xl mx-auto space-y-4">
           <Breadcrumbs items={resolved.breadcrumb} t={t} />
-          <h1 className="text-2xl md:text-3xl font-semibold text-[#C8DCEF]">{resolved.meta.title}</h1>
-          <p className="max-w-3xl text-sm text-[#6A9EC5]">{resolved.meta.description}</p>
+          <h1 className="text-2xl md:text-3xl font-semibold text-[#C8DCEF]">{heading}</h1>
+          <p className="max-w-3xl text-sm text-[#6A9EC5]">{intro}</p>
         </div>
       </header>
 
@@ -139,6 +141,7 @@ export default async function HotelListingPage(props: PageProps) {
           <RelatedLinks
             title={t('roomListing.branchesIn', { city: resolved.location.label })}
             links={resolved.location.sites.map((s) => ({ label: s.nama, path: `/hotel/${s.slug}` }))}
+            t={t}
           />
         )}
 
@@ -172,8 +175,8 @@ export default async function HotelListingPage(props: PageProps) {
           t={t}
         />
 
-        <RelatedLinks title={t('roomListing.otherRoomTypes')} links={resolved.links.roomTypes} />
-        <RelatedLinks title={t('roomListing.otherBranches')} links={resolved.links.locations} />
+        <RelatedLinks title={t('roomListing.otherRoomTypes')} links={resolved.links.roomTypes} t={t} />
+        <RelatedLinks title={t('roomListing.otherBranches')} links={resolved.links.locations} t={t} />
       </main>
     </div>
   )

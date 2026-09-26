@@ -369,6 +369,15 @@
       "sortPriceAsc": "Lowest price",
       "sortPriceDesc": "Highest price",
       "sortNumber": "Room number"
-    }
+    },
+    "crumbHotel": "Hotels",
+    "allBranches": "All Branches",
+    "headingHotel": "Hotels in {{place}}",
+    "headingRooms": "{{type}} Rooms in {{place}}",
+    "headingPromoHotel": "Room Promos in {{place}}",
+    "headingPromoRooms": "{{type}} Room Promos in {{place}}",
+    "linkRooms": "{{type}} Rooms",
+    "intro": "{{title}}. Check the latest prices, choose a room, and book directly with secure payment via Virtual Account & Crypto.",
+    "address": "Address: {{address}}."
   }
 }

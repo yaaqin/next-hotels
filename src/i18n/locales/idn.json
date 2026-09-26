@@ -369,6 +369,15 @@
       "sortPriceAsc": "Harga terendah",
       "sortPriceDesc": "Harga tertinggi",
       "sortNumber": "Nomor kamar"
-    }
+    },
+    "crumbHotel": "Hotel",
+    "allBranches": "Semua Cabang",
+    "headingHotel": "Hotel di {{place}}",
+    "headingRooms": "Kamar {{type}} di {{place}}",
+    "headingPromoHotel": "Promo Kamar Hotel di {{place}}",
+    "headingPromoRooms": "Promo Kamar {{type}} di {{place}}",
+    "linkRooms": "Kamar {{type}}",
+    "intro": "{{title}}. Cek harga terbaru, pilih kamar, dan pesan langsung dengan pembayaran aman via Virtual Account & Crypto.",
+    "address": "Alamat: {{address}}."
   }
 }

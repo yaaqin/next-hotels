@@ -369,6 +369,15 @@
       "sortPriceAsc": "料金が安い順",
       "sortPriceDesc": "料金が高い順",
       "sortNumber": "客室番号順"
-    }
+    },
+    "crumbHotel": "ホテル",
+    "allBranches": "全支店",
+    "headingHotel": "{{place}}のホテル",
+    "headingRooms": "{{place}}の{{type}}客室",
+    "headingPromoHotel": "{{place}}の客室プロモ",
+    "headingPromoRooms": "{{place}}の{{type}}客室プロモ",
+    "linkRooms": "{{type}}客室",
+    "intro": "{{title}}。最新料金を確認し、客室を選んで、バーチャルアカウントまたは暗号資産で安全に直接予約できます。",
+    "address": "住所：{{address}}"
   }
 }

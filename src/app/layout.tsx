@@ -7,6 +7,11 @@ import { Suspense } from "react";
 import SyncUserToken from "../components/organisms/layouts/SyncUserToken";
 import I18nProvider from "../components/organisms/providers/I18nProvider";
 import { SuiProvider } from "../components/providers/suiProvider";
+import { cookies } from "next/headers";
+import { LANGUAGE_COOKIE, toSupportedLang } from "../utils/languageCookie";
+
+// Kode bahasa aplikasi → atribut lang HTML
+const HTML_LANG: Record<string, string> = { idn: "id", eng: "en", jpn: "ja", chn: "zh" };
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,17 +44,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Bahasa dari cookie supaya teks yang dirender server sama dengan di browser
+  const lang = toSupportedLang((await cookies()).get(LANGUAGE_COOKIE)?.value);
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={HTML_LANG[lang]} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${saira.className} antialiased`}
       >
-        <I18nProvider>
+        <I18nProvider lang={lang}>
           <Providers>
             <SyncUserToken />
             <Suspense fallback={<div>Loading...</div>}>

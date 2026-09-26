@@ -5,6 +5,7 @@ import Images from "../../atoms/images";
 import { MoonIcon, Sun01Icon } from "hugeicons-react";
 import { queryClient } from "@/src/libs/react-query";
 import { useLanguageStore } from "@/src/stores/languageStore";
+import { useCurrentLanguage } from '@/src/hooks/useCurrentLanguage'
 
 const LANG_OPTIONS = [
   { label: "Bahasa Indonesia", value: "idn" },
@@ -23,7 +24,8 @@ const ProfileCardnavbar: React.FC<{
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
-  const { language, setLanguage } = useLanguageStore();
+  const { setLanguage } = useLanguageStore();
+  const language = useCurrentLanguage();
 
   const isDark = theme === "dark";
 

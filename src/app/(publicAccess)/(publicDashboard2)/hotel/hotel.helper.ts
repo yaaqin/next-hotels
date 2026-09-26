@@ -1,11 +1,14 @@
 import type { Metadata } from 'next'
 import {
   Crumb,
+  ListingLink,
   ListingRoom,
   ListingSort,
+  ResolvedListing,
   ResolvedPath,
   SearchListingResult,
 } from '@/src/models/public/roomListing'
+import type { ServerT } from '@/src/i18n/server'
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mbsc.yaaqin.xyz'
 export const BRAND = 'MBS Hotel'
@@ -153,4 +156,65 @@ export function hotelJsonLd(site: { nama: string; address: string | null; slug: 
 
 export function formatRupiah(value: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value)
+}
+
+// ── Teks tampilan per bahasa ──────────────────────────────────────────────────
+// Indonesia pakai teks persis dari BE (sama dengan title/description SEO).
+// Bahasa lain dirakit dari bagian-bagian yang dikirim BE + template di file locale.
+
+// Sama dengan aturan BE: alias pendek jadi keyword, mis. "Alam Sutera (BSD, Tangsel)"
+function aliasSuffix(aliases: string[]) {
+  const labels = aliases
+    .filter((a) => !a.includes('-'))
+    .map((a) => (a.length <= 3 ? a.toUpperCase() : a[0].toUpperCase() + a.slice(1)))
+  return labels.length ? ` (${labels.join(', ')})` : ''
+}
+
+export function listingDisplayText(resolved: ResolvedListing, lang: string, t: ServerT) {
+  if (lang === 'idn') {
+    return { heading: resolved.meta.title, intro: resolved.meta.description }
+  }
+
+  const { location, roomType, promo } = resolved
+  const place = location
+    ? `${location.label}${location.kind === 'site' ? aliasSuffix(location.site.aliases) : ''}`
+    : t('roomListing.allBranches')
+  const type = roomType?.displayName
+
+  const heading = promo
+    ? type
+      ? t('roomListing.headingPromoRooms', { type, place })
+      : t('roomListing.headingPromoHotel', { place })
+    : type
+      ? t('roomListing.headingRooms', { type, place })
+      : t('roomListing.headingHotel', { place })
+
+  const address = location?.kind === 'site' ? location.site.address : null
+  const intro = `${t('roomListing.intro', { title: heading })}${address ? ` ${t('roomListing.address', { address })}` : ''}`
+
+  return { heading, intro }
+}
+
+export function crumbDisplayLabel(crumb: Crumb, t: ServerT) {
+  switch (crumb.kind) {
+    case 'root':
+      return t('roomListing.crumbHotel')
+    case 'promo':
+      return t('roomListing.promo')
+    case 'roomType':
+      return crumb.name ?? crumb.label
+    case 'room':
+      return `${t('roomListing.room')} ${crumb.name ?? ''}`.trim()
+    default:
+      return crumb.label
+  }
+}
+
+export function linkDisplayLabel(link: ListingLink, t: ServerT) {
+  const type = link.roomTypeName
+  const place = link.locationLabel
+  if (type && place) return t('roomListing.headingRooms', { type, place })
+  if (type) return t('roomListing.linkRooms', { type })
+  if (place) return t('roomListing.headingHotel', { place })
+  return link.label
 }

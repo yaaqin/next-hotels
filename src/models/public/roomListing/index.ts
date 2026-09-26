@@ -6,14 +6,23 @@ export interface ApiResponse<T> {
   data: T
 }
 
+export type CrumbKind = 'root' | 'city' | 'site' | 'roomType' | 'promo' | 'room'
+
 export interface Crumb {
+  // Teks bahasa Indonesia (juga dipakai JSON-LD / SEO)
   label: string
   path: string
+  kind: CrumbKind
+  // Nama dalam bahasa user: nama tipe kamar, atau nomor kamar
+  name?: string
 }
 
 export interface ListingLink {
   label: string
   path: string
+  // Bagian-bagian untuk merakit teks link di bahasa user
+  roomTypeName?: string | null
+  locationLabel?: string | null
 }
 
 export interface PublicSite {
@@ -41,7 +50,7 @@ export interface ResolvedListing {
   canonicalPath: string
   redirect: string | null
   location: ListingLocation | null
-  roomType: { id: string; slug: string; name: string } | null
+  roomType: { id: string; slug: string; name: string; displayName: string } | null
   promo: boolean
   filters: { siteCodes: string[]; roomTypeIds: string[]; promo: boolean }
   breadcrumb: Crumb[]
@@ -54,7 +63,8 @@ export interface ResolvedRoom {
   canonicalPath: string
   redirect: string | null
   site: PublicSite
-  room: { id: string; slug: string; number: string; siteCode: string }
+  room: { id: string; slug: string; number: string; siteCode: string; roomTypeName: string }
+  locationLabel: string
   breadcrumb: Crumb[]
   meta: ListingMeta
 }

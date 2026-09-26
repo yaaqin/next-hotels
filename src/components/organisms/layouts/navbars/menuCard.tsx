@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useLanguageStore } from "@/src/stores/languageStore";
+import { useCurrentLanguage } from '@/src/hooks/useCurrentLanguage'
 import { useQueryClient } from "@tanstack/react-query";
 
 interface MenuOverlayProps {
@@ -25,7 +26,8 @@ const languages: { value: Lang; label: string; flag: string }[] = [
 export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
   const { t } = useTranslation();
   const [langOpen, setLangOpen] = useState(false);
-  const { language: selected, setLanguage } = useLanguageStore();
+  const { setLanguage } = useLanguageStore();
+  const selected = useCurrentLanguage();
   const queryClient = useQueryClient();
 
   const handleChangeLanguage = (lang: Lang) => {

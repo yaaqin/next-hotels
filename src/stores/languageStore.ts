@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import i18n from '../i18n'
-import { setLanguageCookie } from '../utils/languageCookie'
+import { readLanguageCookie, setLanguageCookie } from '../utils/languageCookie'
 
 type Lang = 'idn' | 'eng' | 'jpn' | 'chn'
 const STORAGE_KEY = 'language'
@@ -10,10 +10,8 @@ interface LanguageStore {
   setLanguage: (lang: Lang) => void
 }
 
-const getSavedLang = (): Lang => {
-  if (typeof window === 'undefined') return 'idn'
-  return (localStorage.getItem(STORAGE_KEY) as Lang) || 'idn'
-}
+// Sama dengan i18n: mulai dari cookie supaya konsisten dengan render server
+const getSavedLang = (): Lang => readLanguageCookie() ?? 'idn'
 
 export const useLanguageStore = create<LanguageStore>((set) => ({
   language: getSavedLang(),
