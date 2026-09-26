@@ -1,6 +1,5 @@
 import ChatWidget from '@/src/components/organisms/layouts/chatWinget'
 import IdleRobotHelper from '@/src/components/organisms/layouts/robotHelper'
-import SessionWrapper from '@/src/components/providers/sessionWrapper'
 import { Suspense } from 'react'
 
 function PageSkeleton() {
@@ -14,13 +13,14 @@ function PageSkeleton() {
   )
 }
 
+// SessionProvider sudah dipasang di root layout (Providers), tidak perlu dobel di sini
 export default function PublicAccessLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   return (
-    <SessionWrapper>
+    <>
       <section className="flex flex-col min-h-screen">
         <main className="flex-1">
           <Suspense fallback={<PageSkeleton />}>
@@ -32,6 +32,6 @@ export default function PublicAccessLayout({
       <ChatWidget
         hotelName="Marina by Sand"
       />
-    </SessionWrapper>
+    </>
   )
 }

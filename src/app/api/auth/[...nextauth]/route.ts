@@ -58,6 +58,12 @@ const handler = NextAuth({
         return token
       }
 
+      // Login BE / refresh sebelumnya sudah gagal — jangan refresh ulang
+      // tiap kali /api/auth/session dipanggil, biarkan client yang signOut
+      if (token.error || !token.refreshToken) {
+        return token
+      }
+
       // Token masih valid
       if (Date.now() < (token.accessTokenExpiry as number)) {
         return token

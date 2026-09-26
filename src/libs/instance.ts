@@ -256,6 +256,24 @@ axiosUpload.interceptors.response.use(
 
 // src/libs/instance.ts — tambah di bawah axiosPublic
 
+// Cukup sekali signOut walau banyak request kena 401 barengan.
+// Tanpa reload: signOut({ redirect: false }) sudah meng-update useSession,
+// reload justru bikin loop kalau request pertama setelah reload kena 401 lagi.
+let isUserSigningOut = false
+
+const handleUserSessionExpired = async () => {
+  if (!isBrowser || isUserSigningOut) return
+  isUserSigningOut = true
+
+  try {
+    const { signOut } = await import('next-auth/react')
+    await signOut({ redirect: false })
+    toast.error('Sesi kamu sudah habis, silakan login ulang')
+  } finally {
+    isUserSigningOut = false
+  }
+}
+
 export const axiosUser: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -278,8 +296,7 @@ axiosUser.interceptors.request.use(
 
     // Kalau session ada error — token expired
     if (session?.error === 'RefreshTokenExpired') {
-      // optional: redirect ke login atau signOut
-      // signOut({ callbackUrl: '/login' })
+      await handleUserSessionExpired()
       return Promise.reject(new Error('Session expired'))
     }
 
@@ -295,14 +312,7 @@ axiosUser.interceptors.response.use(
     const message = (error.response?.data as { message?: string })?.message || 'Terjadi kesalahan'
 
     if (status === 401) {
-      if (isBrowser) {
-        const { signOut } = await import('next-auth/react')
-        await signOut({ redirect: false })
-        toast.error('Sesi kamu sudah habis, silakan login ulang')
-        setTimeout(() => {
-          window.location.reload()
-        }, 500)
-      }
+      await handleUserSessionExpired()
       return Promise.reject(error)
     }
 
