@@ -368,7 +368,8 @@
       "sortBy": "並び替え",
       "sortPriceAsc": "料金が安い順",
       "sortPriceDesc": "料金が高い順",
-      "sortNumber": "客室番号順"
+      "sortNumber": "客室番号順",
+      "selectDate": "日付を選択"
     },
     "crumbHotel": "ホテル",
     "allBranches": "全支店",

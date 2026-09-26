@@ -368,7 +368,8 @@
       "sortBy": "Sort by",
       "sortPriceAsc": "Lowest price",
       "sortPriceDesc": "Highest price",
-      "sortNumber": "Room number"
+      "sortNumber": "Room number",
+      "selectDate": "Select date"
     },
     "crumbHotel": "Hotels",
     "allBranches": "All Branches",

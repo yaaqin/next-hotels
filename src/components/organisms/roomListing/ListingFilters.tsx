@@ -2,6 +2,12 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
+import { addDays, format, parse } from 'date-fns'
+import { DatePicker } from '@/src/components/molecules/inputs/datePicker'
+
+// Query string pakai format yyyy-MM-dd; DatePicker pakai Date (waktu lokal)
+const toDate = (value: string | null) => (value ? parse(value, 'yyyy-MM-dd', new Date()) : undefined)
+const toParam = (date: Date) => format(date, 'yyyy-MM-dd')
 
 export interface ListingFiltersLabels {
   checkin: string
@@ -12,6 +18,7 @@ export interface ListingFiltersLabels {
   sortPriceAsc: string
   sortPriceDesc: string
   sortNumber: string
+  selectDate: string
 }
 
 // Filter cuma mengubah query string — path (halaman yang diindex) tidak berubah.
@@ -27,8 +34,14 @@ export default function ListingFilters({ labels }: { labels: ListingFiltersLabel
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const [checkin, setCheckin] = useState(searchParams.get('checkin') ?? '')
-  const [checkout, setCheckout] = useState(searchParams.get('checkout') ?? '')
+  const [checkin, setCheckin] = useState<Date | undefined>(toDate(searchParams.get('checkin')))
+  const [checkout, setCheckout] = useState<Date | undefined>(toDate(searchParams.get('checkout')))
+
+  const handleCheckin = (date: Date | undefined) => {
+    setCheckin(date)
+    // Check-out harus setelah check-in
+    if (date && checkout && checkout <= date) setCheckout(undefined)
+  }
   const sort = searchParams.get('sort') ?? 'price_asc'
 
   const push = (patch: Record<string, string | null>) => {
@@ -47,30 +60,26 @@ export default function ListingFilters({ labels }: { labels: ListingFiltersLabel
 
   return (
     <div className="bg-white border border-[#DCE6F2] rounded-2xl p-4 flex flex-col md:flex-row md:items-end gap-3">
-      <label className="flex flex-col gap-1 text-[10px] font-semibold tracking-widest uppercase text-gray-400">
-        {labels.checkin}
-        <input
-          type="date"
-          value={checkin}
-          onChange={(e) => setCheckin(e.target.value)}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 font-normal normal-case tracking-normal"
-        />
-      </label>
-      <label className="flex flex-col gap-1 text-[10px] font-semibold tracking-widest uppercase text-gray-400">
-        {labels.checkout}
-        <input
-          type="date"
-          value={checkout}
-          min={checkin || undefined}
-          onChange={(e) => setCheckout(e.target.value)}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 font-normal normal-case tracking-normal"
-        />
-      </label>
+      <DatePicker
+        className="md:w-60"
+        label={labels.checkin}
+        value={checkin}
+        onChange={handleCheckin}
+        placeholder={labels.selectDate}
+      />
+      <DatePicker
+        className="md:w-60"
+        label={labels.checkout}
+        value={checkout}
+        onChange={setCheckout}
+        minDate={checkin ? addDays(checkin, 1) : undefined}
+        placeholder={labels.selectDate}
+      />
       <button
         type="button"
         disabled={!canApplyDates}
-        onClick={() => push({ checkin, checkout })}
-        className="px-4 py-2 rounded-lg text-sm font-semibold bg-[#05111F] text-white disabled:opacity-40"
+        onClick={() => push({ checkin: toParam(checkin!), checkout: toParam(checkout!) })}
+        className="px-5 py-3 rounded-xl text-xs font-semibold tracking-wide text-white bg-[#0A1828] hover:bg-[#163356] disabled:opacity-40 transition-colors"
       >
         {labels.checkAvailability}
       </button>
@@ -78,8 +87,8 @@ export default function ListingFilters({ labels }: { labels: ListingFiltersLabel
         <button
           type="button"
           onClick={() => {
-            setCheckin('')
-            setCheckout('')
+            setCheckin(undefined)
+            setCheckout(undefined)
             push({ checkin: null, checkout: null })
           }}
           className="text-xs text-gray-500 underline"
@@ -88,12 +97,12 @@ export default function ListingFilters({ labels }: { labels: ListingFiltersLabel
         </button>
       )}
 
-      <label className="md:ml-auto flex flex-col gap-1 text-[10px] font-semibold tracking-widest uppercase text-gray-400">
-        {labels.sortBy}
+      <label className="md:ml-auto block">
+        <span className="block text-[0.58rem] tracking-[0.18em] uppercase mb-2 text-[#2C4E72]">{labels.sortBy}</span>
         <select
           value={sort}
           onChange={(e) => push({ sort: e.target.value === 'price_asc' ? null : e.target.value })}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 font-normal normal-case tracking-normal"
+          className="w-full rounded-xl px-4 py-3 text-sm text-[#0A1828] bg-[#EEF3FA] border-[0.5px] border-[#B5CDE8]"
         >
           {sortOptions.map((opt) => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>

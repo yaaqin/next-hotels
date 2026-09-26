@@ -368,7 +368,8 @@
       "sortBy": "Urutkan",
       "sortPriceAsc": "Harga terendah",
       "sortPriceDesc": "Harga tertinggi",
-      "sortNumber": "Nomor kamar"
+      "sortNumber": "Nomor kamar",
+      "selectDate": "Pilih tanggal"
     },
     "crumbHotel": "Hotel",
     "allBranches": "Semua Cabang",

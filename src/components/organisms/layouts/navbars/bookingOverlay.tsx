@@ -3,12 +3,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { Calendar01Icon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
+import { DatePicker } from "@/src/components/molecules/inputs/datePicker";
 
 interface BookingOverlayProps {
   isOpen: boolean;
@@ -18,14 +14,8 @@ interface BookingOverlayProps {
 export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
   const [checkin, setCheckin] = useState<Date | undefined>(undefined);
   const [adults, setAdults] = useState("");
-  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const { t } = useTranslation()
-
-  const handleDateSelect = (date: Date | undefined) => {
-    setCheckin(date);
-    if (date) setCalendarOpen(false);
-  };
 
   const handleBook = () => {
     if (!checkin) return;
@@ -132,44 +122,15 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
               <div className="w-8 h-px mb-8" style={{ background: "#1A56A0", opacity: 0.4 }} />
 
               {/* Check-in */}
-              <div className="mb-5">
-                <label
-                  className="block text-[0.58rem] tracking-[0.18em] uppercase mb-2"
-                  style={{ color: "#2C4E72" }}
-                >
-                  {t('text.navbar.booking.checkinDate')} <span style={{ color: "#1A56A0" }}>*</span>
-                </label>
-                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      data-cy="btn-open-calendar"
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal rounded-xl px-4 py-3 h-auto text-sm hover:bg-transparent transition-all duration-200",
-                        !checkin && "text-[#6A9EC5]"
-                      )}
-                      style={{
-                        border: "0.5px solid #B5CDE8",
-                        background: "#EEF3FA",
-                        color: checkin ? "#0A1828" : "#6A9EC5",
-                      }}
-                    >
-                      <Calendar01Icon className="mr-2 h-4 w-4" style={{ color: "#1A56A0" }} />
-                      {checkin ? format(checkin, "PPP") : t('text.navbar.booking.selectCheckin')}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 z-[200]" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={checkin}
-                      onSelect={handleDateSelect}
-                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                      initialFocus
-                      className="rounded-lg border"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+              <DatePicker
+                data-cy="btn-open-calendar"
+                className="mb-5"
+                label={t('text.navbar.booking.checkinDate')}
+                required
+                value={checkin}
+                onChange={setCheckin}
+                placeholder={t('text.navbar.booking.selectCheckin')}
+              />
 
               {/* Adults */}
               <div className="mb-10">

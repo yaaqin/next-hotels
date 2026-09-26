@@ -368,7 +368,8 @@
       "sortBy": "排序",
       "sortPriceAsc": "價格由低到高",
       "sortPriceDesc": "價格由高到低",
-      "sortNumber": "房號"
+      "sortNumber": "房號",
+      "selectDate": "選擇日期"
     },
     "crumbHotel": "酒店",
     "allBranches": "所有分店",

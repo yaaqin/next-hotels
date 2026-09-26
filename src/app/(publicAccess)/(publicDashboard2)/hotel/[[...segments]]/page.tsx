@@ -132,6 +132,7 @@ export default async function HotelListingPage(props: PageProps) {
               sortPriceAsc: t('roomListing.filters.sortPriceAsc'),
               sortPriceDesc: t('roomListing.filters.sortPriceDesc'),
               sortNumber: t('roomListing.filters.sortNumber'),
+              selectDate: t('roomListing.filters.selectDate'),
             }}
           />
         </Suspense>
