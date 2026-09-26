@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Room } from "@/src/models/public/roomTypeDetail/publicRoomTypeDetail";
 import { useRoomTypeDetailPublic } from "@/src/hooks/query/roomTypes/publicDetail";
@@ -241,6 +241,13 @@ export default function RoomTypeDetailPage() {
 
   const { data, isLoading, error } = useRoomTypeDetailPublic(id);
   const roomType = data?.data;
+
+  // URL lama pakai UUID → ganti ke slug (/booking/presidential), query tetap
+  useEffect(() => {
+    if (roomType?.slug && id !== roomType.slug) {
+      router.replace(`/booking/${roomType.slug}${window.location.search}`);
+    }
+  }, [roomType?.slug, id, router]);
 
   const [filter, setFilter] = useState<"all" | "available">("all");
 

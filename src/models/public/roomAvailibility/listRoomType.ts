@@ -6,6 +6,8 @@ export interface roomListAvailableProps {
 
 export interface roomListAvailableState {
   roomTypeId: string
+  // Dipakai di URL detail: /booking/{slug}
+  slug: string | null
   name: string
   description: string
   imageUrl?: string

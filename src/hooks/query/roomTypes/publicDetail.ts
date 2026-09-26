@@ -13,6 +13,7 @@ export const useRoomTypeDetailPublic = (id: string) => {
   const searchParams = useSearchParams();
 
   const checkin = searchParams.get("checkIn");
+  const siteCode = searchParams.get("site") ?? undefined;
   const checkoutParam = searchParams.get("checkout");
 
   const checkout = checkoutParam ?? (checkin ? addOneDay(checkin) : undefined);
@@ -23,12 +24,13 @@ export const useRoomTypeDetailPublic = (id: string) => {
     error,
     refetch,
   } = useQuery<publicRoomTypeDetailProps>({
-    queryKey: ["public-room-type-detail", id, checkin, checkout],
+    queryKey: ["public-room-type-detail", id, checkin, checkout, siteCode],
     queryFn: () =>
       publicRoomTypeDetail({
         id,
         checkin: checkin as string,
         checkout: checkout as string,
+        siteCode,
       }),
     enabled: !!id && !!checkin, 
   });

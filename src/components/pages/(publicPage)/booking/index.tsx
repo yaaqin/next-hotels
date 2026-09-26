@@ -101,8 +101,11 @@ export default function BookingPublicPage() {
         [siteCode, checkin, checkout, setStay, setItem, setRoomDetail, router],
     )
 
-    const handleViewDetail = (id: string) => {
-        router.push(`/booking/${id}?checkIn=${checkin}&checkout=${checkout}`)
+    // Slug di URL (/booking/presidential), UUID cuma fallback kalau slug belum ada
+    const handleViewDetail = (roomType: roomListAvailableState) => {
+        const params = new URLSearchParams({ checkIn: checkin, checkout })
+        if (siteCode !== DEFAULT_SITE_CODE) params.set("site", siteCode)
+        router.push(`/booking/${roomType.slug ?? roomType.roomTypeId}?${params.toString()}`)
     }
 
     return (
@@ -201,7 +204,7 @@ export default function BookingPublicPage() {
                             ]}
                             price={roomType.pricing.totalPrice}
                             bedInfo="2 Tempat Tidur Queen & Tempat Tidur King tersedia"
-                            onViewDetail={() => handleViewDetail(roomType.roomTypeId)}
+                            onViewDetail={() => handleViewDetail(roomType)}
                             onViewPackage={() => handleSelectRoom(roomType)}
                         />
                     ))}

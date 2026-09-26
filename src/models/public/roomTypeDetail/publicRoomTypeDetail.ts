@@ -6,6 +6,7 @@ export interface publicRoomTypeDetailProps {
 
 export interface publicRoomTypeDetailState {
   id: string
+  slug: string | null
   createdAt: string
   image: Image
   lang: string
