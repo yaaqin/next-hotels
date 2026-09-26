@@ -9,7 +9,8 @@ import ListingPagination from '@/src/components/organisms/roomListing/ListingPag
 import RelatedLinks from '@/src/components/organisms/roomListing/RelatedLinks'
 import RoomListingCard from '@/src/components/organisms/roomListing/RoomListingCard'
 import { ResolvedListing } from '@/src/models/public/roomListing'
-import { resolveRoomListing, searchRoomListing } from '@/src/services/roomListing'
+import { getRequestLang, resolveRoomListing, searchRoomListing } from '@/src/services/roomListing'
+import LanguageSync from '@/src/components/organisms/roomListing/LanguageSync'
 import {
   breadcrumbJsonLd,
   buildListingMetadata,
@@ -30,16 +31,20 @@ type PageProps = {
 // Satu route untuk semua RLP: /hotel, /hotel/{lokasi}, /hotel/{lokasi}/{tipe}/{facet},
 // dan detail kamar /hotel/{cabang}/kamar/{slug}. Arti tiap segment diputuskan BE.
 async function load({ params, searchParams }: PageProps) {
-  const [{ segments = [] }, rawSearchParams] = await Promise.all([params, searchParams])
-  const resolved = await resolveRoomListing(segments.map(decodeURIComponent))
+  const [{ segments = [] }, rawSearchParams, lang] = await Promise.all([
+    params,
+    searchParams,
+    getRequestLang(),
+  ])
+  const resolved = await resolveRoomListing(segments.map(decodeURIComponent), lang)
   const query = parseListingQuery(rawSearchParams)
 
   const result =
     resolved?.kind === 'listing' && !resolved.redirect
-      ? await searchRoomListing(searchPayload(resolved, query))
+      ? await searchRoomListing(searchPayload(resolved, query), lang)
       : null
 
-  return { resolved, query, result, rawSearchParams }
+  return { resolved, query, result, rawSearchParams, lang }
 }
 
 function searchPayload(resolved: ResolvedListing, query: ListingQuery) {
@@ -61,7 +66,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 }
 
 export default async function HotelListingPage(props: PageProps) {
-  const { resolved, query, result, rawSearchParams } = await load(props)
+  const { resolved, query, result, rawSearchParams, lang } = await load(props)
 
   if (!resolved) notFound()
   // Alias / urutan segment lain → 301 ke path resmi, query user ikut dibawa
@@ -75,6 +80,7 @@ export default async function HotelListingPage(props: PageProps) {
     }
     return (
       <>
+        <LanguageSync serverLang={lang} />
         <JsonLd data={breadcrumbJsonLd(resolved.breadcrumb)} />
         <div className="bg-[#05111F] px-5 py-3">
           <Breadcrumbs items={resolved.breadcrumb} />
@@ -96,6 +102,7 @@ export default async function HotelListingPage(props: PageProps) {
 
   return (
     <div className="min-h-screen bg-[#EEF3FA]" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+      <LanguageSync serverLang={lang} />
       <JsonLd data={breadcrumbJsonLd(resolved.breadcrumb)} />
       {items.length > 0 && <JsonLd data={itemListJsonLd(items, (meta.page - 1) * meta.pageSize + 1)} />}
       {site && <JsonLd data={hotelJsonLd(site, priceRange)} />}

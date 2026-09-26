@@ -1,4 +1,5 @@
 import { cache } from 'react'
+import { cookies } from 'next/headers'
 import {
   ApiResponse,
   PublicSiteWithRooms,
@@ -6,13 +7,12 @@ import {
   SearchListingPayload,
   SearchListingResult,
 } from '@/src/models/public/roomListing'
+import { DEFAULT_LANG, LANGUAGE_COOKIE, toSupportedLang } from '@/src/utils/languageCookie'
 
 // Dipanggil di server saat SSR — Googlebot cuma melihat HTML hasil render,
 // kombinasi filter dikirim lewat body POST dan tidak pernah jadi URL API.
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://mbsc-be.yaaqin.xyz'
-// Konten RLP & SEO: bahasa Indonesia dulu
-const LANG = 'idn'
 
 class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -20,10 +20,17 @@ class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init: RequestInit & { next?: { revalidate: number } }) {
+// Bahasa dari cookie pilihan user; tanpa cookie (mis. Googlebot) → Indonesia
+export async function getRequestLang() {
+  const cookieStore = await cookies()
+  return toSupportedLang(cookieStore.get(LANGUAGE_COOKIE)?.value)
+}
+
+// x-lang ikut jadi bagian cache key fetch, jadi cache tiap bahasa terpisah
+async function request<T>(path: string, lang: string, init: RequestInit & { next?: { revalidate: number } }) {
   const res = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
-    headers: { 'Content-Type': 'application/json', 'x-lang': LANG, ...init.headers },
+    headers: { 'Content-Type': 'application/json', 'x-lang': lang, ...init.headers },
   })
   if (!res.ok) {
     throw new ApiError(res.status, `[${res.status}] ${path}`)
@@ -32,31 +39,35 @@ async function request<T>(path: string, init: RequestInit & { next?: { revalidat
   return body.data
 }
 
-// null = path tidak dikenal (404 dari BE)
-export const resolveRoomListing = cache(async (segments: string[]) => {
-  const path = segments.map(encodeURIComponent).join('/')
+// Argumen string (bukan array) supaya cache() bisa dedupe generateMetadata & page
+const resolveByKey = cache(async (path: string, lang: string) => {
   try {
-    return await request<ResolvedPath>(`/public/room-listing/resolve?path=${path}`, {
-      next: { revalidate: 300 },
-    })
+    return await request<ResolvedPath>(
+      `/public/room-listing/resolve?path=${encodeURIComponent(path)}`,
+      lang,
+      { next: { revalidate: 300 } },
+    )
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) return null
     throw err
   }
 })
 
-// Payload di-serialize supaya cache() bisa dedupe panggilan generateMetadata & page
-const searchByKey = cache(async (key: string) =>
-  request<SearchListingResult>('/public/room-listing/search', {
+// null = path tidak dikenal (404 dari BE)
+export const resolveRoomListing = (segments: string[], lang: string = DEFAULT_LANG) =>
+  resolveByKey(segments.join('/'), lang)
+
+const searchByKey = cache(async (body: string, lang: string) =>
+  request<SearchListingResult>('/public/room-listing/search', lang, {
     method: 'POST',
-    body: key,
+    body,
     cache: 'no-store',
   }),
 )
 
-export const searchRoomListing = (payload: SearchListingPayload) =>
-  searchByKey(JSON.stringify(payload))
+export const searchRoomListing = (payload: SearchListingPayload, lang: string = DEFAULT_LANG) =>
+  searchByKey(JSON.stringify(payload), lang)
 
 export const getPublicSites = cache(async () =>
-  request<PublicSiteWithRooms[]>('/public/sites', { next: { revalidate: 300 } }),
+  request<PublicSiteWithRooms[]>('/public/sites', DEFAULT_LANG, { next: { revalidate: 300 } }),
 )
