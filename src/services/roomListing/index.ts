@@ -9,11 +9,11 @@ import {
 } from '@/src/models/public/roomListing'
 import { DEFAULT_LANG, LANGUAGE_COOKIE, toSupportedLang } from '@/src/utils/languageCookie'
 import { CURRENCY_COOKIE, resolveCurrency } from '@/src/utils/currencyCookie'
+import { API_BASE_URL } from '@/src/libs/apiUrl'
 
 // Dipanggil di server saat SSR — Googlebot cuma melihat HTML hasil render,
 // kombinasi filter dikirim lewat body POST dan tidak pernah jadi URL API.
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://mbsc-be.yaaqin.xyz'
 
 class ApiError extends Error {
   constructor(public status: number, message: string) {

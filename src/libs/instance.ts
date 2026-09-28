@@ -6,10 +6,10 @@ import { getAccessTokenClient } from '../utils/auth/token'
 import { getLanguage } from '../utils'
 import { getClientCurrency } from '../utils/currencyCookie'
 import { getSession } from 'next-auth/react'
+import { API_BASE_URL } from './apiUrl'
 
-console.log('ENV ==>', process.env.NEXT_PUBLIC_API_BASE_URL)
+console.log('ENV ==>', API_BASE_URL)
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://mbsc-be.yaaqin.xyz'
 const isBrowser = typeof window !== 'undefined'
 
 let isRefreshing = false

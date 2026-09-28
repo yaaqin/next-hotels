@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { defaultStayDates } from './app/(publicAccess)/(publicDashboard2)/hotel/hotel.helper'
+import { API_BASE_URL } from './libs/apiUrl'
 
 // Status code RLP harus diputuskan SEBELUM render: root layout membungkus halaman dengan
 // <Suspense>, jadi redirect()/notFound() dari page baru terjadi setelah header 200 terkirim.
 // Di sini alias/urutan lain → 308, segment tidak dikenal → 404 asli (bukan soft 404).
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://mbsc-be.yaaqin.xyz'
 const CACHE_TTL_MS = 60_000
 
 type Outcome =

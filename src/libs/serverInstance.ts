@@ -1,8 +1,8 @@
 import axios, { AxiosInstance, AxiosError } from 'axios'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { API_BASE_URL } from './apiUrl'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://mbsc-be.yaaqin.xyz'
 
 const getServerTokens = async () => {
   const cookieStore = await cookies() // ✅ await di sini

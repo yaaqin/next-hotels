@@ -24,7 +24,7 @@ const handler = NextAuth({
         console.log("BE_URL:", process.env.BE_URL)
 
         try {
-          const url = `${process.env.BE_URL}/auth/google`
+          const url = `${process.env.BE_URL}/api/v1/auth/google`
           console.log("Fetch ke:", url)
 
           const res = await fetch(url, {
@@ -72,7 +72,7 @@ const handler = NextAuth({
       // Access token expired — refresh
       console.log("🔄 Access token expired, mencoba refresh...")
       try {
-        const res = await fetch(`${process.env.BE_URL}/auth/user/refresh`, {
+        const res = await fetch(`${process.env.BE_URL}/api/v1/auth/user/refresh`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ refreshToken: token.refreshToken }),
