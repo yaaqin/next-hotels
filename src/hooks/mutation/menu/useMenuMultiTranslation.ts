@@ -16,7 +16,7 @@ const addMenuMultiTranslation = async (
     payload: AddMultiTranslationPayload,
 ) => {
     const { data } = await axiosPrivate.post(
-        `/menus/${menuId}/multi-translation`,
+        `/config/menus/${menuId}/multi-translation`,
         payload,
     );
     return data;

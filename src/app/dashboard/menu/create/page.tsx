@@ -1,7 +1,6 @@
-import CreateMenuPage from '@/src/components/pages/menu/create'
+import { redirect } from 'next/navigation'
 
+// Kelola menu pindah ke /config-panel (khusus role sistem)
 export default function page() {
-    return (
-        <CreateMenuPage />
-    )
+  redirect('/config-panel/menus')
 }

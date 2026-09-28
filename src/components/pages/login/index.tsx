@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import Images from '../../atoms/images';
 import { useTranslation } from 'react-i18next';
+import { isSystemRole } from '@/src/constans/config';
 
 export default function LoginPage() {
     const router = useRouter()
@@ -28,6 +29,8 @@ export default function LoginPage() {
                     const accountType = res.data?.accountType;
                     if (accountType === 'RESTAURANT_ADMIN') {
                         router.push('/restaurant');
+                    } else if (isSystemRole(res.data?.user?.role?.name)) {
+                        router.push('/config-panel');
                     } else {
                         router.push('/dashboard');
                     }

@@ -2,7 +2,7 @@ import { axiosPrivate } from "@/src/libs/instance"
 import { userListProps } from "@/src/models/users/list"
 
 export const userList = async (): Promise<userListProps> => {
-  const res = await axiosPrivate.get(`/admins`)
+  const res = await axiosPrivate.get(`/config/admins`)
 
   if (!res) {
     throw new Error('fail to get list users')

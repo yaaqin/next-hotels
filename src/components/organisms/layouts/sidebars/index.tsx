@@ -4,13 +4,16 @@ import { useMenuList } from '@/src/hooks/query/menu/list';
 import { logout } from '@/src/libs/auth';
 import { useNavigationStore } from '@/src/stores/layouts/useNavigationStore';
 import { sidebarMap } from '@/src/utils/menu';
-import { Building03Icon, ComputerUserIcon, DashboardCircleIcon, Logout01Icon, MarketAnalysisIcon, Monocle01Icon, Pizza01Icon } from 'hugeicons-react'
+import { isSystemRole } from '@/src/constans/config';
+import { useMe } from '@/src/hooks/query/auth/me';
+import { Building03Icon, ComputerUserIcon, DashboardCircleIcon, Logout01Icon, MarketAnalysisIcon, Monocle01Icon, Pizza01Icon, Settings02Icon } from 'hugeicons-react'
 import Link from 'next/link';
 
 export default function Sidebars() {
     const { setActiveSidebar } = useNavigationStore();
 
     const { data: menus } = useMenuList()
+    const { data: me } = useMe()
 
     const sidebarData = menus && sidebarMap(menus?.data)
     return (
@@ -36,9 +39,17 @@ export default function Sidebars() {
                     </Link>
                 ))}
             </div>
-            <div onClick={logout} className="relative group text-white">
-                <Logout01Icon />
-                <Tooltips label={'Exit'} />
+            <div className='flex flex-col gap-4 text-white'>
+                {isSystemRole(me?.data?.role?.name) && (
+                    <Link href="/config-panel" className="relative group">
+                        <Settings02Icon />
+                        <Tooltips label={'Config Panel'} />
+                    </Link>
+                )}
+                <div onClick={logout} className="relative group">
+                    <Logout01Icon />
+                    <Tooltips label={'Exit'} />
+                </div>
             </div>
         </section>
     )

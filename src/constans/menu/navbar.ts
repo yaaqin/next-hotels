@@ -24,12 +24,6 @@ export const NAVIGATION: NavItem[] = [
         path: '/dashboard/floor',
         parentKey: 'dashboard',
       },
-      {
-        key: 'menu',
-        label: 'Menu',
-        path: '/dashboard/menu',
-        parentKey: 'dashboard',
-      },
     ],
   },
   {
@@ -104,13 +98,8 @@ export const NAVIGATION: NavItem[] = [
     key: 'user',
     label: 'User Management',
     path: '/user',
+    // Admin, role, menu & access control dikelola di /config-panel (khusus role sistem)
     children: [
-      {
-        key: 'admin',
-        label: 'Admin',
-        path: '/user/admin',
-        parentKey: 'user',
-      },
       {
         key: 'user-log',
         label: 'User Log',
@@ -121,12 +110,6 @@ export const NAVIGATION: NavItem[] = [
         key: 'refund',
         label: 'Refund',
         path: '/dashboard/refund',
-        parentKey: 'user',
-      },
-      {
-        key: 'menu',
-        label: 'Menu',
-        path: '/dashboard/menu',
         parentKey: 'user',
       },
     ],

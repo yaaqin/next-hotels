@@ -1,7 +1,6 @@
-import MenuDetailPage from '@/src/components/pages/menu/detail'
+import { redirect } from 'next/navigation'
 
+// Kelola menu pindah ke /config-panel (khusus role sistem)
 export default function page() {
-  return (
-   <MenuDetailPage/>
-  )
+  redirect('/config-panel/menus')
 }

@@ -1,7 +1,6 @@
-import DetailUserPage from "@/src/components/pages/user/detail";
+import { redirect } from 'next/navigation'
 
+// Kelola admin pindah ke /config-panel (khusus role sistem)
 export default function page() {
-  return (
-    <DetailUserPage/>
-  )
+  redirect('/config-panel/admins')
 }

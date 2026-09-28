@@ -207,3 +207,21 @@ body {
     @apply bg-background text-foreground;
   }
 }
+/* -----------------------------------------config panel (/config-panel)----------------------------------------- */
+.config-theme {
+  --cp-bg: #0c0d0f;
+  --cp-frame: #151619;
+  --cp-card: #1e1f23;
+  --cp-card-2: #2a2b30;
+  --cp-line: rgba(255, 255, 255, 0.07);
+  --cp-text: #f4f4f2;
+  --cp-muted: #8d8f97;
+  --cp-accent: #c8f04a;
+  --cp-accent-ink: #151705;
+  --cp-paper: #f5f5f3;
+  --cp-paper-line: #e6e6e2;
+  --cp-ink: #17181b;
+  --cp-ink-muted: #75767d;
+  --cp-danger: #ff7a6b;
+}
+/* -----------------------------------------config panel (/config-panel)----------------------------------------- */
