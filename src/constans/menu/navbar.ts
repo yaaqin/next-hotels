@@ -68,6 +68,12 @@ export const NAVIGATION: NavItem[] = [
         parentKey: 'site',
       },
       {
+        key: 'currency-rate',
+        label: 'Currency Rate',
+        path: '/dashboard/currency',
+        parentKey: 'site',
+      },
+      {
         key: 'facility',
         label: 'Facility',
         parentKey: 'site',
