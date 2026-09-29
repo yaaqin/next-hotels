@@ -262,7 +262,12 @@
       "notFoundDesc": "予約データが存在しないか、無効になっています。",
       "invalidStatusTitle": "無効なステータス",
       "invalidStatusDesc": "この予約は支払い待ち状態ではありません。",
-      "backToHome": "ホームに戻る"
+      "backToHome": "ホームに戻る",
+      "bookingCode": "予約コード",
+      "paidTitle": "お支払い完了",
+      "paidDesc": "ご予約のお支払いが完了しました。チェックインでお待ちしております！",
+      "totalPaid": "お支払い合計",
+      "paidAt": "支払日時"
     },
     "profile": {
       "title": "プロフィール",

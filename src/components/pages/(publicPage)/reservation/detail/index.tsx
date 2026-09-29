@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useBookingDetail } from '@/src/hooks/query/bookings/detail'
 import { BookingPriceSnapshot, type BookingDisplaySnapshot } from '@/src/components/molecules/bookingPriceSnapshot'
-import { Payment } from '@/src/models/bookings/detail'
+import { Payment, type bookingDetailState } from '@/src/models/bookings/detail'
 import { usePaymentStatus } from '@/src/hooks/custom/payment/usePaymentStatus'
 import { useTranslation } from 'react-i18next'
 
@@ -208,6 +208,77 @@ function PaymentInfoPanel({ payment, totalAmount, snapshot }: { payment: Payment
     )
 }
 
+// Status booking yang artinya pembayaran sudah masuk (lanjutan PAID di BE: confirm admin, check-in/out)
+const PAID_STATUSES = ['PAID', 'CONFIRMED', 'CHECKED_IN', 'CHECKED_OUT']
+
+function formatDate(dateStr: string) {
+    return new Date(dateStr).toLocaleDateString('id-ID', {
+        day: 'numeric', month: 'short', year: 'numeric',
+    })
+}
+
+function PaidView({ booking }: { booking: bookingDetailState }) {
+    const { t } = useTranslation()
+    const router = useRouter()
+    const paidAt = booking.payment?.paidAt as string | null | undefined
+
+    return (
+        <div className="w-full max-w-lg mx-auto px-4 py-10 md:py-16">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 md:p-8 flex flex-col items-center text-center">
+                <div className="w-24 h-24 rounded-full bg-green-50 flex items-center justify-center mb-5">
+                    <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-200">
+                        <svg className="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                </div>
+
+                <h1 className="text-xl font-bold text-gray-800 mb-1">{t('text.reservation.paidTitle')}</h1>
+                <p className="text-sm text-gray-400 mb-6">{t('text.reservation.paidDesc')}</p>
+
+                <div className="w-full flex flex-col gap-3 text-left">
+                    <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-2">
+                        <div className="flex-1 min-w-0">
+                            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{t('text.reservation.bookingCode')}</p>
+                            <p className="font-mono text-base font-bold tracking-widest text-gray-800 break-all">{booking.bookingCode}</p>
+                        </div>
+                        <CopyButton text={booking.bookingCode} />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+                            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{t('text.reservation.checkIn')}</p>
+                            <p className="text-sm font-semibold text-gray-800">{formatDate(booking.checkInDate)}</p>
+                        </div>
+                        <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+                            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{t('text.reservation.checkOut')}</p>
+                            <p className="text-sm font-semibold text-gray-800">{formatDate(booking.checkOutDate)}</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-green-50 border border-green-100 rounded-xl px-4 py-3">
+                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{t('text.reservation.totalPaid')}</p>
+                        <p className="text-2xl font-bold text-green-600">{formatRupiah(booking.totalAmount)}</p>
+                        <BookingPriceSnapshot snapshot={booking} className="mt-2 pt-2 border-t border-green-100" />
+                        {paidAt && (
+                            <p className="text-xs text-gray-500 mt-2">
+                                {t('text.reservation.paidAt')} <span className="font-semibold">{formatExpiry(paidAt)}</span>
+                            </p>
+                        )}
+                    </div>
+                </div>
+
+                <button
+                    onClick={() => router.push('/')}
+                    className="mt-6 w-full px-5 py-3 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-700 transition-colors"
+                >
+                    {t('text.reservation.backToHome')}
+                </button>
+            </div>
+        </div>
+    )
+}
+
 function PaymentLinkPanel({ payment }: { payment: Payment }) {
     const { t } = useTranslation()
     const paymentUrl = getPaymentUrl(payment)
@@ -283,12 +354,12 @@ export default function PaymentStatus() {
     const params = useParams<{ id: string }>();
     const bookingCode = params.id;
     const router = useRouter()
-    const { data, isLoading } = useBookingDetail(bookingCode)
+    const { data, isLoading, refetch } = useBookingDetail(bookingCode)
     const { status } = usePaymentStatus(bookingCode)
 
+    // Dibayar saat halaman terbuka → ambil ulang detail supaya tampilan lunas muncul di tempat
     useEffect(() => {
-        if (!status) return
-        if (status === 'PAID') router.push(`/payment/success/${bookingCode}`)
+        if (status === 'PAID') refetch()
     }, [status])
 
     if (isLoading) {
@@ -299,8 +370,14 @@ export default function PaymentStatus() {
         )
     }
 
-    // Status EXPIRED
-    if (status === 'EXPIRED') {
+    const booking = data?.data
+
+    if (booking && PAID_STATUSES.includes(booking.status)) {
+        return <PaidView booking={booking} />
+    }
+
+    // Status EXPIRED (dari socket atau booking yang sudah expired saat dibuka)
+    if (status === 'EXPIRED' || booking?.status === 'EXPIRED') {
         return (
             <div className="flex flex-col items-center justify-center py-24 px-4 text-center">
                 <div className="w-14 h-14 rounded-full bg-orange-50 flex items-center justify-center mb-4">
@@ -321,7 +398,6 @@ export default function PaymentStatus() {
     }
 
     // Booking tidak ditemukan / error
-    const booking = data?.data
     if (!booking || !booking.payment) {
         return (
             <div className="flex flex-col items-center justify-center py-24 px-4 text-center">
@@ -342,7 +418,7 @@ export default function PaymentStatus() {
         )
     }
 
-    // Status bukan PENDING (misal sudah PAID tapi belum redirect, atau status lain)
+    // Status bukan PENDING dan bukan lunas/expired (misal CANCELLED)
     if (booking.status !== 'PENDING') {
         return (
             <div className="flex flex-col items-center justify-center py-24 px-4 text-center">

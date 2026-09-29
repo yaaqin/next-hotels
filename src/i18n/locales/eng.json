@@ -262,7 +262,12 @@
       "notFoundDesc": "Booking data is unavailable or no longer valid.",
       "invalidStatusTitle": "Invalid Status",
       "invalidStatusDesc": "This booking is not awaiting payment.",
-      "backToHome": "Back to Home"
+      "backToHome": "Back to Home",
+      "bookingCode": "Booking Code",
+      "paidTitle": "Payment Successful",
+      "paidDesc": "Your booking is fully paid. See you at check-in!",
+      "totalPaid": "Total Paid",
+      "paidAt": "Paid on"
     },
     "profile": {
       "title": "Profile",

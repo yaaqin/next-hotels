@@ -262,7 +262,12 @@
       "notFoundDesc": "预订数据不可用或已失效。",
       "invalidStatusTitle": "状态无效",
       "invalidStatusDesc": "此预订不处于待付款状态。",
-      "backToHome": "返回首页"
+      "backToHome": "返回首页",
+      "bookingCode": "预订编号",
+      "paidTitle": "支付成功",
+      "paidDesc": "您的预订已付款完成。期待您入住！",
+      "totalPaid": "已付总额",
+      "paidAt": "支付时间"
     },
     "profile": {
       "title": "个人资料",

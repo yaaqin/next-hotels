@@ -262,7 +262,12 @@
       "notFoundDesc": "Data booking tidak tersedia atau sudah tidak valid.",
       "invalidStatusTitle": "Status Tidak Valid",
       "invalidStatusDesc": "Booking ini tidak dalam status menunggu pembayaran.",
-      "backToHome": "Kembali ke Beranda"
+      "backToHome": "Kembali ke Beranda",
+      "bookingCode": "Kode Booking",
+      "paidTitle": "Pembayaran Berhasil",
+      "paidDesc": "Booking Anda sudah lunas. Sampai jumpa saat check-in!",
+      "totalPaid": "Total Dibayar",
+      "paidAt": "Dibayar pada"
     },
     "profile": {
       "title": "Profil",
