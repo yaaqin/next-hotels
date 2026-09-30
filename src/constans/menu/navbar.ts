@@ -3,6 +3,8 @@ export interface NavItem {
   label: string;
   path?: string;
   parentKey?: string;
+  // path tambahan yang juga dianggap milik menu ini (mis. path L1 dari DB)
+  matchPaths?: string[];
   children?: NavItem[];
 }
 

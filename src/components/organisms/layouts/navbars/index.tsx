@@ -1,8 +1,8 @@
 import Heads from '@/src/components/molecules/cards/heads'
 import { AnimatePresence, motion } from 'framer-motion';
 import ProfileCardnavbar from '@/src/components/molecules/cards/profileCardNavbar'
-import { useNavigationStore } from '@/src/stores/layouts/useNavigationStore';
-import { NAVIGATION, NavItem } from '@/src/constans/menu/navbar';
+import { useActiveSidebar, useNavigation } from '@/src/stores/layouts/useNavigationStore';
+import { NavItem } from '@/src/constans/menu/navbar';
 import Link from 'next/link';
 import { ArrowDown01Icon } from 'hugeicons-react';
 import { useState } from 'react';
@@ -72,12 +72,13 @@ export function NavbarItem({ item }: Props) {
 }
 
 export default function Navbar() {
-  const { activeSidebar } = useNavigationStore();
+  const activeSidebar = useActiveSidebar();
+  const navigation = useNavigation();
   const { data: myData } = useMe()
 
 
   // const menu = NAVIGATION.find((item) => item.label.toLocaleLowerCase() === activeSidebar)
-  const navbarItems = NAVIGATION.find(i => i.key === activeSidebar)?.children ?? [];
+  const navbarItems = navigation.find(i => i.key === activeSidebar)?.children ?? [];
 
   return (
     <section className="flex items-center justify-between gap-4 px-4 p-2">

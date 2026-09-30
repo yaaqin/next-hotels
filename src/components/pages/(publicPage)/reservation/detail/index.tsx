@@ -362,6 +362,14 @@ export default function PaymentStatus() {
         if (status === 'PAID') refetch()
     }, [status])
 
+    // Cadangan kalau event socket nggak sampai: cek ulang tiap 5 detik selama masih PENDING
+    const bookingStatus = data?.data?.status
+    useEffect(() => {
+        if (bookingStatus !== 'PENDING') return
+        const timer = setInterval(() => refetch(), 5000)
+        return () => clearInterval(timer)
+    }, [bookingStatus, refetch])
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center py-20">
