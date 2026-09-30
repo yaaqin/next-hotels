@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { userRecentActivityListState } from "@/src/models/userRecentActivity/list";
 import { BookingStatusBadge } from "../../molecules/cards/badgeStatusBookingUserCard";
 import { CancelPreviewModal } from "./CancelPreviewModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCancelPreview } from "@/src/hooks/query/recentActivity/cancelPreview";
 import { useCancelConfirm } from "@/src/hooks/mutation/userRecentActivity/cancelConfirm";
 import { RefundModal } from "./RefundModal";
@@ -139,7 +139,16 @@ export function RecentActivityDrawer({
   const {
     data: rescheduleData,
     isLoading: rescheduleLoading,
+    error: rescheduleError,
   } = useReschAvlbDate(bookingRescheduleId)
+
+  // Tidak bisa reschedule (mis. tidak ada policy untuk H-n) — pesan sudah di-toast axiosUser
+  useEffect(() => {
+    if (rescheduleError) {
+      setShowReschedule(false)
+      setBookingRescheduleId('')
+    }
+  }, [rescheduleError])
 
   // ─── Handler — cukup set id, query otomatis jalan ────────────────────────────
 
@@ -363,7 +372,8 @@ export function RecentActivityDrawer({
                   </button>
                 )}
  
-                {booking.status === 'PAID' && (
+                {/* Boleh-tidaknya (mis. hari H) ditentukan reschedule policy di BE */}
+                {['PAID', 'CONFIRMED'].includes(booking.status) && (
                   <button
                     onClick={() => handleRescheduleClick(booking.id)}
                     className="w-full py-3.5 rounded-xl text-sm font-medium tracking-widest uppercase transition-all duration-200 bg-orange-50 border border-orange-200 text-orange-500 hover:bg-orange-100"

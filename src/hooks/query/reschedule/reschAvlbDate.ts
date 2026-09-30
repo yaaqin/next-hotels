@@ -15,6 +15,7 @@ export const useReschAvlbDate = (id: string) => {
         queryKey: ["reschedule-available-dates", id],
         queryFn: () => getRescheduleAvailableDates(id),
         enabled: !!id,
+        retry: false, // error = booking tidak bisa di-reschedule, bukan gangguan sementara
     });
 
     return { data, isLoading, error, refetch };

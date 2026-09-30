@@ -1,77 +1,49 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import Link from 'next/link'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import toast from 'react-hot-toast'
 import {
-  Calendar01Icon,
-  Building01Icon,
   CreditCardIcon,
   ArrowDown01Icon,
   ReceiptDollarIcon,
   Tick01Icon,
 } from 'hugeicons-react'
+import { useReschedulePreview } from '@/src/hooks/query/reschedule/reschedulePreview'
+import { useConfirmReschedule } from '@/src/hooks/mutation/reschedule/confirm'
+import { useSgtPayment } from '@/src/hooks/custom/payment/useSgtPayment'
+import { SlushWalletButton } from '@/src/components/atoms/slushWalletButton'
+import { axiosPublic } from '@/src/libs/instance'
+import {
+  reschedulePaymentMethod,
+  reschedulePolicySummary,
+  reschedulePreviewState,
+  reschedulePricing,
+  rescheduleOriginalBooking,
+  rescheduleRoomOption,
+} from '@/src/models/reschedule/preview'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type RoomTypeKey = 'presidential' | 'deluxe' | 'standard' | 'suite'
 type PaymentCategory = 'va' | 'qris' | 'sgt' | 'credit'
-type VAMethod = 'va_bca' | 'va_bni' | 'va_bri' | 'va_mandiri'
+type VABank = 'bca' | 'bni' | 'bri' | 'mandiri'
 
-interface OldBooking {
-  checkIn: string
-  checkOut: string
-  roomNumber: string
-  roomType: string
-  totalPayment: number
-  paymentMethod: string
-}
-
-interface Calculation {
-  oldTotal: number
-  penaltyPct: number
-  penaltyAmt: number
-  retained: number
-  newBookingAmt: number
-  diff: number
-  diffType: 'shortage' | 'credit' | 'even'
-}
-
-// ─── Dummy Data ───────────────────────────────────────────────────────────────
-
-const OLD_BOOKING: OldBooking = {
-  checkIn: '2026-04-27',
-  checkOut: '2026-04-28',
-  roomNumber: '312333',
-  roomType: 'Presidential',
-  totalPayment: 456000,
-  paymentMethod: 'BCA Virtual Account',
-}
-
-const ROOM_PRICES: Record<RoomTypeKey, number> = {
-  presidential: 477000,
-  deluxe: 380000,
-  standard: 290000,
-  suite: 620000,
-}
-
-const ROOM_OPTIONS = [
-  { value: '312333', label: '312333', floor: 'Lantai 3 · Wing A' },
-  { value: '312334', label: '312334', floor: 'Lantai 3 · Wing B' },
-  { value: '312335', label: '312335', floor: 'Lantai 3 · Wing C' },
-  { value: '214201', label: '214201', floor: 'Lantai 2 · Wing A' },
+const VA_BANKS: { value: VABank; label: string; logo: string }[] = [
+  { value: 'bca', label: 'BCA Virtual Account', logo: 'BCA' },
+  { value: 'bni', label: 'BNI Virtual Account', logo: 'BNI' },
+  { value: 'bri', label: 'BRI Virtual Account', logo: 'BRI' },
+  { value: 'mandiri', label: 'Mandiri Virtual Account', logo: 'MDR' },
 ]
 
-const VA_BANKS = [
-  { value: 'va_bca' as VAMethod, label: 'BCA Virtual Account', logo: 'BCA' },
-  { value: 'va_bni' as VAMethod, label: 'BNI Virtual Account', logo: 'BNI' },
-  { value: 'va_bri' as VAMethod, label: 'BRI Virtual Account', logo: 'BRI' },
-  { value: 'va_mandiri' as VAMethod, label: 'Mandiri Virtual Account', logo: 'MDR' },
+const PAY_CATS: { key: PaymentCategory; label: string }[] = [
+  { key: 'va', label: 'Virtual Account' },
+  { key: 'qris', label: 'QRIS' },
+  { key: 'sgt', label: 'Crypto (SGT)' },
+  { key: 'credit', label: 'Credit' },
 ]
 
-const RESCHEDULE_POLICY = {
-  name: 'Standard Policy',
-  penaltyPct: 10,
-}
-
+// Sama dengan halaman reservasi
 const DISABLED_PAYMENT: PaymentCategory[] = ['qris']
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -86,23 +58,26 @@ function formatCurrency(amount: number) {
 
 function formatDate(dateStr: string) {
   if (!dateStr) return '—'
-  const [y, m, d] = dateStr.split('-')
+  const [y, m, d] = dateStr.split('T')[0].split('-')
   return `${d} · ${m} · ${y}`
 }
 
-function calcReschedule(oldTotal: number, newPrice: number, penaltyPct: number): Calculation {
-  const penaltyAmt = Math.round(oldTotal * (penaltyPct / 100))
-  const retained = oldTotal - penaltyAmt
-  const diff = newPrice - retained
-  return {
-    oldTotal,
-    penaltyPct,
-    penaltyAmt,
-    retained,
-    newBookingAmt: newPrice,
-    diff,
-    diffType: diff > 0 ? 'shortage' : diff < 0 ? 'credit' : 'even',
-  }
+function formatPaymentMethod(method: string | null) {
+  if (!method) return '—'
+  if (method === 'CREDIT') return 'Booking Credit'
+  if (method === 'QRIS') return 'QRIS'
+  if (method === 'SGT') return 'Crypto (SGT)'
+  if (method.startsWith('VA_')) return `${method.replace('VA_', '')} Virtual Account`
+  return method
+}
+
+function policyWindowLabel(policy: reschedulePolicySummary) {
+  return policy.daysUntilCheckIn === 0 ? 'hari H' : `H-${policy.daysUntilCheckIn}`
+}
+
+function getErrorMessage(error: unknown) {
+  const err = error as { response?: { data?: { message?: string } }; message?: string }
+  return err?.response?.data?.message ?? err?.message ?? 'Terjadi kesalahan, coba lagi.'
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -123,13 +98,7 @@ function Divider() {
   return <div className="border-t border-dashed border-gray-200 my-5" />
 }
 
-function CardHeader({
-  icon,
-  label,
-}: {
-  icon: React.ReactNode
-  label: string
-}) {
+function CardHeader({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
     <div className="flex items-center gap-2 mb-5">
       {icon}
@@ -138,14 +107,50 @@ function CardHeader({
   )
 }
 
+function StateCard({
+  title,
+  description,
+  onRetry,
+}: {
+  title: string
+  description: string
+  onRetry?: () => void
+}) {
+  return (
+    <div className="min-h-screen bg-[#f5f4f0] py-10 px-4">
+      <div className="max-w-md mx-auto bg-white rounded-2xl p-6 shadow-sm text-center">
+        <p className="text-base font-semibold text-gray-900">{title}</p>
+        <p className="text-sm text-gray-500 mt-2 leading-relaxed">{description}</p>
+        {onRetry && (
+          <button
+            onClick={onRetry}
+            className="block mx-auto mt-5 text-[11px] tracking-widest uppercase font-medium text-blue-500 hover:underline"
+          >
+            Pilih kamar lain
+          </button>
+        )}
+        <Link
+          href="/recent-activity"
+          className="inline-block mt-5 px-5 py-2.5 rounded-xl text-[11px] tracking-widest uppercase font-medium bg-gray-900 text-white hover:bg-gray-800 transition"
+        >
+          Kembali ke Recent Activity
+        </Link>
+      </div>
+    </div>
+  )
+}
+
 // ─── Old Booking Card ─────────────────────────────────────────────────────────
 
-function OldBookingCard({ booking }: { booking: OldBooking }) {
+function OldBookingCard({ booking }: { booking: rescheduleOriginalBooking }) {
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm">
       <div className="flex items-center gap-2 mb-5">
         <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-medium tracking-wide bg-red-50 text-red-700 border border-red-100">
           Old booking
+        </span>
+        <span className="text-[10px] text-gray-400 tracking-wide">
+          {booking.bookingCode} · {booking.status}
         </span>
       </div>
 
@@ -165,22 +170,22 @@ function OldBookingCard({ booking }: { booking: OldBooking }) {
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <SectionLabel>Room number</SectionLabel>
-          <SectionValue>{booking.roomNumber}</SectionValue>
+          <SectionValue>{booking.roomNumber ?? '—'}</SectionValue>
         </div>
         <div>
           <SectionLabel>Room type</SectionLabel>
-          <SectionValue>{booking.roomType}</SectionValue>
+          <SectionValue>{booking.roomTypeName ?? '—'}</SectionValue>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
           <SectionLabel>Total payment</SectionLabel>
-          <SectionValue>{formatCurrency(booking.totalPayment)}</SectionValue>
+          <SectionValue>{formatCurrency(booking.totalAmount)}</SectionValue>
         </div>
         <div>
           <SectionLabel>Payment method</SectionLabel>
-          <SectionValue>{booking.paymentMethod}</SectionValue>
+          <SectionValue>{formatPaymentMethod(booking.paymentMethod)}</SectionValue>
         </div>
       </div>
     </div>
@@ -189,107 +194,92 @@ function OldBookingCard({ booking }: { booking: OldBooking }) {
 
 // ─── New Booking Card ─────────────────────────────────────────────────────────
 
-interface NewBookingCardProps {
-  checkIn: string
-  checkOut: string
-  roomType: RoomTypeKey
-  roomNumber: string
-  onCheckInChange: (v: string) => void
-  onCheckOutChange: (v: string) => void
-  onRoomTypeChange: (v: RoomTypeKey) => void
-  onRoomNumberChange: (v: string) => void
-}
-
 function NewBookingCard({
-  checkIn,
-  checkOut,
-  roomType,
-  roomNumber,
-  onCheckInChange,
-  onCheckOutChange,
-  onRoomTypeChange,
-  onRoomNumberChange,
-}: NewBookingCardProps) {
-  const selectedRoom = ROOM_OPTIONS.find((r) => r.value === roomNumber)
+  preview,
+  isFetching,
+  onRoomChange,
+}: {
+  preview: reschedulePreviewState
+  isFetching: boolean
+  onRoomChange: (roomId: string) => void
+}) {
+  const { dates, rooms } = preview
+  const selected = rooms.selected
+
+  // Kelompokkan per tipe kamar untuk dropdown
+  const allRooms = [...(rooms.originalRoom ? [rooms.originalRoom] : []), ...rooms.alternatives]
+  const groups = new Map<string, rescheduleRoomOption[]>()
+  for (const room of allRooms) {
+    const key = room.roomTypeName || room.roomTypeId
+    if (!groups.has(key)) groups.set(key, [])
+    groups.get(key)!.push(room)
+  }
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm">
-      <div className="flex items-center gap-2 mb-5">
+      <div className="flex items-center justify-between gap-2 mb-5">
         <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-medium tracking-wide bg-blue-50 text-blue-700 border border-blue-100">
           New booking
         </span>
+        <Link href="/recent-activity" className="text-[10px] tracking-wide text-blue-500 hover:underline">
+          Ganti tanggal
+        </Link>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-5">
         <div>
           <SectionLabel>Check in</SectionLabel>
-          <input
-            type="date"
-            value={checkIn}
-            onChange={(e) => onCheckInChange(e.target.value)}
-            className="w-full mt-1 px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent transition text-gray-900"
-          />
+          <SectionValue>{formatDate(dates.newCheckIn)}</SectionValue>
         </div>
         <div>
           <SectionLabel>Check out</SectionLabel>
-          <input
-            type="date"
-            value={checkOut}
-            onChange={(e) => onCheckOutChange(e.target.value)}
-            className="w-full mt-1 px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent transition text-gray-900"
-          />
+          <SectionValue>{formatDate(dates.newCheckOut)}</SectionValue>
         </div>
       </div>
 
       <Divider />
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div>
-          <SectionLabel>Room type</SectionLabel>
-          <div className="relative mt-1">
-            <select
-              value={roomType}
-              onChange={(e) => onRoomTypeChange(e.target.value as RoomTypeKey)}
-              className="w-full appearance-none pl-3 pr-8 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent bg-white text-gray-900 transition"
-            >
-              <option value="presidential">Presidential</option>
-              <option value="deluxe">Deluxe</option>
-              <option value="standard">Standard</option>
-              <option value="suite">Suite</option>
-            </select>
-            <ArrowDown01Icon
-              size={13}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-            />
-          </div>
+      <div className="mb-4">
+        <SectionLabel>Kamar</SectionLabel>
+        <div className="relative mt-1">
+          <select
+            value={selected.roomId}
+            disabled={isFetching}
+            onChange={(e) => onRoomChange(e.target.value)}
+            className="w-full appearance-none pl-3 pr-8 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent bg-white text-gray-900 transition disabled:opacity-60"
+          >
+            {Array.from(groups.entries()).map(([typeName, list]) => (
+              <optgroup key={typeName} label={typeName}>
+                {list.map((room) => (
+                  <option key={room.roomId} value={room.roomId}>
+                    No. {room.roomNumber} · Lantai {room.floorId} — {formatCurrency(room.pricePerNight)}/malam
+                    {room.isOriginalRoom ? ' (kamar lama)' : ''}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+          <ArrowDown01Icon
+            size={13}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+          />
         </div>
-        <div>
-          <SectionLabel>Room number</SectionLabel>
-          <div className="relative mt-1">
-            <select
-              value={roomNumber}
-              onChange={(e) => onRoomNumberChange(e.target.value)}
-              className="w-full appearance-none pl-3 pr-8 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent bg-white text-gray-900 transition"
-            >
-              {ROOM_OPTIONS.map((r) => (
-                <option key={r.value} value={r.value}>
-                  {r.label}
-                </option>
-              ))}
-            </select>
-            <ArrowDown01Icon
-              size={13}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-            />
-          </div>
-        </div>
+        {rooms.mustChooseAlternative && (
+          <p className="text-[11px] text-amber-600 mt-2 leading-relaxed">
+            Kamar lama kamu sudah terisi di tanggal ini, pilih kamar lain.
+          </p>
+        )}
       </div>
 
-      <div>
-        <SectionLabel>Floor</SectionLabel>
-        <SectionValue className="text-gray-500 font-normal text-xs mt-0.5">
-          {selectedRoom?.floor ?? '—'}
-        </SectionValue>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <SectionLabel>Room type</SectionLabel>
+          <SectionValue>{selected.roomTypeName || '—'}</SectionValue>
+        </div>
+        <div>
+          <SectionLabel>Durasi</SectionLabel>
+          <SectionValue>{dates.nights} malam</SectionValue>
+        </div>
       </div>
     </div>
   )
@@ -321,35 +311,40 @@ function CalcRow({
   )
 }
 
-function CalculationCard({ calc, roomType }: { calc: Calculation; roomType: RoomTypeKey }) {
-  const roomTypeName = roomType.charAt(0).toUpperCase() + roomType.slice(1)
-
+function CalculationCard({
+  pricing,
+  policy,
+  room,
+  isFetching,
+}: {
+  pricing: reschedulePricing
+  policy: reschedulePolicySummary
+  room: rescheduleRoomOption
+  isFetching: boolean
+}) {
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm">
+    <div className={`bg-white rounded-2xl p-6 shadow-sm transition-opacity ${isFetching ? 'opacity-60' : ''}`}>
       <CardHeader
         icon={<ReceiptDollarIcon size={16} className="text-blue-400" />}
         label="Calculation"
       />
 
-      <CalcRow
-        label="Total pembayaran booking lama"
-        value={formatCurrency(calc.oldTotal)}
-      />
+      <CalcRow label="Total pembayaran booking lama" value={formatCurrency(pricing.oldPrice)} />
 
       <CalcRow
         label="Reschedule policy"
         sub={
           <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 border border-green-100 rounded-lg text-[10px] text-green-700 font-medium">
             <Tick01Icon size={10} />
-            {RESCHEDULE_POLICY.name} · Potongan {RESCHEDULE_POLICY.penaltyPct}%
+            {policy.name} · {policyWindowLabel(policy)} · Potongan {policy.penaltyPercent}%
           </span>
         }
         value={
           <span>
-            <span className="text-red-500">- {formatCurrency(calc.penaltyAmt)}</span>
+            <span className="text-red-500">- {formatCurrency(pricing.penaltyAmount)}</span>
             <br />
             <span className="text-[10px] text-gray-400 font-normal">
-              ({calc.penaltyPct}% dari total lama)
+              ({policy.penaltyPercent}% dari total lama)
             </span>
           </span>
         }
@@ -357,46 +352,45 @@ function CalculationCard({ calc, roomType }: { calc: Calculation; roomType: Room
 
       <CalcRow
         label="Nilai tersisa dari booking lama"
-        sub={<p className="text-[10px] text-gray-400">Bisa dipakai untuk booking baru</p>}
-        value={formatCurrency(calc.retained)}
+        sub={<p className="text-[10px] text-gray-400">Dipakai untuk booking baru</p>}
+        value={formatCurrency(pricing.retainedAmount)}
         valueClass="text-green-600"
       />
 
       <CalcRow
         label="Harga booking baru"
-        sub={<p className="text-[10px] text-gray-400">{roomTypeName} · 1 malam</p>}
-        value={formatCurrency(calc.newBookingAmt)}
+        sub={
+          <p className="text-[10px] text-gray-400">
+            {room.roomTypeName} · {room.nights} malam × {formatCurrency(room.pricePerNight)}
+          </p>
+        }
+        value={formatCurrency(pricing.newPrice)}
       />
 
       <CalcRow
         label={
-          calc.diffType === 'shortage'
+          pricing.paymentRequired
             ? 'Kekurangan yang perlu dibayar'
-            : calc.diffType === 'credit'
-            ? 'Selisih masuk ke booking credit'
-            : 'Tidak ada selisih'
+            : pricing.creditWillBeIssued
+              ? 'Selisih masuk ke booking credit'
+              : 'Tidak ada selisih'
         }
-        value={formatCurrency(Math.abs(calc.diff))}
+        value={formatCurrency(Math.abs(pricing.difference))}
         valueClass={
-          calc.diffType === 'shortage'
+          pricing.paymentRequired
             ? 'text-amber-600'
-            : calc.diffType === 'credit'
-            ? 'text-green-600'
-            : 'text-gray-900'
+            : pricing.creditWillBeIssued
+              ? 'text-green-600'
+              : 'text-gray-900'
         }
       />
 
-      {/* Total */}
       <div className="flex items-center justify-between mt-4 px-4 py-3.5 bg-gray-50 rounded-xl border border-dashed border-gray-200">
         <div>
           <p className="text-[10px] tracking-widest uppercase text-gray-400">Total tagihan</p>
-          <p className="text-[10px] text-gray-400 mt-0.5">
-            Jumlah yang harus dibayarkan sekarang
-          </p>
+          <p className="text-[10px] text-gray-400 mt-0.5">Jumlah yang harus dibayarkan sekarang</p>
         </div>
-        <p className="text-xl font-bold text-gray-900">
-          {calc.diffType === 'shortage' ? formatCurrency(calc.diff) : 'Rp 0'}
-        </p>
+        <p className="text-xl font-bold text-gray-900">{formatCurrency(pricing.extraCharge)}</p>
       </div>
     </div>
   )
@@ -405,37 +399,32 @@ function CalculationCard({ calc, roomType }: { calc: Calculation; roomType: Room
 // ─── Payment Method Card ──────────────────────────────────────────────────────
 
 interface PaymentCardProps {
+  pricing: reschedulePricing
   paymentCategory: PaymentCategory | null
-  selectedVA: VAMethod | null
-  walletConnected: boolean
+  selectedVA: VABank | null
   onSelectCategory: (cat: PaymentCategory) => void
-  onSelectVA: (va: VAMethod) => void
-  onConnectWallet: () => void
-  diffType: 'shortage' | 'credit' | 'even'
+  onSelectVA: (va: VABank) => void
+  onWalletConnected: (address: string) => void
+  onWalletDisconnected: () => void
   isPending: boolean
+  canSubmit: boolean
   onSubmit: () => void
 }
 
 function PaymentMethodCard({
+  pricing,
   paymentCategory,
   selectedVA,
-  walletConnected,
   onSelectCategory,
   onSelectVA,
-  onConnectWallet,
-  diffType,
+  onWalletConnected,
+  onWalletDisconnected,
   isPending,
+  canSubmit,
   onSubmit,
 }: PaymentCardProps) {
   const isCreditMode = paymentCategory === 'credit'
-  const isFree = diffType !== 'shortage'
-
-  const PAY_CATS: { key: PaymentCategory; label: string }[] = [
-    { key: 'va', label: 'Virtual Account' },
-    { key: 'qris', label: 'QRIS' },
-    { key: 'sgt', label: 'Crypto (SGT)' },
-    { key: 'credit', label: 'Credit' },
-  ]
+  const isFree = !pricing.paymentRequired
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm">
@@ -448,8 +437,9 @@ function PaymentMethodCard({
         <div className="px-4 py-3 bg-green-50 border border-green-100 rounded-xl mb-4">
           <p className="text-xs font-medium text-green-700">Tidak ada tagihan</p>
           <p className="text-[11px] text-green-600 leading-relaxed mt-0.5">
-            Booking baru lebih murah dari sisa nilai booking lama. Selisih akan otomatis masuk ke
-            saldo booking credit kamu.
+            {pricing.creditWillBeIssued
+              ? `Booking baru lebih murah dari sisa nilai booking lama. Selisih ${formatCurrency(pricing.creditIssued)} otomatis masuk ke saldo booking credit kamu.`
+              : 'Sisa nilai booking lama pas untuk menutup booking baru.'}
           </p>
         </div>
       ) : (
@@ -468,18 +458,16 @@ function PaymentMethodCard({
                     disabled
                       ? 'bg-gray-50 text-gray-200 cursor-not-allowed border border-dashed border-gray-200'
                       : isActive
-                      ? key === 'credit'
-                        ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-100'
-                        : 'bg-blue-500 text-white shadow-sm shadow-blue-100'
-                      : 'bg-gray-100 text-gray-400 hover:bg-gray-200',
+                        ? key === 'credit'
+                          ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-100'
+                          : 'bg-blue-500 text-white shadow-sm shadow-blue-100'
+                        : 'bg-gray-100 text-gray-400 hover:bg-gray-200',
                   ].join(' ')}
                 >
                   {disabled ? (
                     <>
                       <span className="line-through">{label}</span>
-                      <span className="ml-1.5 normal-case tracking-normal text-gray-300">
-                        Coming soon
-                      </span>
+                      <span className="ml-1.5 normal-case tracking-normal text-gray-300">Coming soon</span>
                     </>
                   ) : (
                     label
@@ -497,9 +485,7 @@ function PaymentMethodCard({
                   onClick={() => onSelectVA(bank.value)}
                   className={[
                     'w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition text-left border-b border-gray-50 last:border-b-0',
-                    selectedVA === bank.value
-                      ? 'bg-blue-50 text-blue-600 font-medium'
-                      : 'text-gray-700',
+                    selectedVA === bank.value ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700',
                   ].join(' ')}
                 >
                   <span className="w-10 h-6 bg-gray-100 rounded text-[10px] font-bold text-gray-500 flex items-center justify-center shrink-0">
@@ -516,21 +502,10 @@ function PaymentMethodCard({
               <div className="px-4 py-3 bg-amber-50 border border-amber-100 rounded-xl">
                 <p className="text-xs font-medium text-amber-700">Pembayaran Crypto (SGT)</p>
                 <p className="text-[11px] text-amber-600 leading-relaxed mt-0.5">
-                  Hubungkan Sui wallet kamu untuk membayar menggunakan SGT token. Pastikan wallet
-                  sudah terinstall dan memiliki saldo yang cukup.
+                  Hubungkan Sui wallet kamu untuk membayar selisih menggunakan SGT token. Pastikan saldo cukup.
                 </p>
               </div>
-              <button
-                onClick={onConnectWallet}
-                className={[
-                  'w-full py-3 rounded-xl text-xs font-medium tracking-wide transition-all duration-200 border',
-                  walletConnected
-                    ? 'bg-green-50 border-green-200 text-green-700'
-                    : 'border-dashed border-gray-300 text-gray-400 hover:border-gray-400 hover:text-gray-600',
-                ].join(' ')}
-              >
-                {walletConnected ? '✓ Wallet terhubung' : '+ Connect Wallet'}
-              </button>
+              <SlushWalletButton onConnected={onWalletConnected} onDisconnected={onWalletDisconnected} />
             </div>
           )}
 
@@ -538,24 +513,29 @@ function PaymentMethodCard({
             <div className="mt-2 px-4 py-3 bg-emerald-50 border border-emerald-100 rounded-xl">
               <p className="text-xs font-medium text-emerald-700">Bayar dengan Booking Credit</p>
               <p className="text-[11px] text-emerald-600 leading-relaxed mt-0.5">
-                Saldo kredit kamu akan digunakan untuk melunasi kekurangan pembayaran ini. Jika
-                saldo tidak mencukupi, kamu perlu memilih metode pembayaran lain.
+                Saldo kredit kamu dipakai untuk melunasi kekurangan ini. Jika saldo tidak mencukupi, pilih metode
+                pembayaran lain.
               </p>
             </div>
           )}
+
+          <p className="text-[11px] text-gray-400 leading-relaxed mt-4">
+            Booking lama tetap berlaku sampai selisih lunas. Kalau tagihan tidak dibayar dalam 15 menit,
+            reschedule dibatalkan otomatis dan booking lama tidak berubah.
+          </p>
         </>
       )}
 
       <button
         onClick={onSubmit}
-        disabled={isPending}
+        disabled={isPending || !canSubmit}
         className={[
           'w-full mt-5 py-3.5 rounded-xl text-[11px] tracking-widest uppercase font-medium transition-all duration-300',
-          isPending
+          isPending || !canSubmit
             ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
             : isCreditMode
-            ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-md shadow-emerald-100'
-            : 'bg-blue-500 text-white hover:bg-blue-600 shadow-md shadow-blue-100',
+              ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-md shadow-emerald-100'
+              : 'bg-blue-500 text-white hover:bg-blue-600 shadow-md shadow-blue-100',
         ].join(' ')}
       >
         {isPending ? (
@@ -578,104 +558,181 @@ function PaymentMethodCard({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function ReschedulePage() {
-  // New booking state
-  const [checkIn, setCheckIn] = useState(OLD_BOOKING.checkIn)
-  const [checkOut, setCheckOut] = useState(OLD_BOOKING.checkOut)
-  const [roomType, setRoomType] = useState<RoomTypeKey>('presidential')
-  const [roomNumber, setRoomNumber] = useState(OLD_BOOKING.roomNumber)
+  const router = useRouter()
+  const { id: bookingId } = useParams<{ id: string }>()
+  const searchParams = useSearchParams()
+  const newCheckIn = searchParams.get('newCheckIn') ?? ''
+  const newCheckOut = searchParams.get('newCheckOut') ?? ''
 
-  // Payment state
+  const [preferredRoomId, setPreferredRoomId] = useState<string | undefined>()
+  const { data, isLoading, isFetching, error } = useReschedulePreview({
+    bookingId,
+    newCheckIn,
+    newCheckOut,
+    preferredRoomId,
+  })
+  const preview = data?.data
+
   const [paymentCategory, setPaymentCategory] = useState<PaymentCategory | null>(null)
-  const [selectedVA, setSelectedVA] = useState<VAMethod | null>(null)
-  const [walletConnected, setWalletConnected] = useState(false)
+  const [selectedVA, setSelectedVA] = useState<VABank | null>(null)
+  const [sgtWalletAddress, setSgtWalletAddress] = useState<string | null>(null)
+  const [isPayingSgt, setIsPayingSgt] = useState(false)
 
-  // UI state
-  const [isPending, setIsPending] = useState(false)
+  const { executePayment } = useSgtPayment()
+  const { mutate, isPending } = useConfirmReschedule()
 
-  // Calculation
-  const [calc, setCalc] = useState<Calculation>(() =>
-    calcReschedule(OLD_BOOKING.totalPayment, ROOM_PRICES['presidential'], RESCHEDULE_POLICY.penaltyPct)
-  )
-
-  useEffect(() => {
-    setCalc(
-      calcReschedule(OLD_BOOKING.totalPayment, ROOM_PRICES[roomType], RESCHEDULE_POLICY.penaltyPct)
+  if (!newCheckIn || !newCheckOut) {
+    return (
+      <StateCard
+        title="Tanggal baru belum dipilih"
+        description="Pilih tanggal baru lewat tombol Reschedule di Recent Activity."
+      />
     )
-  }, [roomType])
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#f5f4f0] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-6 h-6 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-gray-500">Menghitung reschedule...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!preview) {
+    return (
+      <StateCard
+        title="Reschedule tidak bisa diproses"
+        description={getErrorMessage(error)}
+        onRetry={preferredRoomId ? () => setPreferredRoomId(undefined) : undefined}
+      />
+    )
+  }
+
+  const { pricing } = preview
+
+  const paymentMethod: reschedulePaymentMethod | undefined = !pricing.paymentRequired
+    ? undefined
+    : paymentCategory === 'va'
+      ? selectedVA ?? undefined
+      : paymentCategory ?? undefined
+
+  const canSubmit =
+    !isFetching &&
+    (!pricing.paymentRequired ||
+      (!!paymentMethod && (paymentCategory !== 'sgt' || !!sgtWalletAddress)))
 
   const handleSelectCategory = (cat: PaymentCategory) => {
     setPaymentCategory(cat)
     setSelectedVA(null)
-    if (cat !== 'sgt') setWalletConnected(false)
+    if (cat !== 'sgt') setSgtWalletAddress(null)
   }
 
-  const handleSubmit = async () => {
-    setIsPending(true)
-    // TODO: integrate with reschedule mutation
-    await new Promise((r) => setTimeout(r, 1500))
-    setIsPending(false)
-    console.log('Submit reschedule', {
-      checkIn,
-      checkOut,
-      roomType,
-      roomNumber,
-      paymentCategory,
-      selectedVA,
-    })
+  const handleSubmit = () => {
+    if (!canSubmit) return
+
+    mutate(
+      {
+        bookingId,
+        newCheckIn,
+        newCheckOut,
+        selectedRoomId: preview.rooms.selected.roomId,
+        paymentMethod,
+        senderWallet: paymentMethod === 'sgt' ? sgtWalletAddress ?? undefined : undefined,
+      },
+      {
+        onSuccess: async (res) => {
+          const result = res.data
+          const bookingCode = result.newBookingCode
+
+          if (!result.requiresPayment) {
+            toast.success(res.message)
+            router.push(`/payment/success?bookingCode=${bookingCode}`)
+            return
+          }
+
+          const payment = result.payment
+          if (payment?.type === 'SGT') {
+            if (!payment.hotelWalletAddress || !payment.sgtAmountDue) {
+              toast.error('Data pembayaran SGT tidak lengkap')
+              router.push(`/reservation/${bookingCode}`)
+              return
+            }
+            setIsPayingSgt(true)
+            try {
+              const txDigest = await executePayment({
+                hotelWalletAddress: payment.hotelWalletAddress,
+                sgtAmountDue: payment.sgtAmountDue,
+              })
+              await axiosPublic.post('/booking/sgt/verify', { bookingCode, txDigest })
+              router.push(`/payment/success?bookingCode=${bookingCode}`)
+            } catch (err) {
+              console.error('SGT payment gagal:', err)
+              toast.error('Transaksi SGT dibatalkan atau gagal. Booking lama kamu tetap berlaku.')
+              router.push(`/reservation/${bookingCode}`)
+            } finally {
+              setIsPayingSgt(false)
+            }
+            return
+          }
+
+          // VA / QRIS → halaman instruksi bayar
+          router.push(`/reservation/${bookingCode}`)
+        },
+        // Pesan error sudah di-toast oleh axiosUser
+      }
+    )
   }
+
+  const { originalBooking, policy } = preview
 
   return (
     <div className="min-h-screen bg-[#f5f4f0] py-10 px-4">
       <div className="max-w-4xl mx-auto">
-
-        {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
-            Reschedule booking
-          </h1>
+          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">Reschedule booking</h1>
           <p className="text-sm text-gray-400 tracking-widest uppercase mt-1">
-            {OLD_BOOKING.roomNumber} · Atur ulang tanggal & kamar reservasi kamu
+            {originalBooking.bookingCode} · Atur ulang tanggal & kamar reservasi kamu
           </p>
+          {originalBooking.status === 'CONFIRMED' && (
+            <p className="text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-xl px-4 py-2.5 mt-4 leading-relaxed">
+              Booking ini sudah dikonfirmasi resepsionis (hari H), jadi berlaku policy hari H dengan potongan{' '}
+              {policy.penaltyPercent}%.
+            </p>
+          )}
         </div>
 
-        {/* Old + New Booking — side by side */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-          <OldBookingCard booking={OLD_BOOKING} />
-          <NewBookingCard
-            checkIn={checkIn}
-            checkOut={checkOut}
-            roomType={roomType}
-            roomNumber={roomNumber}
-            onCheckInChange={setCheckIn}
-            onCheckOutChange={setCheckOut}
-            onRoomTypeChange={(v) => {
-              setRoomType(v)
-            }}
-            onRoomNumberChange={setRoomNumber}
+          <OldBookingCard booking={originalBooking} />
+          <NewBookingCard preview={preview} isFetching={isFetching} onRoomChange={setPreferredRoomId} />
+        </div>
+
+        <div className="mb-4">
+          <CalculationCard
+            pricing={pricing}
+            policy={policy}
+            room={preview.rooms.selected}
+            isFetching={isFetching}
           />
         </div>
 
-        {/* Calculation */}
-        <div className="mb-4">
-          <CalculationCard calc={calc} roomType={roomType} />
-        </div>
-
-        {/* Payment */}
         <PaymentMethodCard
+          pricing={pricing}
           paymentCategory={paymentCategory}
           selectedVA={selectedVA}
-          walletConnected={walletConnected}
           onSelectCategory={handleSelectCategory}
           onSelectVA={(va) => {
             setSelectedVA(va)
             setPaymentCategory('va')
           }}
-          onConnectWallet={() => setWalletConnected((prev) => !prev)}
-          diffType={calc.diffType}
-          isPending={isPending}
+          onWalletConnected={setSgtWalletAddress}
+          onWalletDisconnected={() => setSgtWalletAddress(null)}
+          isPending={isPending || isPayingSgt}
+          canSubmit={canSubmit}
           onSubmit={handleSubmit}
         />
-
       </div>
     </div>
   )

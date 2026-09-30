@@ -1,3 +1,5 @@
+import { reschedulePolicySummary } from "./preview"
+
 export interface rechAvlbDateProps {
   success: boolean
   data: rechAvlbDateState
@@ -11,6 +13,7 @@ export interface rechAvlbDateState {
   originalNights: number
   rangeStart: string
   rangeEnd: string
+  policy: reschedulePolicySummary
   months: Month[]
 }
 

@@ -155,6 +155,15 @@ export default function RescheduleCalendar({
         </div>
 
         <div className="overflow-y-auto" style={{ maxHeight: "calc(90dvh - 60px)" }}>
+          {/* ── Policy yang berlaku ── */}
+          <div className="mx-4 mt-4 px-4 py-2.5 rounded-2xl bg-amber-50 border border-amber-100">
+            <p className="text-[11px] text-amber-700 leading-relaxed">
+              <span className="font-semibold">{data.policy.name}</span> ·{" "}
+              {data.policy.daysUntilCheckIn === 0 ? "hari H" : `H-${data.policy.daysUntilCheckIn}`} · potongan{" "}
+              {data.policy.penaltyPercent}% dari total booking lama
+            </p>
+          </div>
+
           {/* ── Month nav ── */}
           <div className="flex items-center justify-between px-5 pt-4 pb-2">
             <button
