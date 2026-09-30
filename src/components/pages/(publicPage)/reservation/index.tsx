@@ -63,8 +63,11 @@ function validateForm({
     errors.fullName = 'Nama lengkap wajib diisi'
   }
 
-  if (!contact.phone?.trim()) {
+  const phoneDigits = splitPhone(contact.phone ?? '').number
+  if (!phoneDigits) {
     errors.phone = 'Nomor telepon wajib diisi'
+  } else if (phoneDigits.length < 6 || phoneDigits.length > 13) {
+    errors.phone = 'Nomor telepon tidak valid'
   }
 
   if (!contact.idType) {
@@ -73,6 +76,8 @@ function validateForm({
 
   if (!contact.idNumber?.trim()) {
     errors.idNumber = 'Nomor identitas wajib diisi'
+  } else if (contact.idType === 'KTP' && contact.idNumber.length !== 16) {
+    errors.idNumber = 'NIK KTP harus 16 digit'
   }
 
   if (!selectedRoom) {
@@ -98,6 +103,48 @@ const VA_BANKS = [
   { value: 'va_bri', label: 'BRI Virtual Account', logo: 'BRI' },
   { value: 'va_mandiri', label: 'Mandiri Virtual Account', logo: 'MDR' },
 ]
+
+// Kode negara telepon. Nomor disimpan gabungan: "+62" + "81234567890"
+const COUNTRY_CODES = [
+  { code: '+62', flag: '🇮🇩' },
+  { code: '+65', flag: '🇸🇬' },
+  { code: '+60', flag: '🇲🇾' },
+  { code: '+66', flag: '🇹🇭' },
+  { code: '+63', flag: '🇵🇭' },
+  { code: '+84', flag: '🇻🇳' },
+  { code: '+81', flag: '🇯🇵' },
+  { code: '+82', flag: '🇰🇷' },
+  { code: '+86', flag: '🇨🇳' },
+  { code: '+852', flag: '🇭🇰' },
+  { code: '+61', flag: '🇦🇺' },
+  { code: '+91', flag: '🇮🇳' },
+  { code: '+971', flag: '🇦🇪' },
+  { code: '+966', flag: '🇸🇦' },
+  { code: '+44', flag: '🇬🇧' },
+  { code: '+1', flag: '🇺🇸' },
+]
+const DEFAULT_COUNTRY_CODE = '+62'
+
+function splitPhone(phone: string): { code: string; number: string } {
+  if (phone.startsWith('+')) {
+    // Cocokkan kode terpanjang dulu (+852 sebelum +85…)
+    const match = [...COUNTRY_CODES]
+      .sort((a, b) => b.code.length - a.code.length)
+      .find((c) => phone.startsWith(c.code))
+    if (match) return { code: match.code, number: phone.slice(match.code.length) }
+  }
+  // Data lama tanpa kode negara, mis. "0812…"
+  return { code: DEFAULT_COUNTRY_CODE, number: phone.replace(/\D/g, '').replace(/^0+/, '') }
+}
+
+// Angka saja, 0 di depan dibuang (08xx → 8xx karena sudah ada kode negara)
+const toPhoneDigits = (value: string) => value.replace(/\D/g, '').replace(/^0+/, '')
+
+// KTP & SIM angka saja; paspor boleh huruf (mis. A1234567)
+function sanitizeIdNumber(value: string, idType?: string) {
+  if (idType === 'PASSPORT') return value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20)
+  return value.replace(/\D/g, '').slice(0, idType === 'KTP' ? 16 : 20)
+}
 
 function formatDate(dateStr: string) {
   if (!dateStr) return '—'
@@ -204,6 +251,15 @@ function ContactCard({
 }) {
   const { t } = useTranslation()
 
+  // Kode negara disimpan lokal supaya tetap terpilih walau nomornya masih kosong
+  const initialPhone = splitPhone(contact.phone ?? '')
+  const [countryCode, setCountryCode] = useState(initialPhone.code)
+  const phoneNumber = splitPhone(contact.phone ?? '').number
+
+  const updatePhone = (code: string, number: string) => {
+    setContact({ phone: number ? `${code}${number}` : '' })
+  }
+
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm">
       <div className="flex items-center justify-between mb-5">
@@ -242,7 +298,7 @@ function ContactCard({
         </div>
 
         {/* Email & Phone */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="relative">
             <Mail01Icon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
             <input
@@ -255,32 +311,56 @@ function ContactCard({
             />
           </div>
           <div>
-            <div className="relative">
-              <SmartPhone01Icon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
-              <input
-                type="tel"
-                placeholder={t("text.reservation.phonePlaceholder")}
-                value={contact.phone}
-                onChange={(e) => setContact({ phone: e.target.value })}
-                className={`w-full pl-9 pr-4 py-3 text-sm border rounded-xl focus:outline-none focus:ring-2 transition placeholder:text-gray-300
-                  ${errors.phone
-                    ? 'border-red-300 focus:ring-red-100 focus:border-red-300'
-                    : 'border-gray-200 focus:ring-blue-200 focus:border-transparent'
-                  }`}
-              />
+            <div
+              className={`flex items-stretch border rounded-xl transition focus-within:ring-2
+                ${errors.phone
+                  ? 'border-red-300 focus-within:ring-red-100'
+                  : 'border-gray-200 focus-within:ring-blue-200 focus-within:border-transparent'
+                }`}
+            >
+              <select
+                aria-label="Kode negara"
+                value={countryCode}
+                onChange={(e) => {
+                  setCountryCode(e.target.value)
+                  updatePhone(e.target.value, phoneNumber)
+                }}
+                className="pl-3 pr-1 text-sm text-gray-700 bg-transparent border-r border-gray-200 rounded-l-xl focus:outline-none"
+              >
+                {COUNTRY_CODES.map((c) => (
+                  <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+                ))}
+              </select>
+              <div className="relative flex-1 min-w-0">
+                <SmartPhone01Icon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel-national"
+                  placeholder={t("text.reservation.phonePlaceholder")}
+                  value={phoneNumber}
+                  onChange={(e) => updatePhone(countryCode, toPhoneDigits(e.target.value))}
+                  maxLength={13}
+                  className="w-full pl-9 pr-4 py-3 text-sm bg-transparent rounded-r-xl focus:outline-none placeholder:text-gray-300"
+                />
+              </div>
             </div>
             <ErrorMsg message={errors.phone} />
           </div>
         </div>
 
         {/* ID Type & ID Number */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <div className="relative">
               <IdIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
               <select
                 value={contact.idType ?? ''}
-                onChange={(e) => setContact({ idType: (e.target.value as any) || undefined })}
+                onChange={(e) => {
+                  const idType = (e.target.value as any) || undefined
+                  const idNumber = contact.idNumber ? sanitizeIdNumber(contact.idNumber, idType) : undefined
+                  setContact({ idType, idNumber: idNumber || undefined })
+                }}
                 className={`w-full pl-9 pr-4 py-3 text-sm border rounded-xl focus:outline-none focus:ring-2 transition appearance-none bg-white
                   ${errors.idType
                     ? 'border-red-300 focus:ring-red-100 focus:border-red-300 text-gray-700'
@@ -298,9 +378,10 @@ function ContactCard({
           <div>
             <input
               type="text"
+              inputMode={contact.idType === 'PASSPORT' ? 'text' : 'numeric'}
               placeholder={t("text.reservation.idNumberPlaceholder")}
               value={contact.idNumber ?? ''}
-              onChange={(e) => setContact({ idNumber: e.target.value || undefined })}
+              onChange={(e) => setContact({ idNumber: sanitizeIdNumber(e.target.value, contact.idType) || undefined })}
               className={`w-full px-4 py-3 text-sm border rounded-xl focus:outline-none focus:ring-2 transition placeholder:text-gray-300
                 ${errors.idNumber
                   ? 'border-red-300 focus:ring-red-100 focus:border-red-300'
