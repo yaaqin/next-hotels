@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import { notFound, permanentRedirect, redirect } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { Suspense } from 'react'
-import PublicRoomDetailPage from '@/src/components/pages/(publicPage)/booking/room/detail'
+import RoomDetailView from '@/src/components/organisms/roomDetail/RoomDetailView'
 import Breadcrumbs from '@/src/components/organisms/roomListing/Breadcrumbs'
 import JsonLd from '@/src/components/organisms/roomListing/JsonLd'
 import ListingFilters from '@/src/components/organisms/roomListing/ListingFilters'
@@ -9,20 +9,29 @@ import ListingPagination from '@/src/components/organisms/roomListing/ListingPag
 import RelatedLinks from '@/src/components/organisms/roomListing/RelatedLinks'
 import RoomListingCard from '@/src/components/organisms/roomListing/RoomListingCard'
 import { ResolvedListing } from '@/src/models/public/roomListing'
-import { getRequestCurrency, getRequestLang, resolveRoomListing, searchRoomListing } from '@/src/services/roomListing'
+import {
+  getPublicRoomDetail,
+  getRequestCurrency,
+  getRequestLang,
+  resolveRoomListing,
+  searchRoomListing,
+} from '@/src/services/roomListing'
 import PreferenceSync from '@/src/components/organisms/roomListing/PreferenceSync'
 import { LANG_LOCALE } from '@/src/utils/currencyCookie'
 import { getServerT } from '@/src/i18n/server'
 import {
   breadcrumbJsonLd,
   buildListingMetadata,
-  defaultStayDates,
+  filterLabels,
   formatRupiah,
   hotelJsonLd,
+  hotelRoomJsonLd,
   itemListJsonLd,
   listingDisplayText,
   ListingQuery,
   parseListingQuery,
+  priceTagLabels,
+  stayFromQuery,
   toQueryString,
 } from '../hotel.helper'
 
@@ -32,7 +41,7 @@ type PageProps = {
 }
 
 // Satu route untuk semua RLP: /hotel, /hotel/{lokasi}, /hotel/{lokasi}/{tipe}/{facet},
-// dan detail kamar /hotel/{cabang}/kamar/{slug}. Arti tiap segment diputuskan BE.
+// dan detail kamar /hotel/{cabang}/kamar/{slug} (RDP, noindex). Arti tiap segment diputuskan BE.
 async function load({ params, searchParams }: PageProps) {
   const [{ segments = [] }, rawSearchParams, lang, currency] = await Promise.all([
     params,
@@ -48,7 +57,13 @@ async function load({ params, searchParams }: PageProps) {
       ? await searchRoomListing(searchPayload(resolved, query), lang, currency)
       : null
 
-  return { resolved, query, result, rawSearchParams, lang, currency }
+  const stay = stayFromQuery(query)
+  const room =
+    resolved?.kind === 'room' && !resolved.redirect
+      ? await getPublicRoomDetail(resolved.room.id, stay, lang, currency)
+      : null
+
+  return { resolved, query, result, room, stay, rawSearchParams, lang, currency }
 }
 
 function searchPayload(resolved: ResolvedListing, query: ListingQuery) {
@@ -64,42 +79,44 @@ function searchPayload(resolved: ResolvedListing, query: ListingQuery) {
 }
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
-  const { resolved, query, result } = await load(props)
+  const { resolved, query, result, room } = await load(props)
   if (!resolved || resolved.redirect) return {}
-  return buildListingMetadata(resolved, result, query)
+  return buildListingMetadata(resolved, result, query, room?.gallery?.images?.[0]?.url)
 }
 
 export default async function HotelListingPage(props: PageProps) {
-  const { resolved, query, result, rawSearchParams, lang, currency } = await load(props)
+  const { resolved, query, result, room, stay, rawSearchParams, lang, currency } = await load(props)
   const t = getServerT(lang)
   const locale = LANG_LOCALE[lang]
-  const priceLabels = {
-    original: t('currency.original'),
-    rate: t('currency.rate'),
-    updated: t('currency.updated'),
-    hint: t('currency.approxHint'),
-  }
+  const priceLabels = priceTagLabels(t)
 
   if (!resolved) notFound()
   // Alias / urutan segment lain → 301 ke path resmi, query user ikut dibawa
   if (resolved.redirect) permanentRedirect(`${resolved.redirect}${toQueryString(rawSearchParams)}`)
 
   if (resolved.kind === 'room') {
-    // Halaman detail lama butuh tanggal — isi default hari ini kalau user datang tanpa tanggal
-    if (!rawSearchParams.checkin) {
-      const { checkin, checkout } = defaultStayDates()
-      redirect(`${resolved.canonicalPath}?checkin=${checkin}&checkout=${checkout}`)
-    }
+    if (!room) notFound()
+    const typeCrumb = resolved.breadcrumb.find((c) => c.kind === 'roomType')
+    const typeName = room.roomType.translation.name
     return (
       <>
         <PreferenceSync serverLang={lang} serverCurrency={currency} />
         <JsonLd data={breadcrumbJsonLd(resolved.breadcrumb)} />
-        <div className="bg-[#05111F] px-5 py-3">
-          <Breadcrumbs items={resolved.breadcrumb} t={t} />
-        </div>
-        <Suspense>
-          <PublicRoomDetailPage roomId={resolved.room.id} />
-        </Suspense>
+        <JsonLd data={hotelRoomJsonLd(room, resolved)} />
+        <RoomDetailView
+          room={room}
+          stay={stay}
+          heading={`${typeName} · ${t('roomListing.room')} ${room.number}`}
+          typeLink={{
+            path: typeCrumb?.path ?? `/hotel/${resolved.site.slug}`,
+            label: t('roomDetail.viewAllType', { type: typeName, place: resolved.locationLabel }),
+          }}
+          t={t}
+          locale={locale}
+          priceLabels={priceLabels}
+          filterLabels={filterLabels(t)}
+          breadcrumb={<Breadcrumbs items={resolved.breadcrumb} t={t} />}
+        />
       </>
     )
   }
@@ -131,19 +148,7 @@ export default async function HotelListingPage(props: PageProps) {
 
       <main className="max-w-6xl mx-auto px-6 py-8 space-y-8">
         <Suspense>
-          <ListingFilters
-            labels={{
-              checkin: t('roomListing.filters.checkin'),
-              checkout: t('roomListing.filters.checkout'),
-              checkAvailability: t('roomListing.filters.checkAvailability'),
-              clearDates: t('roomListing.filters.clearDates'),
-              sortBy: t('roomListing.filters.sortBy'),
-              sortPriceAsc: t('roomListing.filters.sortPriceAsc'),
-              sortPriceDesc: t('roomListing.filters.sortPriceDesc'),
-              sortNumber: t('roomListing.filters.sortNumber'),
-              selectDate: t('roomListing.filters.selectDate'),
-            }}
-          />
+          <ListingFilters labels={filterLabels(t)} />
         </Suspense>
 
         {/* Hub kota: daftar cabang di kota ini */}

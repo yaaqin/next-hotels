@@ -24,7 +24,14 @@ export interface ListingFiltersLabels {
 
 // Filter cuma mengubah query string — path (halaman yang diindex) tidak berubah.
 // Label dikirim dari server (bahasa cookie) supaya HTML SSR & hasil hidrasi sama.
-export default function ListingFilters({ labels }: { labels: ListingFiltersLabels }) {
+// showSort=false dipakai detail kamar (RDP) yang cuma butuh tanggal.
+export default function ListingFilters({
+  labels,
+  showSort = true,
+}: {
+  labels: ListingFiltersLabels
+  showSort?: boolean
+}) {
   const sortOptions = [
     { id: 'price_asc', value: 'price_asc', label: labels.sortPriceAsc },
     { id: 'price_desc', value: 'price_desc', label: labels.sortPriceDesc },
@@ -98,15 +105,17 @@ export default function ListingFilters({ labels }: { labels: ListingFiltersLabel
         </button>
       )}
 
-      <Selects
-        variant="public"
-        containerClassName="md:ml-auto md:w-52"
-        label={labels.sortBy}
-        value={sort}
-        onChange={(value) => push({ sort: value === 'price_asc' ? null : value })}
-        options={sortOptions}
-        showPlaceholder={false}
-      />
+      {showSort && (
+        <Selects
+          variant="public"
+          containerClassName="md:ml-auto md:w-52"
+          label={labels.sortBy}
+          value={sort}
+          onChange={(value) => push({ sort: value === 'price_asc' ? null : value })}
+          options={sortOptions}
+          showPlaceholder={false}
+        />
+      )}
     </div>
   )
 }

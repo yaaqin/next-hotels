@@ -401,5 +401,22 @@
     "modalCancel": "キャンセル",
     "snapshotTitle": "予約時の料金",
     "snapshotRate": "予約時のレート"
+  },
+  "roomDetail": {
+    "available": "空室あり",
+    "unavailable": "満室",
+    "roomType": "客室タイプ",
+    "bedType": "ベッドタイプ",
+    "facilities": "設備",
+    "location": "所在地",
+    "stayDates": "宿泊日",
+    "reserve": "今すぐ予約",
+    "unavailableCta": "この客室は予約できません",
+    "pickDatesCta": "日付を選択してください",
+    "pickDatesHint": "チェックイン・チェックアウト日を選択すると、空室状況と正確な料金を確認できます。",
+    "noPrice": "この日程の料金はまだありません",
+    "total": "合計",
+    "viewAllType": "{{place}}の{{type}}客室をすべて見る",
+    "galleryAlt": "{{type}}客室 {{number}} の写真"
   }
 }

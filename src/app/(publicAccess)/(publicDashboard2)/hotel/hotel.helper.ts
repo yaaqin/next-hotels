@@ -6,8 +6,10 @@ import {
   ListingSort,
   ResolvedListing,
   ResolvedPath,
+  ResolvedRoom,
   SearchListingResult,
 } from '@/src/models/public/roomListing'
+import type { publicRoomDetailState } from '@/src/models/public/room/detail'
 import type { ServerT } from '@/src/i18n/server'
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mbsc.yaaqin.xyz'
@@ -59,6 +61,14 @@ export function defaultStayDates() {
   return { checkin: today, checkout: tomorrow }
 }
 
+// Tanggal untuk detail kamar (RDP). Tanpa tanggal di URL halaman tetap dirender (bukan redirect):
+// harga acuan dari tanggal default, ketersediaan baru ditampilkan setelah user pilih tanggal
+export function stayFromQuery(query: ListingQuery) {
+  return query.checkin && query.checkout
+    ? { checkin: query.checkin, checkout: query.checkout, hasDates: true }
+    : { ...defaultStayDates(), hasDates: false }
+}
+
 // Halaman "semua cabang" (/hotel, /hotel/deluxe) isinya identik dengan halaman cabang
 // selama baru satu cabang yang punya kamarnya → canonical ke halaman cabang itu.
 // Otomatis kembali self-canonical begitu cabang kedua punya kamar yang sama.
@@ -72,6 +82,8 @@ export function buildListingMetadata(
   resolved: ResolvedPath,
   result: SearchListingResult | null,
   query: ListingQuery,
+  // Foto utama untuk preview share (dipakai detail kamar)
+  image?: string,
 ): Metadata {
   const canonicalPath = effectiveCanonicalPath(resolved)
   const isOwnCanonical = canonicalPath === resolved.canonicalPath
@@ -95,6 +107,7 @@ export function buildListingMetadata(
       siteName: BRAND,
       type: 'website',
       locale: 'id_ID',
+      ...(image && { images: [image] }),
     },
   }
 }
@@ -140,6 +153,46 @@ export function itemListJsonLd(items: ListingRoom[], startPosition: number) {
         },
       },
     })),
+  }
+}
+
+// Detail kamar (RDP) — harga acuan dari tanggal default, bukan tanggal pilihan user
+export function hotelRoomJsonLd(room: publicRoomDetailState, resolved: ResolvedRoom) {
+  const images = room.gallery?.images?.map((img) => img.url) ?? []
+  const amenities = room.facilityGroup?.facilities.flatMap((f) => f.items.map((item) => item.name)) ?? []
+  const { site } = resolved
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HotelRoom',
+    name: resolved.meta.title,
+    url: `${SITE_URL}${resolved.canonicalPath}`,
+    ...(room.roomType.translation.desk && { description: room.roomType.translation.desk }),
+    ...(images.length && { image: images }),
+    ...(room.bedType.translation.name && {
+      bed: { '@type': 'BedDetails', typeOfBed: room.bedType.translation.name, numberOfBeds: 1 },
+    }),
+    ...(amenities.length && {
+      amenityFeature: amenities.filter(Boolean).map((name) => ({
+        '@type': 'LocationFeatureSpecification',
+        name,
+        value: true,
+      })),
+    }),
+    containedInPlace: {
+      '@type': 'Hotel',
+      name: `${BRAND} ${site.nama}`,
+      url: `${SITE_URL}/hotel/${site.slug}`,
+      ...(site.address && { address: site.address }),
+    },
+    ...(room.pricing && {
+      offers: {
+        '@type': 'Offer',
+        price: room.pricing.pricePerNight,
+        priceCurrency: 'IDR',
+        url: `${SITE_URL}${resolved.canonicalPath}`,
+      },
+    }),
   }
 }
 
@@ -217,4 +270,28 @@ export function linkDisplayLabel(link: ListingLink, t: ServerT) {
   if (type) return t('roomListing.linkRooms', { type })
   if (place) return t('roomListing.headingHotel', { place })
   return link.label
+}
+
+// Label komponen client dirakit di server (bahasa cookie) supaya SSR & hidrasi sama
+export function filterLabels(t: ServerT) {
+  return {
+    checkin: t('roomListing.filters.checkin'),
+    checkout: t('roomListing.filters.checkout'),
+    checkAvailability: t('roomListing.filters.checkAvailability'),
+    clearDates: t('roomListing.filters.clearDates'),
+    sortBy: t('roomListing.filters.sortBy'),
+    sortPriceAsc: t('roomListing.filters.sortPriceAsc'),
+    sortPriceDesc: t('roomListing.filters.sortPriceDesc'),
+    sortNumber: t('roomListing.filters.sortNumber'),
+    selectDate: t('roomListing.filters.selectDate'),
+  }
+}
+
+export function priceTagLabels(t: ServerT) {
+  return {
+    original: t('currency.original'),
+    rate: t('currency.rate'),
+    updated: t('currency.updated'),
+    hint: t('currency.approxHint'),
+  }
 }

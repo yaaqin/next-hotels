@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { defaultStayDates } from './app/(publicAccess)/(publicDashboard2)/hotel/hotel.helper'
 import { API_BASE_URL } from './libs/apiUrl'
 
 // Status code RLP harus diputuskan SEBELUM render: root layout membungkus halaman dengan
@@ -66,15 +65,7 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(url, 308)
   }
 
-  // Detail kamar butuh tanggal — isi default hari ini (redirect sementara, bukan 308)
-  if (outcome.kind === 'room' && !req.nextUrl.searchParams.get('checkin')) {
-    const url = req.nextUrl.clone()
-    const { checkin, checkout } = defaultStayDates()
-    url.searchParams.set('checkin', checkin)
-    url.searchParams.set('checkout', checkout)
-    return NextResponse.redirect(url, 307)
-  }
-
+  // Detail kamar tanpa tanggal dirender langsung (harga "mulai dari"), tidak di-redirect ke URL bertanggal
   return NextResponse.next()
 }
 

@@ -7,7 +7,7 @@ import { PriceTag, type PriceTagLabels } from '@/src/components/molecules/priceT
 
 interface RoomListingCardProps {
   room: ListingRoom
-  // Tanggal dibawa ke detail kamar; tanpa tanggal detail pakai hari ini
+  // Tanggal dibawa ke detail kamar; tanpa tanggal detail tampil harga "mulai dari"
   stayQuery: string
   t: ServerT
   locale: string

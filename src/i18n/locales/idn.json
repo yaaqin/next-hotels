@@ -401,5 +401,22 @@
     "modalCancel": "Batal",
     "snapshotTitle": "Harga saat booking",
     "snapshotRate": "Kurs saat booking"
+  },
+  "roomDetail": {
+    "available": "Tersedia",
+    "unavailable": "Tidak tersedia",
+    "roomType": "Tipe kamar",
+    "bedType": "Tipe kasur",
+    "facilities": "Fasilitas",
+    "location": "Lokasi",
+    "stayDates": "Tanggal menginap",
+    "reserve": "Reservasi sekarang",
+    "unavailableCta": "Kamar tidak tersedia",
+    "pickDatesCta": "Pilih tanggal dulu",
+    "pickDatesHint": "Pilih tanggal check-in & check-out untuk cek ketersediaan dan harga pasti kamar ini.",
+    "noPrice": "Harga belum tersedia untuk tanggal ini",
+    "total": "Total",
+    "viewAllType": "Lihat semua kamar {{type}} di {{place}}",
+    "galleryAlt": "Foto kamar {{type}} {{number}}"
   }
 }

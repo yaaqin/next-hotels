@@ -401,5 +401,22 @@
     "modalCancel": "Cancel",
     "snapshotTitle": "Price at booking",
     "snapshotRate": "Rate at booking"
+  },
+  "roomDetail": {
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "roomType": "Room type",
+    "bedType": "Bed type",
+    "facilities": "Facilities",
+    "location": "Location",
+    "stayDates": "Stay dates",
+    "reserve": "Reserve now",
+    "unavailableCta": "Room unavailable",
+    "pickDatesCta": "Select dates first",
+    "pickDatesHint": "Select check-in & check-out dates to see this room's availability and exact price.",
+    "noPrice": "No price available for these dates yet",
+    "total": "Total",
+    "viewAllType": "See all {{type}} rooms in {{place}}",
+    "galleryAlt": "Photo of {{type}} room {{number}}"
   }
 }

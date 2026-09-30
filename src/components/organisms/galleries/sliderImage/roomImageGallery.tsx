@@ -5,6 +5,8 @@ import { Image } from '@/src/models/public/room/detail'
 
 interface Props {
     images: Image[]
+    // Alt deskriptif (mis. "Foto kamar Deluxe 01001"); tanpa ini pakai nama file
+    alt?: string
 }
 
 function getGridClass(count: number) {
@@ -13,7 +15,8 @@ function getGridClass(count: number) {
     return 'grid-cols-[2fr_1fr]'
 }
 
-export default function RoomImageGallery({ images }: Props) {
+export default function RoomImageGallery({ images, alt }: Props) {
+    const altFor = (img: Image, idx: number) => (alt ? `${alt} (${idx + 1})` : img.name)
     const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
     const isOpen = lightboxIndex !== null
@@ -77,7 +80,7 @@ export default function RoomImageGallery({ images }: Props) {
                     >
                         <img
                             src={img.url}
-                            alt={img.name}
+                            alt={altFor(img, idx)}
                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
@@ -118,7 +121,7 @@ export default function RoomImageGallery({ images }: Props) {
                     >
                         <img
                             src={images[lightboxIndex].url}
-                            alt={images[lightboxIndex].name}
+                            alt={altFor(images[lightboxIndex], lightboxIndex)}
                             className="max-w-full max-h-[72vh] object-contain rounded-xl shadow-2xl"
                         />
 
@@ -163,7 +166,7 @@ export default function RoomImageGallery({ images }: Props) {
                   ${idx === lightboxIndex ? 'border-white opacity-100 scale-110' : 'border-transparent opacity-50 hover:opacity-80'}
                 `}
                             >
-                                <img src={img.url} alt={img.name} className="w-full h-full object-cover" />
+                                <img src={img.url} alt={altFor(img, idx)} className="w-full h-full object-cover" />
                             </button>
                         ))}
                     </div>

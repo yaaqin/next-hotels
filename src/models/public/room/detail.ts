@@ -7,6 +7,8 @@ export interface publicRoomDetailProps {
 
 export interface publicRoomDetailState {
   id: string
+  // Segment path RDP: /hotel/{site.slug}/kamar/{slug}
+  slug: string | null
   siteCode: string
   number: string
   floorId: string
@@ -42,6 +44,7 @@ export interface Site {
   createdAt: string
   updatedAt: string
   sitecode: string
+  slug: string | null
 }
 
 export interface RoomType {

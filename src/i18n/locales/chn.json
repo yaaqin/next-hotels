@@ -401,5 +401,22 @@
     "modalCancel": "取消",
     "snapshotTitle": "預訂時價格",
     "snapshotRate": "預訂時匯率"
+  },
+  "roomDetail": {
+    "available": "可预订",
+    "unavailable": "不可预订",
+    "roomType": "房型",
+    "bedType": "床型",
+    "facilities": "设施",
+    "location": "位置",
+    "stayDates": "入住日期",
+    "reserve": "立即预订",
+    "unavailableCta": "该房间不可预订",
+    "pickDatesCta": "请先选择日期",
+    "pickDatesHint": "选择入住和退房日期，查看该房间的可订情况和确切价格。",
+    "noPrice": "该日期暂无价格",
+    "total": "总计",
+    "viewAllType": "查看{{place}}所有{{type}}客房",
+    "galleryAlt": "{{type}}客房 {{number}} 照片"
   }
 }

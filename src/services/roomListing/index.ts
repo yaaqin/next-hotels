@@ -7,6 +7,7 @@ import {
   SearchListingPayload,
   SearchListingResult,
 } from '@/src/models/public/roomListing'
+import { publicRoomDetailState } from '@/src/models/public/room/detail'
 import { DEFAULT_LANG, LANGUAGE_COOKIE, toSupportedLang } from '@/src/utils/languageCookie'
 import { CURRENCY_COOKIE, resolveCurrency } from '@/src/utils/currencyCookie'
 import { API_BASE_URL } from '@/src/libs/apiUrl'
@@ -88,6 +89,32 @@ export const searchRoomListing = (
   lang: string = DEFAULT_LANG,
   currency: string = 'IDR',
 ) => searchByKey(JSON.stringify(payload), lang, currency)
+
+// Detail kamar untuk RDP — ketersediaan & harga ikut tanggal, jadi tidak di-cache.
+// null = kamar tidak ditemukan (404 dari BE)
+const roomDetailByKey = cache(
+  async (id: string, checkin: string, checkout: string, lang: string, currency: string) => {
+    try {
+      const qs = new URLSearchParams({ checkin, checkout }).toString()
+      return await request<publicRoomDetailState>(
+        `/public/rooms/${encodeURIComponent(id)}?${qs}`,
+        lang,
+        { cache: 'no-store' },
+        currency,
+      )
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 404) return null
+      throw err
+    }
+  },
+)
+
+export const getPublicRoomDetail = (
+  id: string,
+  stay: { checkin: string; checkout: string },
+  lang: string = DEFAULT_LANG,
+  currency: string = 'IDR',
+) => roomDetailByKey(id, stay.checkin, stay.checkout, lang, currency)
 
 export const getPublicSites = cache(async () =>
   request<PublicSiteWithRooms[]>('/public/sites', DEFAULT_LANG, { next: { revalidate: 300 } }),
