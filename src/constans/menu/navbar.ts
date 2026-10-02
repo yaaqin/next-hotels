@@ -70,6 +70,12 @@ export const NAVIGATION: NavItem[] = [
         parentKey: 'site',
       },
       {
+        key: 'price-adjustment',
+        label: 'Price Adjustment',
+        path: '/dashboard/price-adjustment',
+        parentKey: 'site',
+      },
+      {
         key: 'currency-rate',
         label: 'Currency Rate',
         path: '/dashboard/currency',
