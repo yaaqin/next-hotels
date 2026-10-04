@@ -327,19 +327,26 @@ function ContactCard({
                   : 'border-gray-200 focus-within:ring-blue-200 focus-within:border-transparent'
                 }`}
             >
-              <select
-                aria-label="Kode negara"
-                value={countryCode}
-                onChange={(e) => {
-                  setCountryCode(e.target.value)
-                  updatePhone(e.target.value, phoneNumber)
-                }}
-                className="pl-3 pr-1 text-sm text-gray-700 bg-transparent border-r border-gray-200 rounded-l-xl focus:outline-none"
-              >
-                {COUNTRY_CODES.map((c) => (
-                  <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
-                ))}
-              </select>
+              {/* Panah custom supaya ada jarak dari garis pemisah (panah bawaan browser mepet) */}
+              <div className="relative flex shrink-0 border-r border-gray-200">
+                <select
+                  aria-label="Kode negara"
+                  value={countryCode}
+                  onChange={(e) => {
+                    setCountryCode(e.target.value)
+                    updatePhone(e.target.value, phoneNumber)
+                  }}
+                  className="appearance-none pl-3 pr-8 text-sm text-gray-700 bg-transparent rounded-l-xl focus:outline-none cursor-pointer"
+                >
+                  {COUNTRY_CODES.map((c) => (
+                    <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+                  ))}
+                </select>
+                <ArrowDown01Icon
+                  size={14}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                />
+              </div>
               <div className="relative flex-1 min-w-0">
                 <SmartPhone01Icon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
                 <input
