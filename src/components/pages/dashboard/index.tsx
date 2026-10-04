@@ -5,13 +5,21 @@ import { DailyMetricsCard } from "../../organisms/home/dailyMatrix"
 import Loading from "../../organisms/loading"
 import RevenueOccupancyChart from "../../organisms/dashboard/chart"
 import { useRevenueOccupancy } from "@/src/hooks/query/finance/revenueOccupancy"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { downloadBookingReport } from "@/src/services/finance/report"
+import RevenueDailyChart from "../../organisms/dashboard/revenueDailyChart"
+import RevenueDetail from "../../organisms/dashboard/revenueDetail"
+import { useRevenueDaily, wibToday } from "@/src/hooks/query/finance/revenueDaily"
 
 export default function DashboardAdmin() {
   const { data, isLoading } = useDailyMatrix()
   const { data: revoccup, startDate, endDate } = useRevenueOccupancy()
   const [isDownloading, setIsDownloading] = useState(false)
+
+  // Uang masuk per tanggal bayar + rincian hari yang dipilih (default hari ini)
+  const { data: revenueDaily } = useRevenueDaily(30)
+  const [selectedDate, setSelectedDate] = useState(wibToday)
+  const handleSelectDate = useCallback((date: string) => setSelectedDate(date), [])
 
   const handleDownload = async () => {
     setIsDownloading(true)
@@ -29,6 +37,14 @@ export default function DashboardAdmin() {
       ) : data && (
         <DailyMetricsCard data={data?.data} />
       )}
+      {revenueDaily && (
+        <RevenueDailyChart
+          data={revenueDaily.data}
+          selectedDate={selectedDate}
+          onSelectDate={handleSelectDate}
+        />
+      )}
+      <RevenueDetail date={selectedDate} />
       {revoccup && (
         <RevenueOccupancyChart data={revoccup.data} />
       )}

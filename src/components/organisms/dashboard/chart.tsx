@@ -149,11 +149,14 @@ export default function RevenueOccupancyChart({ data }: RevenueOccupancyChartPro
     <div className="w-full bg-white rounded-2xl border border-gray-100 p-5 mt-4">
       {/* Header */}
       <div className="flex justify-between items-center mb-5">
-        <span className="text-sm font-semibold text-gray-600 tracking-wide">Last 30 days</span>
+        <div>
+          <span className="text-sm font-semibold text-gray-600 tracking-wide">Nilai booking & okupansi</span>
+          <p className="text-xs text-gray-400 mt-0.5">Per tanggal check-in, 30 hari terakhir</p>
+        </div>
         <div className="flex gap-5">
           <span className="flex items-center gap-1.5 text-xs text-gray-500">
             <span className="w-3 h-0.5 rounded-full inline-block" style={{ background: '#378ADD' }} />
-            Revenue (IDR)
+            Nilai booking (IDR)
           </span>
           <span className="flex items-center gap-1.5 text-xs text-gray-500">
             <span className="w-3 h-0.5 rounded-full inline-block" style={{ background: '#E24B4A' }} />
