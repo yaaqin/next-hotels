@@ -4,13 +4,32 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 
-const IDLE_FIRST_MS = 20_000;
-const IDLE_AFTER_DISMISS_MS = 45_000;
+// Lama diam (tanpa gerak mouse/ketik/scroll) sebelum popup muncul, naik tiap kali di-X:
+// belum pernah → 45 detik, 1x → 1 menit, 2x → 5 menit, 3x atau lebih → 10 menit
+const IDLE_DELAYS_MS = [45_000, 60_000, 5 * 60_000, 10 * 60_000];
+// Jumlah dismiss disimpan supaya tidak balik ke 45 detik tiap reload
+const DISMISS_KEY = 'robot-helper-dismiss-count';
+
+function readDismissCount() {
+    try {
+        return Number(localStorage.getItem(DISMISS_KEY)) || 0;
+    } catch {
+        return 0;
+    }
+}
+
+function saveDismissCount(count: number) {
+    try {
+        localStorage.setItem(DISMISS_KEY, String(count));
+    } catch {
+        // storage diblokir (private mode, dll) — hitungan tetap jalan di memori
+    }
+}
 
 export default function IdleRobotHelper() {
     const [visible, setVisible] = useState(false);
     const visibleRef = useRef(false);
-    const dismissedRef = useRef(false);
+    const dismissCountRef = useRef(0);
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const { t } = useTranslation()
@@ -22,7 +41,7 @@ export default function IdleRobotHelper() {
 
     const scheduleNext = () => {
         if (timerRef.current) clearTimeout(timerRef.current);
-        const delay = dismissedRef.current ? IDLE_AFTER_DISMISS_MS : IDLE_FIRST_MS;
+        const delay = IDLE_DELAYS_MS[Math.min(dismissCountRef.current, IDLE_DELAYS_MS.length - 1)];
         timerRef.current = setTimeout(() => setVisibleSync(true), delay);
     };
 
@@ -32,12 +51,14 @@ export default function IdleRobotHelper() {
     };
 
     const handleDismiss = () => {
-        dismissedRef.current = true;
+        dismissCountRef.current += 1;
+        saveDismissCount(dismissCountRef.current);
         setVisibleSync(false);
         scheduleNext();
     };
 
     useEffect(() => {
+        dismissCountRef.current = readDismissCount();
         const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'];
         events.forEach((e) => window.addEventListener(e, resetTimer, { passive: true }));
         scheduleNext();
