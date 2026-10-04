@@ -267,7 +267,14 @@
       "paidTitle": "支付成功",
       "paidDesc": "您的预订已付款完成。期待您入住！",
       "totalPaid": "已付总额",
-      "paidAt": "支付时间"
+      "paidAt": "支付时间",
+      "selectRooms": "选择房间号...",
+      "loadingRooms": "正在加载房间...",
+      "roomsSelected": "{{count}}间 · {{rooms}}",
+      "roomLabel": "{{number}}号房",
+      "roomOption": "{{number}}号房 · {{floor}}楼",
+      "multiRoomHint": "同一日期可选择多间房",
+      "noRoomsAvailable": "这些日期没有空房"
     },
     "profile": {
       "title": "个人资料",

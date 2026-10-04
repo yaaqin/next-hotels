@@ -267,7 +267,14 @@
       "paidTitle": "Pembayaran Berhasil",
       "paidDesc": "Booking Anda sudah lunas. Sampai jumpa saat check-in!",
       "totalPaid": "Total Dibayar",
-      "paidAt": "Dibayar pada"
+      "paidAt": "Dibayar pada",
+      "selectRooms": "Pilih nomor kamar...",
+      "loadingRooms": "Memuat kamar...",
+      "roomsSelected": "{{count}} kamar · {{rooms}}",
+      "roomLabel": "Kamar {{number}}",
+      "roomOption": "Kamar {{number}} · Lantai {{floor}}",
+      "multiRoomHint": "Bisa pilih lebih dari 1 kamar untuk tanggal yang sama",
+      "noRoomsAvailable": "Tidak ada kamar kosong di tanggal ini"
     },
     "profile": {
       "title": "Profil",

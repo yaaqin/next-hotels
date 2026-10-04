@@ -20,12 +20,15 @@ function getRoomName(booking: needConfirmListState) {
     return t?.name ?? '—'
 }
 
+// Booking multi kamar: tampilkan semua kamar, mis. "101, 102"
 function getRoomNumber(booking: needConfirmListState) {
-    return booking.items?.[0]?.room?.number ?? '—'
+    const values = [...new Set((booking.items ?? []).map((i) => i.room?.number).filter(Boolean))]
+    return values.length ? values.join(', ') : '—'
 }
 
 function getFloor(booking: needConfirmListState) {
-    return booking.items?.[0]?.room?.floorId ?? '—'
+    const values = [...new Set((booking.items ?? []).map((i) => i.room?.floorId).filter(Boolean))]
+    return values.length ? values.join(', ') : '—'
 }
 
 function getImageUrl(booking: needConfirmListState) {

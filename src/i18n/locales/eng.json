@@ -267,7 +267,14 @@
       "paidTitle": "Payment Successful",
       "paidDesc": "Your booking is fully paid. See you at check-in!",
       "totalPaid": "Total Paid",
-      "paidAt": "Paid on"
+      "paidAt": "Paid on",
+      "selectRooms": "Select room numbers...",
+      "loadingRooms": "Loading rooms...",
+      "roomsSelected": "{{count}} rooms · {{rooms}}",
+      "roomLabel": "Room {{number}}",
+      "roomOption": "Room {{number}} · Floor {{floor}}",
+      "multiRoomHint": "You can select more than one room for the same dates",
+      "noRoomsAvailable": "No rooms available for these dates"
     },
     "profile": {
       "title": "Profile",

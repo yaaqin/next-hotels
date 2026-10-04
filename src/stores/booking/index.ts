@@ -44,6 +44,7 @@ interface BookingStore {
   setStay: (data: { siteCode: string; checkInDate: string; checkOutDate: string }) => void
   setItem: (item: Pick<BookingItem, 'roomTypeId' | 'imageUrl'>) => void
   setRoomId: (roomTypeId: string, roomId: string, imageUrl: string) => void
+  setRooms: (roomTypeId: string, roomIds: string[], imageUrl: string) => void
   setContact: (contact: Partial<BookingContact>) => void
   setPaymentMethod: (method: PaymentMethod) => void
   setRoomDetail: (detail: BookingDisplayDetail) => void
@@ -93,13 +94,23 @@ export const useBookingStore = create<BookingStore>()(
           }
         }),
 
+      // Mulai dari satu kamar tertentu (tombol pesan di RDP)
       setRoomId: (roomTypeId, roomId, imageUrl) =>
         set((state) => ({
           payload: {
             ...state.payload,
-            items: state.payload.items.map((i) =>
-              i.roomTypeId === roomTypeId ? { ...i, roomId, imageUrl } : i
-            ),
+            items: [{ roomTypeId, roomId, imageUrl }],
+          },
+        })),
+
+      // Multi kamar: satu item per kamar. Kosong → item tanpa roomId supaya tipe kamar tetap diingat
+      setRooms: (roomTypeId, roomIds, imageUrl) =>
+        set((state) => ({
+          payload: {
+            ...state.payload,
+            items: roomIds.length
+              ? roomIds.map((roomId) => ({ roomTypeId, roomId, imageUrl }))
+              : [{ roomTypeId, imageUrl }],
           },
         })),
 

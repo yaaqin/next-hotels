@@ -27,6 +27,7 @@ import { useTranslation } from 'react-i18next'
 import { PriceTag } from '@/src/components/molecules/priceTag'
 import { usePriceTagConfig } from '@/src/hooks/usePriceTagConfig'
 import { PaymentCurrencyModal } from '@/src/components/organisms/reservation/PaymentCurrencyModal'
+import type { DisplayPricing } from '@/src/models/public/currency'
 
 type PaymentMethod = 'va_bca' | 'va_bni' | 'va_bri' | 'va_mandiri' | 'qris' | 'sgt' | 'credit'
 type PaymentCategory = 'va' | 'qris' | 'sgt' | 'credit'
@@ -46,13 +47,13 @@ type FormErrors = {
 
 function validateForm({
   contact,
-  selectedRoom,
+  selectedRoomCount,
   paymentCategory,
   selectedVA,
   sgtWalletAddress,
 }: {
   contact: any
-  selectedRoom: roomNumberListState | null
+  selectedRoomCount: number
   paymentCategory: PaymentCategory | null
   selectedVA: PaymentMethod | null
   sgtWalletAddress: string | null
@@ -80,8 +81,8 @@ function validateForm({
     errors.idNumber = 'NIK KTP harus 16 digit'
   }
 
-  if (!selectedRoom) {
-    errors.roomNumber = 'Nomor kamar wajib dipilih'
+  if (selectedRoomCount === 0) {
+    errors.roomNumber = 'Pilih minimal 1 kamar'
   }
 
   if (!paymentCategory) {
@@ -158,6 +159,13 @@ function formatCurrency(amount: number) {
     currency: 'IDR',
     minimumFractionDigits: 0,
   }).format(amount)
+}
+
+// Gabungan blok display beberapa kamar (kurs sama) → total dalam mata uang tampilan
+function sumDisplay(displays: (DisplayPricing | undefined)[]): DisplayPricing | undefined {
+  if (displays.length === 0 || displays.some((d) => !d)) return undefined
+  const list = displays as DisplayPricing[]
+  return { ...list[0], totalPrice: list.reduce((sum, d) => sum + (d.totalPrice ?? 0), 0) }
 }
 
 function Label({ children }: { children: React.ReactNode }) {
@@ -400,7 +408,7 @@ function ContactCard({
 
 export default function ReservationPage() {
   const { session, isLoading, isAuthenticated, isUnauthenticated } = useSafeSession()
-  const { payload, setContact, setPaymentMethod, setRoomId, isReadyToSubmit } = useBookingStore()
+  const { payload, setContact, setPaymentMethod, setRooms, isReadyToSubmit } = useBookingStore()
   const { checkInDate, checkOutDate, items, contact } = payload
 
   const { executePayment } = useSgtPayment()
@@ -425,19 +433,26 @@ export default function ReservationPage() {
     roomTypeId
   )
 
-  const [selectedRoom, setSelectedRoom] = useState<roomNumberListState | null>(null)
+  // Hanya kamar yang kosong di seluruh range tanggal (BE sudah memfilter per malam)
+  const availableRooms = roomData?.data?.filter((r) => r.isAvailable) ?? []
+  const [selectedRoomIds, setSelectedRoomIds] = useState<string[]>([])
   const [roomOpen, setRoomOpen] = useState(false)
+  const selectedRooms = availableRooms.filter((r) => selectedRoomIds.includes(r.id))
 
-  const handleSelectRoom = (room: roomNumberListState) => {
-    setSelectedRoom(room)
-    setRoomOpen(false)
-    setRoomId(roomTypeId, room.id, roomImageUrl ?? '')
-    if (submitted) setErrors((prev) => ({ ...prev, roomNumber: undefined }))
+  const handleToggleRoom = (room: roomNumberListState) => {
+    const next = selectedRoomIds.includes(room.id)
+      ? selectedRoomIds.filter((id) => id !== room.id)
+      : [...selectedRoomIds, room.id]
+    setSelectedRoomIds(next)
+    setRooms(roomTypeId, next, roomImageUrl ?? '')
   }
 
-  const firstAvailableRoom = roomData?.data?.find((r) => r.isAvailable)
-  const displayRoom = selectedRoom ?? firstAvailableRoom
-  const pricing = displayRoom?.pricing
+  // Ringkasan harga: kamar yang dipilih, atau kamar kosong pertama sebagai acuan
+  const pricedRooms = selectedRooms.length > 0 ? selectedRooms : availableRooms.slice(0, 1)
+  const displayRoom = pricedRooms[0]
+  const hasPricing = pricedRooms.length > 0 && pricedRooms.every((r) => !!r.pricing)
+  const totalIdr = pricedRooms.reduce((sum, r) => sum + (r.pricing?.totalPrice ?? 0), 0)
+  const totalDisplay = sumDisplay(pricedRooms.map((r) => r.pricing?.display))
 
   const [paymentCategory, setPaymentCategory] = useState<PaymentCategory | null>(null)
   const [selectedVA, setSelectedVA] = useState<PaymentMethod | null>(null)
@@ -467,31 +482,33 @@ export default function ReservationPage() {
   const [showCurrencyModal, setShowCurrencyModal] = useState(false)
   const needsCurrencyNotice =
     (paymentCategory === 'va' || paymentCategory === 'qris') &&
-    !!pricing?.display &&
-    pricing.display.currency !== 'IDR'
+    !!totalDisplay &&
+    totalDisplay.currency !== 'IDR'
   const paymentMethodLabel =
     paymentCategory === 'qris'
       ? 'QRIS'
       : VA_BANKS.find((b) => b.value === selectedVA)?.label ?? 'Virtual Account'
   const priceTag = usePriceTagConfig()
 
-  const preselectedRoomId = items[0]?.roomId
+  // Kamar yang sudah dipilih sebelumnya (dari RDP / kunjungan lalu), selama masih kosong
+  const [roomsRestored, setRoomsRestored] = useState(false)
   useEffect(() => {
-    if (!preselectedRoomId || !roomData?.data || selectedRoom) return
-    const match = roomData.data.find((r) => r.id === preselectedRoomId)
-    if (match) setSelectedRoom(match)
-  }, [preselectedRoomId, roomData?.data])
+    if (roomsRestored || !roomData?.data) return
+    const available = new Set(roomData.data.filter((r) => r.isAvailable).map((r) => r.id))
+    setSelectedRoomIds(items.map((i) => i.roomId).filter((id): id is string => !!id && available.has(id)))
+    setRoomsRestored(true)
+  }, [roomData?.data])
 
   // ── Re-validate on field change after first submit attempt ────────────────
   useEffect(() => {
     if (!submitted) return
-    const newErrors = validateForm({ contact, selectedRoom, paymentCategory, selectedVA, sgtWalletAddress })
+    const newErrors = validateForm({ contact, selectedRoomCount: selectedRooms.length, paymentCategory, selectedVA, sgtWalletAddress })
     setErrors(newErrors)
-  }, [contact, selectedRoom, paymentCategory, selectedVA, sgtWalletAddress, submitted])
+  }, [contact, selectedRooms.length, paymentCategory, selectedVA, sgtWalletAddress, submitted])
 
   const handleBooking = async () => {
     setSubmitted(true)
-    const newErrors = validateForm({ contact, selectedRoom, paymentCategory, selectedVA, sgtWalletAddress })
+    const newErrors = validateForm({ contact, selectedRoomCount: selectedRooms.length, paymentCategory, selectedVA, sgtWalletAddress })
     setErrors(newErrors)
 
     if (Object.keys(newErrors).length > 0) return
@@ -505,14 +522,16 @@ export default function ReservationPage() {
   }
 
   const submitBooking = async () => {
-    const { items, ...rest } = payload
+    const { items: _storeItems, ...rest } = payload
+    // Kirim kamar yang dipilih & masih kosong saat ini, bukan sisa isi store
+    const items = selectedRooms.map((room) => ({ roomId: room.id, roomTypeId }))
 
     // ── Credit path ──────────────────────────────────────────────────────────
     if (paymentCategory === 'credit') {
       mutate(
         {
           ...rest,
-          items: items.map(({ imageUrl, ...item }) => item),
+          items,
           paymentMethod: 'credit',
         } as BookingPayload,
         {
@@ -553,7 +572,7 @@ export default function ReservationPage() {
     mutate(
       {
         ...rest,
-        items: items.map(({ imageUrl, ...item }) => item),
+        items,
         senderWallet: sgtWalletAddress ?? undefined,
       } as BookingPayload,
       {
@@ -601,10 +620,10 @@ export default function ReservationPage() {
 
   return (
     <div className="min-h-screen bg-[#f5f4f0] py-10 px-4">
-      {showCurrencyModal && pricing?.display && (
+      {showCurrencyModal && totalDisplay && (
         <PaymentCurrencyModal
-          display={pricing.display}
-          totalIdr={pricing.totalPrice}
+          display={totalDisplay}
+          totalIdr={totalIdr}
           methodLabel={paymentMethodLabel}
           onCancel={() => setShowCurrencyModal(false)}
           onConfirm={() => {
@@ -645,7 +664,7 @@ export default function ReservationPage() {
               </div>
               <div className="grid grid-cols-3 gap-4 mb-4">
                 <div><Label>{t("text.reservation.roomType")}</Label><Field>{displayRoom?.roomType.name ?? '—'}</Field></div>
-                <div><Label>{t("text.reservation.floor")}</Label><Field>{selectedRoom?.floor ?? '—'}</Field></div>
+                <div><Label>{t("text.reservation.floor")}</Label><Field>{selectedRooms.length ? [...new Set(selectedRooms.map((r) => r.floor))].join(', ') : '—'}</Field></div>
                 <div><Label>{t("text.reservation.bedType")}</Label><Field>{displayRoom?.bedType.name ?? '—'}</Field></div>
               </div>
 
@@ -656,31 +675,49 @@ export default function ReservationPage() {
                   <button
                     data-cy="btn-select-room"
                     onClick={() => setRoomOpen(!roomOpen)}
-                    disabled={roomLoading || !roomData?.data?.length}
+                    disabled={roomLoading || availableRooms.length === 0}
                     className={`w-full flex items-center justify-between px-4 py-3 border rounded-xl text-sm hover:border-blue-300 transition disabled:opacity-50 disabled:cursor-not-allowed
                       ${errors.roomNumber ? 'border-red-300' : 'border-gray-200'}`}
                   >
-                    <span className={selectedRoom ? 'text-gray-900' : 'text-gray-300'}>
-                      {roomLoading ? 'Memuat kamar...' : selectedRoom ? `Room ${selectedRoom.number}` : 'Pilih nomor kamar...'}
+                    <span className={`truncate ${selectedRooms.length ? 'text-gray-900' : 'text-gray-300'}`}>
+                      {roomLoading
+                        ? t("text.reservation.loadingRooms")
+                        : selectedRooms.length
+                          ? t("text.reservation.roomsSelected", {
+                            count: selectedRooms.length,
+                            rooms: selectedRooms.map((r) => r.number).join(', '),
+                          })
+                          : availableRooms.length
+                            ? t("text.reservation.selectRooms")
+                            : t("text.reservation.noRoomsAvailable")}
                     </span>
                     <ArrowDown01Icon size={14} className={`text-gray-400 transition-transform duration-200 ${roomOpen ? 'rotate-180' : ''}`} />
                   </button>
-                  {roomOpen && roomData?.data && (
+                  {roomOpen && availableRooms.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-100 rounded-xl shadow-lg z-10 overflow-hidden max-h-52 overflow-y-auto">
-                      {roomData.data.filter((r) => r.isAvailable).map((room) => (
-                        <button
-                          data-cy="room-option"
-                          key={room.id}
-                          onClick={() => handleSelectRoom(room)}
-                          className={`w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-gray-50 transition text-left
-                            ${selectedRoom?.id === room.id ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}
-                        >
-                          <span>Room {room.number} · Lantai {room.floor}</span>
-                        </button>
-                      ))}
+                      {availableRooms.map((room) => {
+                        const isSelected = selectedRoomIds.includes(room.id)
+                        return (
+                          <button
+                            data-cy="room-option"
+                            key={room.id}
+                            aria-pressed={isSelected}
+                            onClick={() => handleToggleRoom(room)}
+                            className={`w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition text-left
+                              ${isSelected ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}
+                          >
+                            <span className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 text-[10px]
+                              ${isSelected ? 'bg-blue-500 border-blue-500 text-white' : 'border-gray-300'}`}>
+                              {isSelected && '✓'}
+                            </span>
+                            <span>{t("text.reservation.roomOption", { number: room.number, floor: room.floor })}</span>
+                          </button>
+                        )
+                      })}
                     </div>
                   )}
                 </div>
+                <p className="text-[11px] text-gray-400 mt-1.5 ml-1">{t("text.reservation.multiRoomHint")}</p>
                 <ErrorMsg message={errors.roomNumber} />
               </div>
             </div>
@@ -830,17 +867,24 @@ export default function ReservationPage() {
               </div>
               <p className="text-xs tracking-widest uppercase text-gray-400 mb-1">{t("text.reservation.priceSummary")}</p>
               <p className="text-base font-semibold text-gray-900 mb-4">{displayRoom?.roomType.name ?? '—'}</p>
-              {pricing ? (
+              {hasPricing ? (
                 <div className="space-y-3 text-sm">
-                  <div className="flex justify-between text-gray-500">
-                    <span>
-                      <PriceTag display={pricing.display} amountIdr={pricing.price} {...priceTag} />
-                      {' '}× {pricing.nights} {t("text.reservation.nights")}
-                    </span>
-                    <span className="text-gray-900">
-                      <PriceTag display={pricing.display} field="totalPrice" amountIdr={pricing.totalPrice} align="right" {...priceTag} />
-                    </span>
-                  </div>
+                  {pricedRooms.map((room) => (
+                    <div key={room.id} className="flex justify-between gap-2 text-gray-500">
+                      <span>
+                        {selectedRooms.length > 0 && (
+                          <span className="block text-[11px] text-gray-400">
+                            {t("text.reservation.roomLabel", { number: room.number })}
+                          </span>
+                        )}
+                        <PriceTag display={room.pricing.display} amountIdr={room.pricing.price} {...priceTag} />
+                        {' '}× {room.pricing.nights} {t("text.reservation.nights")}
+                      </span>
+                      <span className="text-gray-900">
+                        <PriceTag display={room.pricing.display} field="totalPrice" amountIdr={room.pricing.totalPrice} align="right" {...priceTag} />
+                      </span>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <p className="text-xs text-gray-300 text-center py-2">{t("text.reservation.loadingPrice")}</p>
@@ -849,8 +893,8 @@ export default function ReservationPage() {
               <div className="flex justify-between items-center">
                 <span className="text-xs tracking-widest uppercase text-gray-400">{t("text.reservation.total")}</span>
                 <span className="text-lg font-bold text-gray-900">
-                  {pricing ? (
-                    <PriceTag display={pricing.display} field="totalPrice" amountIdr={pricing.totalPrice} align="right" {...priceTag} />
+                  {hasPricing ? (
+                    <PriceTag display={totalDisplay} field="totalPrice" amountIdr={totalIdr} align="right" {...priceTag} />
                   ) : '—'}
                 </span>
               </div>

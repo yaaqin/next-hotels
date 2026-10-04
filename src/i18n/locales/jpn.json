@@ -267,7 +267,14 @@
       "paidTitle": "お支払い完了",
       "paidDesc": "ご予約のお支払いが完了しました。チェックインでお待ちしております！",
       "totalPaid": "お支払い合計",
-      "paidAt": "支払日時"
+      "paidAt": "支払日時",
+      "selectRooms": "部屋番号を選択...",
+      "loadingRooms": "客室を読み込み中...",
+      "roomsSelected": "{{count}}室 · {{rooms}}",
+      "roomLabel": "{{number}}号室",
+      "roomOption": "{{number}}号室 · {{floor}}階",
+      "multiRoomHint": "同じ日程で複数の客室を選択できます",
+      "noRoomsAvailable": "この日程で空室はありません"
     },
     "profile": {
       "title": "プロフィール",

@@ -372,8 +372,9 @@ export function RecentActivityDrawer({
                   </button>
                 )}
  
-                {/* Boleh-tidaknya (mis. hari H) ditentukan reschedule policy di BE */}
-                {['PAID', 'CONFIRMED'].includes(booking.status) && (
+                {/* Boleh-tidaknya (mis. hari H) ditentukan reschedule policy di BE.
+                    Booking multi kamar belum bisa di-reschedule */}
+                {['PAID', 'CONFIRMED'].includes(booking.status) && (booking.items?.length ?? 1) <= 1 && (
                   <button
                     onClick={() => handleRescheduleClick(booking.id)}
                     className="w-full py-3.5 rounded-xl text-sm font-medium tracking-widest uppercase transition-all duration-200 bg-orange-50 border border-orange-200 text-orange-500 hover:bg-orange-100"
