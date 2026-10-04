@@ -1,5 +1,6 @@
 'use client'
 
+import { Selects } from '@/src/components/molecules/inputs/selects'
 import { usePriceProposalCreatableSites } from '@/src/hooks/query/priceProposal/creatableSites'
 
 interface Props {
@@ -14,16 +15,18 @@ export default function SiteSelect({ value, onChange }: Props) {
   if (!scope || scope.lockedSiteCode) return null
 
   return (
-    <select
+    <Selects
+      label=""
       value={value ?? ''}
-      onChange={(e) => onChange(e.target.value)}
-      className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white"
-    >
-      <option value="" disabled>Pilih cabang</option>
-      {scope.sites.map((site) => (
-        <option key={site.siteCode} value={site.siteCode}>{site.nama} ({site.siteCode})</option>
-      ))}
-    </select>
+      onChange={onChange}
+      placeholder="Pilih cabang"
+      options={scope.sites.map((site) => ({
+        id: site.siteCode,
+        value: site.siteCode,
+        label: `${site.nama} (${site.siteCode})`,
+      }))}
+      selectClassName="text-sm"
+    />
   )
 }
 

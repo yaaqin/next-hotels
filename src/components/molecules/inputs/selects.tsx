@@ -54,7 +54,8 @@ export const Selects = forwardRef<HTMLSelectElement, SelectProps>(
 
     return (
       <div className={containerClassName}>
-        {/* Label */}
+        {/* Label — tidak dirender kalau kosong supaya tidak ada jarak kosong di atas select */}
+        {label && (
         <label
           className={cn(
             isPublic
@@ -68,6 +69,7 @@ export const Selects = forwardRef<HTMLSelectElement, SelectProps>(
             <span className={isPublic ? 'ml-1 text-[#1A56A0]' : 'text-red-500 ml-1'}>*</span>
           )}
         </label>
+        )}
 
         {/* Select */}
         <div className="relative">
@@ -84,7 +86,7 @@ export const Selects = forwardRef<HTMLSelectElement, SelectProps>(
               'w-full appearance-none cursor-pointer transition-colors duration-200',
               isPublic
                 ? 'pl-4 pr-10 py-3 text-sm rounded-xl border-[0.5px] border-[#B5CDE8] bg-[#EEF3FA] text-[#0A1828] focus:outline-none focus:ring-2 focus:ring-[#1A56A0]/30'
-                : 'px-4 py-2 text-gray-700 border rounded-lg bg-white',
+                : 'pl-4 pr-10 py-2 text-gray-700 border rounded-lg bg-white',
               hasError
                 ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500'
                 : disabled

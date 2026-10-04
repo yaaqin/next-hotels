@@ -6,6 +6,7 @@ import Loading from '../../organisms/loading'
 import { usePriceAdjustmentList } from '@/src/hooks/query/priceAdjustment'
 import PriceCompareCalendar from '../../organisms/priceAdjustment/PriceCompareCalendar'
 import SiteSelect, { useNeedsSite } from '../../organisms/priceAdjustment/SiteSelect'
+import { Selects } from '../../molecules/inputs/selects'
 import { STATUS_STYLE, formatDate, groupItems } from '../../organisms/priceAdjustment/helpers'
 
 const STATUSES = ['', 'DRAFT', 'APPROVED', 'REJECTED']
@@ -52,13 +53,14 @@ export default function PriceAdjustmentPage() {
         </div>
         <SiteSelect value={siteCode} onChange={setSiteCode} />
         {tab === 'list' && (
-          <select
+          <Selects
+            label=""
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white"
-          >
-            {STATUSES.map((s) => <option key={s} value={s}>{s || 'Semua status'}</option>)}
-          </select>
+            onChange={setStatus}
+            options={STATUSES.map((s) => ({ id: s || 'all', value: s, label: s || 'Semua status' }))}
+            showPlaceholder={false}
+            selectClassName="text-sm"
+          />
         )}
       </div>
 
