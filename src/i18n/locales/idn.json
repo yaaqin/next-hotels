@@ -68,7 +68,8 @@
       "visitorServices": "Layanan Pengunjung",
       "hotelReservation": "Reservasi Hotel",
       "entertainmentTicket": "Pembelian Tiket Hiburan",
-      "copyright": "© 2026 Marina Bay Sands. Hak Cipta Dilindungi Undang-Undang."
+      "copyright": "© 2026 Marina Bay Sands. Hak Cipta Dilindungi Undang-Undang.",
+      "guide": "Panduan Pengguna"
     },
     "home": {
       "head": {
@@ -163,6 +164,39 @@
         "needHelp": "Butuh bantuan? Boo Bot siap membantu.",
         "guideBtn": "Lihat panduan booking",
         "dismissBtn": "Tidak, terima kasih"
+      },
+      "guide": {
+        "eyebrow": "Butuh bantuan?",
+        "title": "Panduan Pengguna",
+        "subtitle": "Langkah demi langkah untuk semua yang bisa kamu lakukan di sini, dari booking kamar sampai pesan makanan.",
+        "cta": "Lihat semua panduan",
+        "read": "Baca panduan",
+        "cards": {
+          "booking": {
+            "title": "Booking kamar",
+            "desc": "Cari kamar, pilih tanggal, dan pesan satu atau beberapa kamar."
+          },
+          "payment": {
+            "title": "Pembayaran",
+            "desc": "Virtual Account, QRIS, kripto (SGT), atau booking credit."
+          },
+          "reschedule": {
+            "title": "Reschedule",
+            "desc": "Ganti tanggal menginap tanpa cancel booking."
+          },
+          "refund": {
+            "title": "Cancel & refund",
+            "desc": "Batalkan booking dan ajukan refund dalam bentuk credit atau cash."
+          },
+          "credit": {
+            "title": "Credit & withdraw",
+            "desc": "Cek saldo credit dan tarik ke wallet kamu."
+          },
+          "food": {
+            "title": "Pesan makanan",
+            "desc": "Pesan dari restoran hotel dan diantar ke meja kamu."
+          }
+        }
       }
     },
     "navbar": {
@@ -178,7 +212,9 @@
         "history": "Riwayat",
         "historyDesk": "lihat riwayat pemesanan Anda",
         "setting": "Pengaturan",
-        "settingDesk": "preferensi, keamanan & notifikasi."
+        "settingDesk": "preferensi, keamanan & notifikasi.",
+        "guide": "Panduan",
+        "guideDesk": "Cara booking, bayar, refund & lainnya"
       },
       "booking": {
         "tagline": "Di Mana Setiap Menginap\nMenjadi Kenangan.",
@@ -509,6 +545,22 @@
       "pricePerNight": "Harga/malam",
       "continue": "Lanjut ke Konfirmasi →",
       "pickFirst": "Pilih tanggal dulu"
+    }
+  },
+  "guide": {
+    "title": "Panduan Pengguna",
+    "search": "Cari panduan...",
+    "noResults": "Tidak ada panduan yang cocok.",
+    "language": "Bahasa",
+    "home": "Beranda",
+    "prev": "Sebelumnya",
+    "next": "Berikutnya",
+    "openList": "Daftar panduan",
+    "close": "Tutup menu",
+    "callout": {
+      "note": "Catatan",
+      "tip": "Tips",
+      "warning": "Penting"
     }
   }
 }

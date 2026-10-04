@@ -68,7 +68,8 @@
       "visitorServices": "Visitor Services",
       "hotelReservation": "Hotel Reservation",
       "entertainmentTicket": "Entertainment Ticket Purchase",
-      "copyright": "© 2026 Marina Bay Sands. All Rights Reserved."
+      "copyright": "© 2026 Marina Bay Sands. All Rights Reserved.",
+      "guide": "User Guide"
     },
     "home": {
       "head": {
@@ -163,6 +164,39 @@
         "needHelp": "Need help? I'm here for you!",
         "guideBtn": "View booking guide",
         "dismissBtn": "No, thank you"
+      },
+      "guide": {
+        "eyebrow": "Need help?",
+        "title": "User Guide",
+        "subtitle": "Step-by-step help for everything you can do here, from booking a room to ordering food.",
+        "cta": "See all guides",
+        "read": "Read guide",
+        "cards": {
+          "booking": {
+            "title": "Book a room",
+            "desc": "Find a room, pick your dates, and book one or more rooms."
+          },
+          "payment": {
+            "title": "Payment",
+            "desc": "Virtual Account, QRIS, crypto (SGT), or booking credit."
+          },
+          "reschedule": {
+            "title": "Reschedule",
+            "desc": "Change your stay dates without cancelling."
+          },
+          "refund": {
+            "title": "Cancel & refund",
+            "desc": "Cancel a booking and request a refund as credit or cash."
+          },
+          "credit": {
+            "title": "Credit & withdraw",
+            "desc": "Check your credit balance and withdraw it to your wallet."
+          },
+          "food": {
+            "title": "Order food",
+            "desc": "Order from the hotel restaurants and have it delivered to your table."
+          }
+        }
       }
     },
     "navbar": {
@@ -178,7 +212,9 @@
         "history": "History",
         "historyDesk": "view your booking history",
         "setting": "Setting",
-        "settingDesk": "preference, security & notification"
+        "settingDesk": "preference, security & notification",
+        "guide": "Guide",
+        "guideDesk": "How to book, pay, refund & more"
       },
       "booking": {
         "tagline": "Where Every Stay\nBecomes a Memory.",
@@ -509,6 +545,22 @@
       "pricePerNight": "Price/night",
       "continue": "Continue to Confirmation →",
       "pickFirst": "Select a date first"
+    }
+  },
+  "guide": {
+    "title": "User Guide",
+    "search": "Search guides...",
+    "noResults": "No matching guides.",
+    "language": "Language",
+    "home": "Home",
+    "prev": "Previous",
+    "next": "Next",
+    "openList": "Guide list",
+    "close": "Close menu",
+    "callout": {
+      "note": "Note",
+      "tip": "Tip",
+      "warning": "Important"
     }
   }
 }

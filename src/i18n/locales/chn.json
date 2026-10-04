@@ -68,7 +68,8 @@
       "visitorServices": "访客服务",
       "hotelReservation": "酒店预订",
       "entertainmentTicket": "娱乐票务购买",
-      "copyright": "© 2026 Marina Bay Sands. 版权所有。"
+      "copyright": "© 2026 Marina Bay Sands. 版权所有。",
+      "guide": "使用指南"
     },
     "home": {
       "head": {
@@ -163,6 +164,39 @@
         "needHelp": "需要帮助吗？我随时为您服务！",
         "guideBtn": "查看预订指南",
         "dismissBtn": "不，谢谢"
+      },
+      "guide": {
+        "eyebrow": "需要帮助？",
+        "title": "使用指南",
+        "subtitle": "从预订房间到点餐，一步步教您使用本网站的所有功能。",
+        "cta": "查看全部指南",
+        "read": "阅读指南",
+        "cards": {
+          "booking": {
+            "title": "预订房间",
+            "desc": "查找房间、选择日期，预订一间或多间房。"
+          },
+          "payment": {
+            "title": "支付",
+            "desc": "虚拟账户、QRIS、加密货币（SGT）或预订积分。"
+          },
+          "reschedule": {
+            "title": "改期",
+            "desc": "无需取消即可更改入住日期。"
+          },
+          "refund": {
+            "title": "取消与退款",
+            "desc": "取消预订，并申请积分或现金退款。"
+          },
+          "credit": {
+            "title": "积分与提现",
+            "desc": "查看积分余额并提现到您的钱包。"
+          },
+          "food": {
+            "title": "点餐",
+            "desc": "从酒店餐厅点餐，送到您的餐桌。"
+          }
+        }
       }
     },
     "navbar": {
@@ -178,7 +212,9 @@
         "history": "历史",
         "historyDesk": "查看您的预订历史",
         "setting": "设置",
-        "settingDesk": "偏好、安全与通知"
+        "settingDesk": "偏好、安全与通知",
+        "guide": "使用指南",
+        "guideDesk": "预订、支付、退款等操作方法"
       },
       "booking": {
         "tagline": "每一次入住\n都成为美好回忆。",
@@ -509,6 +545,22 @@
       "pricePerNight": "每晚价格",
       "continue": "继续确认 →",
       "pickFirst": "请先选择日期"
+    }
+  },
+  "guide": {
+    "title": "使用指南",
+    "search": "搜索指南...",
+    "noResults": "没有匹配的指南。",
+    "language": "语言",
+    "home": "首页",
+    "prev": "上一篇",
+    "next": "下一篇",
+    "openList": "指南列表",
+    "close": "关闭菜单",
+    "callout": {
+      "note": "说明",
+      "tip": "提示",
+      "warning": "重要"
     }
   }
 }

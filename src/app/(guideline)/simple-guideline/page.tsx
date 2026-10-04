@@ -1,7 +1,6 @@
-import SimpleGuideline from '@/src/components/pages/(guide)/simpleGuideline'
+import { permanentRedirect } from 'next/navigation'
 
+// Halaman lama — diganti /user-guide
 export default function page() {
-    return (
-        <SimpleGuideline />
-    )
+  permanentRedirect('/user-guide')
 }

@@ -136,6 +136,9 @@ export default function Footer({ branches = [] }: { branches?: FooterBranch[] })
 
         {/* Bottom */}
         <div className="text-center text-[0.6rem] tracking-[0.18em] uppercase text-[#3A6A96]">
+          <Link href="/user-guide" className="inline-block mb-3 hover:text-[#6A9EC5] transition-colors duration-300">
+            {t('text.footer.guide')}
+          </Link>
           <p className="mb-4 hover:text-[#6A9EC5] transition-colors duration-300 cursor-pointer">
             {t('text.footer.privacypol')}
           </p>

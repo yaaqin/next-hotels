@@ -68,7 +68,8 @@
       "visitorServices": "ビジターサービス",
       "hotelReservation": "ホテル予約",
       "entertainmentTicket": "エンターテインメントチケット購入",
-      "copyright": "© 2026 Marina Bay Sands. 無断転載を禁じます。"
+      "copyright": "© 2026 Marina Bay Sands. 無断転載を禁じます。",
+      "guide": "ご利用ガイド"
     },
     "home": {
       "head": {
@@ -163,6 +164,39 @@
         "needHelp": "お困りですか？いつでもお手伝いします！",
         "guideBtn": "予約ガイドを見る",
         "dismissBtn": "いいえ、結構です"
+      },
+      "guide": {
+        "eyebrow": "お困りですか？",
+        "title": "ご利用ガイド",
+        "subtitle": "客室の予約から食事の注文まで、このサイトでできることを順を追ってご案内します。",
+        "cta": "すべてのガイドを見る",
+        "read": "ガイドを読む",
+        "cards": {
+          "booking": {
+            "title": "客室の予約",
+            "desc": "客室を探し、日程を選んで、1室または複数室を予約します。"
+          },
+          "payment": {
+            "title": "お支払い",
+            "desc": "バーチャルアカウント、QRIS、暗号資産（SGT）、予約クレジット。"
+          },
+          "reschedule": {
+            "title": "予約の変更",
+            "desc": "キャンセルせずに宿泊日を変更します。"
+          },
+          "refund": {
+            "title": "キャンセルと返金",
+            "desc": "予約をキャンセルし、クレジットまたは現金で返金を申請します。"
+          },
+          "credit": {
+            "title": "クレジットと出金",
+            "desc": "クレジット残高を確認し、ウォレットに出金します。"
+          },
+          "food": {
+            "title": "食事の注文",
+            "desc": "ホテルのレストランで注文し、テーブルまでお届けします。"
+          }
+        }
       }
     },
     "navbar": {
@@ -178,7 +212,9 @@
         "history": "歴史",
         "historyDesk": "予約履歴を確認する",
         "setting": "設定",
-        "settingDesk": "設定、セキュリティ、通知"
+        "settingDesk": "設定、セキュリティ、通知",
+        "guide": "ガイド",
+        "guideDesk": "予約・支払い・返金などの方法"
       },
       "booking": {
         "tagline": "すべての滞在が\n思い出になる場所。",
@@ -509,6 +545,22 @@
       "pricePerNight": "1泊あたり",
       "continue": "確認に進む →",
       "pickFirst": "先に日程を選択してください"
+    }
+  },
+  "guide": {
+    "title": "ご利用ガイド",
+    "search": "ガイドを検索...",
+    "noResults": "該当するガイドはありません。",
+    "language": "言語",
+    "home": "ホーム",
+    "prev": "前へ",
+    "next": "次へ",
+    "openList": "ガイド一覧",
+    "close": "メニューを閉じる",
+    "callout": {
+      "note": "メモ",
+      "tip": "ヒント",
+      "warning": "重要"
     }
   }
 }

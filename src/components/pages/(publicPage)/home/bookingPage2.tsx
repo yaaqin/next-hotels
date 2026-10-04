@@ -11,6 +11,7 @@ import WhoWeAre from '@/src/components/organisms/home/weAre'
 import Facility from '@/src/components/organisms/home/allFacility'
 import Images from '@/src/components/atoms/images'
 import HotelBookingSelector from '@/src/components/organisms/home/actionBoard'
+import GuideTeaser from '@/src/components/organisms/home/guideTeaser'
 
 export default function BookingPage2({ branches = [] }: { branches?: FooterBranch[] }) {
   const { scrollY } = useScroll()
@@ -149,6 +150,7 @@ export default function BookingPage2({ branches = [] }: { branches?: FooterBranc
       <WhyChoose />
       <Facility />
       <Amenities />
+      <GuideTeaser />
       <section className='relative'>
         <Footer branches={branches} />
       </section>

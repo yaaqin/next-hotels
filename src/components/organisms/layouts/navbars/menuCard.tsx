@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { UserIcon, Clock01Icon, Settings01Icon, BookOpen02Icon, Globe02Icon, CoinsSwapIcon } from "hugeicons-react";
+import { UserIcon, Clock01Icon, Settings01Icon, BookOpen02Icon, Globe02Icon, CoinsSwapIcon, HelpCircleIcon } from "hugeicons-react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
@@ -69,6 +69,12 @@ export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
       description: t("text.navbar.menu.historyDesk"),
       icon: Clock01Icon,
       path: "/history",
+    },
+    {
+      label: t("text.navbar.menu.guide"),
+      description: t("text.navbar.menu.guideDesk"),
+      icon: HelpCircleIcon,
+      path: "/user-guide",
     },
     // {
     //   label: t("text.navbar.menu.setting"),

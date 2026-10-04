@@ -136,7 +136,7 @@ export default function IdleRobotHelper() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, width: '100%' }}>
                 <Link
-                    href="/simple-guideline"
+                    href="/user-guide?topic=booking-search"
                     style={{
                         width: '100%', padding: '7px 10px',
                         background: '#3b82f6', color: 'white',
