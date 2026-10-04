@@ -14,6 +14,7 @@ import {
 } from 'hugeicons-react'
 import { useReschedulePreview } from '@/src/hooks/query/reschedule/reschedulePreview'
 import { useConfirmReschedule } from '@/src/hooks/mutation/reschedule/confirm'
+import { useEnabledPaymentMethods } from '@/src/hooks/query/paymentMethod/public'
 import { useSgtPayment } from '@/src/hooks/custom/payment/useSgtPayment'
 import { SlushWalletButton } from '@/src/components/atoms/slushWalletButton'
 import { axiosPublic } from '@/src/libs/instance'
@@ -40,8 +41,11 @@ const VA_BANKS: { value: VABank; name: string; logo: string }[] = [
 
 const PAY_CATS: PaymentCategory[] = ['va', 'qris', 'sgt', 'credit']
 
-// Sama dengan halaman reservasi
-const DISABLED_PAYMENT: PaymentCategory[] = ['qris']
+// On/off metode diatur di config panel (scope BOOKING, per cabang)
+function isCategoryEnabled(cat: PaymentCategory, enabledMethods: string[]) {
+  if (cat === 'va') return VA_BANKS.some((b) => enabledMethods.includes(b.value))
+  return enabledMethods.includes(cat)
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -413,6 +417,7 @@ function CalculationCard({
 
 interface PaymentCardProps {
   pricing: reschedulePricing
+  enabledMethods: string[]
   paymentCategory: PaymentCategory | null
   selectedVA: VABank | null
   onSelectCategory: (cat: PaymentCategory) => void
@@ -426,6 +431,7 @@ interface PaymentCardProps {
 
 function PaymentMethodCard({
   pricing,
+  enabledMethods,
   paymentCategory,
   selectedVA,
   onSelectCategory,
@@ -461,7 +467,7 @@ function PaymentMethodCard({
           <div className="flex flex-wrap gap-2 mb-4">
             {PAY_CATS.map((key) => {
               const label = t(`reschedule.pay.${key}`)
-              const disabled = DISABLED_PAYMENT.includes(key)
+              const disabled = !isCategoryEnabled(key, enabledMethods)
               const isActive = paymentCategory === key
               return (
                 <button
@@ -482,7 +488,7 @@ function PaymentMethodCard({
                   {disabled ? (
                     <>
                       <span className="line-through">{label}</span>
-                      <span className="ml-1.5 normal-case tracking-normal text-gray-300">{t('reschedule.pay.comingSoon')}</span>
+                      <span className="ml-1.5 normal-case tracking-normal text-gray-300">{t('reschedule.pay.unavailable')}</span>
                     </>
                   ) : (
                     label
@@ -494,7 +500,7 @@ function PaymentMethodCard({
 
           {paymentCategory === 'va' && (
             <div className="border border-gray-100 rounded-xl overflow-hidden mt-2">
-              {VA_BANKS.map((bank) => (
+              {VA_BANKS.filter((bank) => enabledMethods.includes(bank.value)).map((bank) => (
                 <button
                   key={bank.value}
                   onClick={() => onSelectVA(bank.value)}
@@ -594,6 +600,7 @@ export default function ReschedulePage() {
 
   const { executePayment } = useSgtPayment()
   const { mutate, isPending } = useConfirmReschedule()
+  const { enabledMethods } = useEnabledPaymentMethods('BOOKING', preview?.originalBooking.siteCode)
 
   if (!newCheckIn || !newCheckOut) {
     return (
@@ -733,6 +740,7 @@ export default function ReschedulePage() {
 
         <PaymentMethodCard
           pricing={pricing}
+          enabledMethods={enabledMethods}
           paymentCategory={paymentCategory}
           selectedVA={selectedVA}
           onSelectCategory={handleSelectCategory}

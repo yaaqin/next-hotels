@@ -274,7 +274,8 @@
       "roomLabel": "Kamar {{number}}",
       "roomOption": "Kamar {{number}} · Lantai {{floor}}",
       "multiRoomHint": "Bisa pilih lebih dari 1 kamar untuk tanggal yang sama",
-      "noRoomsAvailable": "Tidak ada kamar kosong di tanggal ini"
+      "noRoomsAvailable": "Tidak ada kamar kosong di tanggal ini",
+      "unavailable": "(tidak tersedia)"
     },
     "profile": {
       "title": "Profil",
@@ -483,7 +484,8 @@
       "processing": "Memproses...",
       "confirm": "Konfirmasi Reschedule",
       "payCredit": "Bayar dengan Credit",
-      "confirmPay": "Konfirmasi & Bayar"
+      "confirmPay": "Konfirmasi & Bayar",
+      "unavailable": "Tidak tersedia"
     },
     "state": {
       "noDatesTitle": "Tanggal baru belum dipilih",

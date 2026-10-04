@@ -9,8 +9,11 @@ import {
   CreateMenuPayload,
   CreateRolePayload,
   MenuTranslations,
+  PaymentMethodConfig,
+  PaymentScope,
   Role,
   Site,
+  UpdatePaymentMethodPayload,
 } from '@/src/models/config'
 
 // Semua endpoint /config/* khusus role sistem (DEV, SUPERADMIN) — dijaga SystemRoleGuard di BE
@@ -70,3 +73,16 @@ export const bulkUpdateAccess = async (
 // ── Sites (dropdown sitecode saat buat admin) ──
 export const getSites = async (): Promise<ApiResponse<Site[]>> =>
   (await axiosPrivate.get('/sites')).data
+
+// ── Payment methods ────────────────────────────
+// siteCode kosong = setting semua cabang
+export const getPaymentMethodConfig = async (
+  scope: PaymentScope,
+  siteCode?: string,
+): Promise<ApiResponse<PaymentMethodConfig[]>> =>
+  (await axiosPrivate.get('/config/payment-methods', { params: { scope, siteCode } })).data
+
+export const updatePaymentMethod = async (
+  payload: UpdatePaymentMethodPayload,
+): Promise<ApiResponse<PaymentMethodConfig[]>> =>
+  (await axiosPrivate.put('/config/payment-methods', payload)).data

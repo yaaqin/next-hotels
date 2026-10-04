@@ -93,3 +93,25 @@ export interface CreateMenuPayload {
   path?: string
   name: string
 }
+
+// ── Payment methods ────────────────────────────
+export type PaymentScope = 'BOOKING' | 'FOOD'
+
+export interface PaymentMethodConfig {
+  method: string
+  label: string
+  defaultEnabled: boolean
+  // null = belum di-set, ikut default di kode
+  globalValue: boolean | null
+  // null = ikut setting semua cabang (selalu null kalau yang dilihat "semua cabang")
+  siteValue: boolean | null
+  isEnabled: boolean
+}
+
+export interface UpdatePaymentMethodPayload {
+  scope: PaymentScope
+  siteCode?: string
+  method: string
+  // null = hapus setting → ikut level di atasnya
+  isEnabled: boolean | null
+}

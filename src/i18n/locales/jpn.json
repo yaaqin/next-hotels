@@ -274,7 +274,8 @@
       "roomLabel": "{{number}}号室",
       "roomOption": "{{number}}号室 · {{floor}}階",
       "multiRoomHint": "同じ日程で複数の客室を選択できます",
-      "noRoomsAvailable": "この日程で空室はありません"
+      "noRoomsAvailable": "この日程で空室はありません",
+      "unavailable": "（利用不可）"
     },
     "profile": {
       "title": "プロフィール",
@@ -483,7 +484,8 @@
       "processing": "処理中...",
       "confirm": "変更を確定",
       "payCredit": "クレジットで支払う",
-      "confirmPay": "確定して支払う"
+      "confirmPay": "確定して支払う",
+      "unavailable": "利用不可"
     },
     "state": {
       "noDatesTitle": "新しい日程が選択されていません",

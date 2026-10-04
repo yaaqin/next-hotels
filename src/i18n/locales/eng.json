@@ -274,7 +274,8 @@
       "roomLabel": "Room {{number}}",
       "roomOption": "Room {{number}} · Floor {{floor}}",
       "multiRoomHint": "You can select more than one room for the same dates",
-      "noRoomsAvailable": "No rooms available for these dates"
+      "noRoomsAvailable": "No rooms available for these dates",
+      "unavailable": "(unavailable)"
     },
     "profile": {
       "title": "Profile",
@@ -483,7 +484,8 @@
       "processing": "Processing...",
       "confirm": "Confirm Reschedule",
       "payCredit": "Pay with Credit",
-      "confirmPay": "Confirm & Pay"
+      "confirmPay": "Confirm & Pay",
+      "unavailable": "Unavailable"
     },
     "state": {
       "noDatesTitle": "No new dates selected",

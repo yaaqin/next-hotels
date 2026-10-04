@@ -21,6 +21,7 @@ export interface rescheduleRoomOption {
 export interface rescheduleOriginalBooking {
   id: string
   bookingCode: string
+  siteCode: string
   status: string
   checkIn: string
   checkOut: string

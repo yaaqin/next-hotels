@@ -14,6 +14,7 @@ import {
 } from 'hugeicons-react'
 import { useBookingStore } from '@/src/stores/booking'
 import { useCreateBooking } from '@/src/hooks/mutation/booking/create'
+import { useEnabledPaymentMethods } from '@/src/hooks/query/paymentMethod/public'
 import { roomNumberListState } from '@/src/models/public/roomAvailibility/listRoomNumber'
 import { usePublicRoomNumberAvailibility } from '@/src/hooks/query/roomAvailibility/publicRoomNumberList'
 import { BookingPayload } from '@/src/models/bookings/create'
@@ -616,7 +617,11 @@ export default function ReservationPage() {
 
   const { t } = useTranslation()
 
-  const DISABLED_PAYMENT_METHODS: PaymentCategory[] = ['qris']
+  // On/off metode diatur di config panel (scope BOOKING, per cabang)
+  const { enabledMethods } = useEnabledPaymentMethods('BOOKING', payload.siteCode)
+  const enabledBanks = VA_BANKS.filter((b) => enabledMethods.includes(b.value.replace('va_', '')))
+  const isCategoryEnabled = (cat: PaymentCategory) =>
+    cat === 'va' ? enabledBanks.length > 0 : enabledMethods.includes(cat)
 
   return (
     <div className="min-h-screen bg-[#f5f4f0] py-10 px-4">
@@ -746,7 +751,7 @@ export default function ReservationPage() {
               {/* Payment Category Tabs */}
               <div className="flex flex-wrap gap-2 mb-4">
                 {(['va', 'qris', 'sgt', 'credit'] as PaymentCategory[]).map((cat) => {
-                  const isDisabled = DISABLED_PAYMENT_METHODS.includes(cat)
+                  const isDisabled = !isCategoryEnabled(cat)
                   const label =
                     cat === 'va' ? t("text.reservation.virtualAccount") :
                       cat === 'sgt' ? t("text.reservation.crypto") :
@@ -772,7 +777,7 @@ export default function ReservationPage() {
                       <span className={isDisabled ? 'line-through' : ''}>{label}</span>
                       {isDisabled && (
                         <span className="ml-1.5 normal-case tracking-normal no-underline text-gray-300">
-                          {t("text.reservation.comingSoon")}
+                          {t("text.reservation.unavailable")}
                         </span>
                       )}
                     </button>
@@ -796,7 +801,7 @@ export default function ReservationPage() {
                   </button>
                   {vaOpen && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-100 rounded-xl shadow-lg z-10 overflow-hidden">
-                      {VA_BANKS.map((bank) => (
+                      {enabledBanks.map((bank) => (
                         <button
                           data-cy={`va-option-${bank.value}`}
                           key={bank.value}

@@ -12,12 +12,20 @@ import {
   getConfigMenuDetail,
   getConfigMenus,
   getConfigMenuTranslations,
+  getPaymentMethodConfig,
   getRoles,
   getSites,
   updateMenu,
+  updatePaymentMethod,
   updateRole,
 } from '@/src/services/config'
-import { CreateAdminPayload, CreateMenuPayload, CreateRolePayload } from '@/src/models/config'
+import {
+  CreateAdminPayload,
+  CreateMenuPayload,
+  CreateRolePayload,
+  PaymentScope,
+  UpdatePaymentMethodPayload,
+} from '@/src/models/config'
 
 export const configKeys = {
   roles: ['config', 'roles'] as const,
@@ -27,6 +35,8 @@ export const configKeys = {
   menuTranslations: (id: string) => ['config', 'menus', id, 'translations'] as const,
   access: ['config', 'access-control'] as const,
   sites: ['config', 'sites'] as const,
+  paymentMethods: (scope: PaymentScope, siteCode?: string) =>
+    ['config', 'payment-methods', scope, siteCode ?? '*'] as const,
 }
 
 // ── Queries ────────────────────────────────────
@@ -54,6 +64,12 @@ export const useConfigAccess = () =>
   useQuery({ queryKey: configKeys.access, queryFn: getAccessControls })
 
 export const useConfigSites = () => useQuery({ queryKey: configKeys.sites, queryFn: getSites })
+
+export const usePaymentMethodConfig = (scope: PaymentScope, siteCode?: string) =>
+  useQuery({
+    queryKey: configKeys.paymentMethods(scope, siteCode),
+    queryFn: () => getPaymentMethodConfig(scope, siteCode),
+  })
 
 // ── Mutations ──────────────────────────────────
 // Error sudah di-toast oleh interceptor axiosPrivate, di sini cuma toast sukses + refresh data
@@ -157,6 +173,18 @@ export const useBulkUpdateAccess = () => {
       toast.success('Hak akses disimpan')
       qc.invalidateQueries({ queryKey: configKeys.access })
       qc.invalidateQueries({ queryKey: ['config', 'menus'] })
+    },
+  })
+}
+
+export const useUpdatePaymentMethod = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: UpdatePaymentMethodPayload) => updatePaymentMethod(payload),
+    onSuccess: (_, payload) => {
+      toast.success('Metode pembayaran disimpan')
+      // Setting semua cabang ikut mengubah status efektif di tiap cabang
+      qc.invalidateQueries({ queryKey: ['config', 'payment-methods', payload.scope] })
     },
   })
 }

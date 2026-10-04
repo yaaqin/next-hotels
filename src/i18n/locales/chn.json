@@ -274,7 +274,8 @@
       "roomLabel": "{{number}}号房",
       "roomOption": "{{number}}号房 · {{floor}}楼",
       "multiRoomHint": "同一日期可选择多间房",
-      "noRoomsAvailable": "这些日期没有空房"
+      "noRoomsAvailable": "这些日期没有空房",
+      "unavailable": "（不可用）"
     },
     "profile": {
       "title": "个人资料",
@@ -483,7 +484,8 @@
       "processing": "处理中...",
       "confirm": "确认改期",
       "payCredit": "使用积分支付",
-      "confirmPay": "确认并支付"
+      "confirmPay": "确认并支付",
+      "unavailable": "不可用"
     },
     "state": {
       "noDatesTitle": "尚未选择新日期",
