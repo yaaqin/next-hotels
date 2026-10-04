@@ -4,6 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import {
   CreditCardIcon,
   ArrowDown01Icon,
@@ -29,19 +31,14 @@ import {
 type PaymentCategory = 'va' | 'qris' | 'sgt' | 'credit'
 type VABank = 'bca' | 'bni' | 'bri' | 'mandiri'
 
-const VA_BANKS: { value: VABank; label: string; logo: string }[] = [
-  { value: 'bca', label: 'BCA Virtual Account', logo: 'BCA' },
-  { value: 'bni', label: 'BNI Virtual Account', logo: 'BNI' },
-  { value: 'bri', label: 'BRI Virtual Account', logo: 'BRI' },
-  { value: 'mandiri', label: 'Mandiri Virtual Account', logo: 'MDR' },
+const VA_BANKS: { value: VABank; name: string; logo: string }[] = [
+  { value: 'bca', name: 'BCA', logo: 'BCA' },
+  { value: 'bni', name: 'BNI', logo: 'BNI' },
+  { value: 'bri', name: 'BRI', logo: 'BRI' },
+  { value: 'mandiri', name: 'Mandiri', logo: 'MDR' },
 ]
 
-const PAY_CATS: { key: PaymentCategory; label: string }[] = [
-  { key: 'va', label: 'Virtual Account' },
-  { key: 'qris', label: 'QRIS' },
-  { key: 'sgt', label: 'Crypto (SGT)' },
-  { key: 'credit', label: 'Credit' },
-]
+const PAY_CATS: PaymentCategory[] = ['va', 'qris', 'sgt', 'credit']
 
 // Sama dengan halaman reservasi
 const DISABLED_PAYMENT: PaymentCategory[] = ['qris']
@@ -62,22 +59,22 @@ function formatDate(dateStr: string) {
   return `${d} · ${m} · ${y}`
 }
 
-function formatPaymentMethod(method: string | null) {
+function formatPaymentMethod(method: string | null, t: TFunction) {
   if (!method) return '—'
-  if (method === 'CREDIT') return 'Booking Credit'
-  if (method === 'QRIS') return 'QRIS'
-  if (method === 'SGT') return 'Crypto (SGT)'
-  if (method.startsWith('VA_')) return `${method.replace('VA_', '')} Virtual Account`
+  if (method === 'CREDIT') return t('reschedule.pay.bookingCredit')
+  if (method === 'QRIS') return t('reschedule.pay.qris')
+  if (method === 'SGT') return t('reschedule.pay.sgt')
+  if (method.startsWith('VA_')) return t('reschedule.pay.vaBank', { bank: method.replace('VA_', '') })
   return method
 }
 
-function policyWindowLabel(policy: reschedulePolicySummary) {
-  return policy.daysUntilCheckIn === 0 ? 'hari H' : `H-${policy.daysUntilCheckIn}`
+function policyWindowLabel(daysUntilCheckIn: number, t: TFunction) {
+  return daysUntilCheckIn === 0 ? t('reschedule.dayH') : t('reschedule.dayMinus', { days: daysUntilCheckIn })
 }
 
-function getErrorMessage(error: unknown) {
+function getErrorMessage(error: unknown, t: TFunction) {
   const err = error as { response?: { data?: { message?: string } }; message?: string }
-  return err?.response?.data?.message ?? err?.message ?? 'Terjadi kesalahan, coba lagi.'
+  return err?.response?.data?.message ?? err?.message ?? t('reschedule.state.genericError')
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -116,6 +113,7 @@ function StateCard({
   description: string
   onRetry?: () => void
 }) {
+  const { t } = useTranslation()
   return (
     <div className="min-h-screen bg-[#f5f4f0] py-10 px-4">
       <div className="max-w-md mx-auto bg-white rounded-2xl p-6 shadow-sm text-center">
@@ -126,14 +124,14 @@ function StateCard({
             onClick={onRetry}
             className="block mx-auto mt-5 text-[11px] tracking-widest uppercase font-medium text-blue-500 hover:underline"
           >
-            Pilih kamar lain
+            {t('reschedule.state.chooseOtherRoom')}
           </button>
         )}
         <Link
           href="/recent-activity"
           className="inline-block mt-5 px-5 py-2.5 rounded-xl text-[11px] tracking-widest uppercase font-medium bg-gray-900 text-white hover:bg-gray-800 transition"
         >
-          Kembali ke Recent Activity
+          {t('reschedule.state.backToActivity')}
         </Link>
       </div>
     </div>
@@ -143,11 +141,12 @@ function StateCard({
 // ─── Old Booking Card ─────────────────────────────────────────────────────────
 
 function OldBookingCard({ booking }: { booking: rescheduleOriginalBooking }) {
+  const { t } = useTranslation()
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm">
       <div className="flex items-center gap-2 mb-5">
         <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-medium tracking-wide bg-red-50 text-red-700 border border-red-100">
-          Old booking
+          {t('reschedule.oldBooking')}
         </span>
         <span className="text-[10px] text-gray-400 tracking-wide">
           {booking.bookingCode} · {booking.status}
@@ -156,11 +155,11 @@ function OldBookingCard({ booking }: { booking: rescheduleOriginalBooking }) {
 
       <div className="grid grid-cols-2 gap-4 mb-5">
         <div>
-          <SectionLabel>Check in</SectionLabel>
+          <SectionLabel>{t('reschedule.checkIn')}</SectionLabel>
           <SectionValue>{formatDate(booking.checkIn)}</SectionValue>
         </div>
         <div>
-          <SectionLabel>Check out</SectionLabel>
+          <SectionLabel>{t('reschedule.checkOut')}</SectionLabel>
           <SectionValue>{formatDate(booking.checkOut)}</SectionValue>
         </div>
       </div>
@@ -169,23 +168,23 @@ function OldBookingCard({ booking }: { booking: rescheduleOriginalBooking }) {
 
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <SectionLabel>Room number</SectionLabel>
+          <SectionLabel>{t('reschedule.roomNumber')}</SectionLabel>
           <SectionValue>{booking.roomNumber ?? '—'}</SectionValue>
         </div>
         <div>
-          <SectionLabel>Room type</SectionLabel>
+          <SectionLabel>{t('reschedule.roomType')}</SectionLabel>
           <SectionValue>{booking.roomTypeName ?? '—'}</SectionValue>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <SectionLabel>Total payment</SectionLabel>
+          <SectionLabel>{t('reschedule.totalPayment')}</SectionLabel>
           <SectionValue>{formatCurrency(booking.totalAmount)}</SectionValue>
         </div>
         <div>
-          <SectionLabel>Payment method</SectionLabel>
-          <SectionValue>{formatPaymentMethod(booking.paymentMethod)}</SectionValue>
+          <SectionLabel>{t('reschedule.paymentMethod')}</SectionLabel>
+          <SectionValue>{formatPaymentMethod(booking.paymentMethod, t)}</SectionValue>
         </div>
       </div>
     </div>
@@ -203,6 +202,7 @@ function NewBookingCard({
   isFetching: boolean
   onRoomChange: (roomId: string) => void
 }) {
+  const { t } = useTranslation()
   const { dates, rooms } = preview
   const selected = rooms.selected
 
@@ -219,20 +219,20 @@ function NewBookingCard({
     <div className="bg-white rounded-2xl p-6 shadow-sm">
       <div className="flex items-center justify-between gap-2 mb-5">
         <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-medium tracking-wide bg-blue-50 text-blue-700 border border-blue-100">
-          New booking
+          {t('reschedule.newBooking')}
         </span>
         <Link href="/recent-activity" className="text-[10px] tracking-wide text-blue-500 hover:underline">
-          Ganti tanggal
+          {t('reschedule.changeDate')}
         </Link>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-5">
         <div>
-          <SectionLabel>Check in</SectionLabel>
+          <SectionLabel>{t('reschedule.checkIn')}</SectionLabel>
           <SectionValue>{formatDate(dates.newCheckIn)}</SectionValue>
         </div>
         <div>
-          <SectionLabel>Check out</SectionLabel>
+          <SectionLabel>{t('reschedule.checkOut')}</SectionLabel>
           <SectionValue>{formatDate(dates.newCheckOut)}</SectionValue>
         </div>
       </div>
@@ -240,7 +240,7 @@ function NewBookingCard({
       <Divider />
 
       <div className="mb-4">
-        <SectionLabel>Kamar</SectionLabel>
+        <SectionLabel>{t('reschedule.room')}</SectionLabel>
         <div className="relative mt-1">
           <select
             value={selected.roomId}
@@ -252,8 +252,12 @@ function NewBookingCard({
               <optgroup key={typeName} label={typeName}>
                 {list.map((room) => (
                   <option key={room.roomId} value={room.roomId}>
-                    No. {room.roomNumber} · Lantai {room.floorId} — {formatCurrency(room.pricePerNight)}/malam
-                    {room.isOriginalRoom ? ' (kamar lama)' : ''}
+                    {t('reschedule.roomOption', {
+                      number: room.roomNumber,
+                      floor: room.floorId,
+                      price: formatCurrency(room.pricePerNight),
+                    })}
+                    {room.isOriginalRoom ? t('reschedule.originalRoomTag') : ''}
                   </option>
                 ))}
               </optgroup>
@@ -266,19 +270,19 @@ function NewBookingCard({
         </div>
         {rooms.mustChooseAlternative && (
           <p className="text-[11px] text-amber-600 mt-2 leading-relaxed">
-            Kamar lama kamu sudah terisi di tanggal ini, pilih kamar lain.
+            {t('reschedule.mustChooseAlternative')}
           </p>
         )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <SectionLabel>Room type</SectionLabel>
+          <SectionLabel>{t('reschedule.roomType')}</SectionLabel>
           <SectionValue>{selected.roomTypeName || '—'}</SectionValue>
         </div>
         <div>
-          <SectionLabel>Durasi</SectionLabel>
-          <SectionValue>{dates.nights} malam</SectionValue>
+          <SectionLabel>{t('reschedule.duration')}</SectionLabel>
+          <SectionValue>{t('reschedule.nights', { count: dates.nights })}</SectionValue>
         </div>
       </div>
     </div>
@@ -322,21 +326,26 @@ function CalculationCard({
   room: rescheduleRoomOption
   isFetching: boolean
 }) {
+  const { t } = useTranslation()
   return (
     <div className={`bg-white rounded-2xl p-6 shadow-sm transition-opacity ${isFetching ? 'opacity-60' : ''}`}>
       <CardHeader
         icon={<ReceiptDollarIcon size={16} className="text-blue-400" />}
-        label="Calculation"
+        label={t('reschedule.calc.title')}
       />
 
-      <CalcRow label="Total pembayaran booking lama" value={formatCurrency(pricing.oldPrice)} />
+      <CalcRow label={t('reschedule.calc.oldTotal')} value={formatCurrency(pricing.oldPrice)} />
 
       <CalcRow
-        label="Reschedule policy"
+        label={t('reschedule.calc.policy')}
         sub={
           <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 border border-green-100 rounded-lg text-[10px] text-green-700 font-medium">
             <Tick01Icon size={10} />
-            {policy.name} · {policyWindowLabel(policy)} · Potongan {policy.penaltyPercent}%
+            {t('reschedule.calc.policyBadge', {
+              name: policy.name,
+              window: policyWindowLabel(policy.daysUntilCheckIn, t),
+              percent: policy.penaltyPercent,
+            })}
           </span>
         }
         value={
@@ -344,24 +353,28 @@ function CalculationCard({
             <span className="text-red-500">- {formatCurrency(pricing.penaltyAmount)}</span>
             <br />
             <span className="text-[10px] text-gray-400 font-normal">
-              ({policy.penaltyPercent}% dari total lama)
+              {t('reschedule.calc.penaltyOf', { percent: policy.penaltyPercent })}
             </span>
           </span>
         }
       />
 
       <CalcRow
-        label="Nilai tersisa dari booking lama"
-        sub={<p className="text-[10px] text-gray-400">Dipakai untuk booking baru</p>}
+        label={t('reschedule.calc.retained')}
+        sub={<p className="text-[10px] text-gray-400">{t('reschedule.calc.retainedHint')}</p>}
         value={formatCurrency(pricing.retainedAmount)}
         valueClass="text-green-600"
       />
 
       <CalcRow
-        label="Harga booking baru"
+        label={t('reschedule.calc.newPrice')}
         sub={
           <p className="text-[10px] text-gray-400">
-            {room.roomTypeName} · {room.nights} malam × {formatCurrency(room.pricePerNight)}
+            {t('reschedule.calc.newPriceHint', {
+              type: room.roomTypeName,
+              nights: room.nights,
+              price: formatCurrency(room.pricePerNight),
+            })}
           </p>
         }
         value={formatCurrency(pricing.newPrice)}
@@ -370,10 +383,10 @@ function CalculationCard({
       <CalcRow
         label={
           pricing.paymentRequired
-            ? 'Kekurangan yang perlu dibayar'
+            ? t('reschedule.calc.shortfall')
             : pricing.creditWillBeIssued
-              ? 'Selisih masuk ke booking credit'
-              : 'Tidak ada selisih'
+              ? t('reschedule.calc.toCredit')
+              : t('reschedule.calc.noDifference')
         }
         value={formatCurrency(Math.abs(pricing.difference))}
         valueClass={
@@ -387,8 +400,8 @@ function CalculationCard({
 
       <div className="flex items-center justify-between mt-4 px-4 py-3.5 bg-gray-50 rounded-xl border border-dashed border-gray-200">
         <div>
-          <p className="text-[10px] tracking-widest uppercase text-gray-400">Total tagihan</p>
-          <p className="text-[10px] text-gray-400 mt-0.5">Jumlah yang harus dibayarkan sekarang</p>
+          <p className="text-[10px] tracking-widest uppercase text-gray-400">{t('reschedule.calc.totalDue')}</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">{t('reschedule.calc.totalDueHint')}</p>
         </div>
         <p className="text-xl font-bold text-gray-900">{formatCurrency(pricing.extraCharge)}</p>
       </div>
@@ -423,6 +436,7 @@ function PaymentMethodCard({
   canSubmit,
   onSubmit,
 }: PaymentCardProps) {
+  const { t } = useTranslation()
   const isCreditMode = paymentCategory === 'credit'
   const isFree = !pricing.paymentRequired
 
@@ -430,22 +444,23 @@ function PaymentMethodCard({
     <div className="bg-white rounded-2xl p-6 shadow-sm">
       <CardHeader
         icon={<CreditCardIcon size={16} className="text-blue-400" />}
-        label="Metode pembayaran"
+        label={t('reschedule.pay.title')}
       />
 
       {isFree ? (
         <div className="px-4 py-3 bg-green-50 border border-green-100 rounded-xl mb-4">
-          <p className="text-xs font-medium text-green-700">Tidak ada tagihan</p>
+          <p className="text-xs font-medium text-green-700">{t('reschedule.pay.noCharge')}</p>
           <p className="text-[11px] text-green-600 leading-relaxed mt-0.5">
             {pricing.creditWillBeIssued
-              ? `Booking baru lebih murah dari sisa nilai booking lama. Selisih ${formatCurrency(pricing.creditIssued)} otomatis masuk ke saldo booking credit kamu.`
-              : 'Sisa nilai booking lama pas untuk menutup booking baru.'}
+              ? t('reschedule.pay.creditIssuedDesc', { amount: formatCurrency(pricing.creditIssued) })
+              : t('reschedule.pay.exactDesc')}
           </p>
         </div>
       ) : (
         <>
           <div className="flex flex-wrap gap-2 mb-4">
-            {PAY_CATS.map(({ key, label }) => {
+            {PAY_CATS.map((key) => {
+              const label = t(`reschedule.pay.${key}`)
               const disabled = DISABLED_PAYMENT.includes(key)
               const isActive = paymentCategory === key
               return (
@@ -467,7 +482,7 @@ function PaymentMethodCard({
                   {disabled ? (
                     <>
                       <span className="line-through">{label}</span>
-                      <span className="ml-1.5 normal-case tracking-normal text-gray-300">Coming soon</span>
+                      <span className="ml-1.5 normal-case tracking-normal text-gray-300">{t('reschedule.pay.comingSoon')}</span>
                     </>
                   ) : (
                     label
@@ -491,7 +506,7 @@ function PaymentMethodCard({
                   <span className="w-10 h-6 bg-gray-100 rounded text-[10px] font-bold text-gray-500 flex items-center justify-center shrink-0">
                     {bank.logo}
                   </span>
-                  {bank.label}
+                  {t('reschedule.pay.vaBank', { bank: bank.name })}
                 </button>
               ))}
             </div>
@@ -500,9 +515,9 @@ function PaymentMethodCard({
           {paymentCategory === 'sgt' && (
             <div className="mt-2 space-y-2">
               <div className="px-4 py-3 bg-amber-50 border border-amber-100 rounded-xl">
-                <p className="text-xs font-medium text-amber-700">Pembayaran Crypto (SGT)</p>
+                <p className="text-xs font-medium text-amber-700">{t('reschedule.pay.sgtTitle')}</p>
                 <p className="text-[11px] text-amber-600 leading-relaxed mt-0.5">
-                  Hubungkan Sui wallet kamu untuk membayar selisih menggunakan SGT token. Pastikan saldo cukup.
+                  {t('reschedule.pay.sgtDesc')}
                 </p>
               </div>
               <SlushWalletButton onConnected={onWalletConnected} onDisconnected={onWalletDisconnected} />
@@ -511,17 +526,15 @@ function PaymentMethodCard({
 
           {paymentCategory === 'credit' && (
             <div className="mt-2 px-4 py-3 bg-emerald-50 border border-emerald-100 rounded-xl">
-              <p className="text-xs font-medium text-emerald-700">Bayar dengan Booking Credit</p>
+              <p className="text-xs font-medium text-emerald-700">{t('reschedule.pay.creditTitle')}</p>
               <p className="text-[11px] text-emerald-600 leading-relaxed mt-0.5">
-                Saldo kredit kamu dipakai untuk melunasi kekurangan ini. Jika saldo tidak mencukupi, pilih metode
-                pembayaran lain.
+                {t('reschedule.pay.creditDesc')}
               </p>
             </div>
           )}
 
           <p className="text-[11px] text-gray-400 leading-relaxed mt-4">
-            Booking lama tetap berlaku sampai selisih lunas. Kalau tagihan tidak dibayar dalam 15 menit,
-            reschedule dibatalkan otomatis dan booking lama tidak berubah.
+            {t('reschedule.pay.notice')}
           </p>
         </>
       )}
@@ -541,14 +554,14 @@ function PaymentMethodCard({
         {isPending ? (
           <span className="flex items-center justify-center gap-2">
             <span className="w-3.5 h-3.5 rounded-full border-2 border-white/40 border-t-white animate-spin inline-block" />
-            Memproses...
+            {t('reschedule.pay.processing')}
           </span>
         ) : isFree ? (
-          'Konfirmasi Reschedule'
+          t('reschedule.pay.confirm')
         ) : isCreditMode ? (
-          'Bayar dengan Credit'
+          t('reschedule.pay.payCredit')
         ) : (
-          'Konfirmasi & Bayar'
+          t('reschedule.pay.confirmPay')
         )}
       </button>
     </div>
@@ -558,6 +571,7 @@ function PaymentMethodCard({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function ReschedulePage() {
+  const { t } = useTranslation()
   const router = useRouter()
   const { id: bookingId } = useParams<{ id: string }>()
   const searchParams = useSearchParams()
@@ -584,8 +598,8 @@ export default function ReschedulePage() {
   if (!newCheckIn || !newCheckOut) {
     return (
       <StateCard
-        title="Tanggal baru belum dipilih"
-        description="Pilih tanggal baru lewat tombol Reschedule di Recent Activity."
+        title={t('reschedule.state.noDatesTitle')}
+        description={t('reschedule.state.noDatesDesc')}
       />
     )
   }
@@ -595,7 +609,7 @@ export default function ReschedulePage() {
       <div className="min-h-screen bg-[#f5f4f0] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-6 h-6 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-500">Menghitung reschedule...</p>
+          <p className="text-sm text-gray-500">{t('reschedule.state.loading')}</p>
         </div>
       </div>
     )
@@ -604,8 +618,8 @@ export default function ReschedulePage() {
   if (!preview) {
     return (
       <StateCard
-        title="Reschedule tidak bisa diproses"
-        description={getErrorMessage(error)}
+        title={t('reschedule.state.failedTitle')}
+        description={getErrorMessage(error, t)}
         onRetry={preferredRoomId ? () => setPreferredRoomId(undefined) : undefined}
       />
     )
@@ -656,7 +670,7 @@ export default function ReschedulePage() {
           const payment = result.payment
           if (payment?.type === 'SGT') {
             if (!payment.hotelWalletAddress || !payment.sgtAmountDue) {
-              toast.error('Data pembayaran SGT tidak lengkap')
+              toast.error(t('reschedule.toast.sgtIncomplete'))
               router.push(`/reservation/${bookingCode}`)
               return
             }
@@ -670,7 +684,7 @@ export default function ReschedulePage() {
               router.push(`/payment/success?bookingCode=${bookingCode}`)
             } catch (err) {
               console.error('SGT payment gagal:', err)
-              toast.error('Transaksi SGT dibatalkan atau gagal. Booking lama kamu tetap berlaku.')
+              toast.error(t('reschedule.toast.sgtFailed'))
               router.push(`/reservation/${bookingCode}`)
             } finally {
               setIsPayingSgt(false)
@@ -692,14 +706,13 @@ export default function ReschedulePage() {
     <div className="min-h-screen bg-[#f5f4f0] py-10 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">Reschedule booking</h1>
+          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">{t('reschedule.title')}</h1>
           <p className="text-sm text-gray-400 tracking-widest uppercase mt-1">
-            {originalBooking.bookingCode} · Atur ulang tanggal & kamar reservasi kamu
+            {originalBooking.bookingCode} · {t('reschedule.subtitle')}
           </p>
           {originalBooking.status === 'CONFIRMED' && (
             <p className="text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-xl px-4 py-2.5 mt-4 leading-relaxed">
-              Booking ini sudah dikonfirmasi resepsionis (hari H), jadi berlaku policy hari H dengan potongan{' '}
-              {policy.penaltyPercent}%.
+              {t('reschedule.confirmedNotice', { percent: policy.penaltyPercent })}
             </p>
           )}
         </div>

@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
+import { LANG_LOCALE } from "@/src/utils/currencyCookie";
+import { toSupportedLang } from "@/src/utils/languageCookie";
 import type { rechAvlbDateState } from "@/src/models/reschedule/rescAvlbDate";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -14,12 +17,15 @@ interface RescheduleCalendarProps {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const DAYS_ID = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+// Nama hari Minggu–Sabtu sesuai bahasa (1–7 Jan 2023 = Minggu–Sabtu)
+function weekdayNames(locale: string): string[] {
+  const fmt = new Intl.DateTimeFormat(locale, { weekday: "short" });
+  return Array.from({ length: 7 }, (_, i) => fmt.format(new Date(2023, 0, 1 + i)));
+}
 
-function formatRupiah(val: number): string {
-  if (val >= 1_000_000) return `${(val / 1_000_000).toFixed(val % 1_000_000 === 0 ? 0 : 1)}jt`;
-  if (val >= 1_000) return `${Math.round(val / 1_000)}rb`;
-  return val.toString();
+// Harga ringkas di sel kalender: "1,5 jt" / "1.5M" / "150万"
+function formatCompactPrice(val: number, locale: string): string {
+  return new Intl.NumberFormat(locale, { notation: "compact", maximumFractionDigits: 1 }).format(val);
 }
 
 function isSameDay(a: globalThis.Date, b: globalThis.Date): boolean {
@@ -42,6 +48,8 @@ export default function RescheduleCalendar({
   data,
 }: RescheduleCalendarProps) {
   const router = useRouter();
+  const { t, i18n } = useTranslation();
+  const locale = LANG_LOCALE[toSupportedLang(i18n.language)];
 
   // Build flat date map dari months untuk lookup O(1)
   const dateMap = new Map<string, rechAvlbDateState["months"][0]["dates"][0]>();
@@ -55,7 +63,6 @@ export default function RescheduleCalendar({
   const firstMonth = data.months[0];
   const [ymKey, setYmKey] = useState(firstMonth?.month ?? "");
 
-  const currentMonthData = data.months.find((m) => m.month === ymKey);
   const monthIndex = data.months.findIndex((m) => m.month === ymKey);
   const canGoPrev = monthIndex > 0;
   const canGoNext = monthIndex < data.months.length - 1;
@@ -127,6 +134,10 @@ export default function RescheduleCalendar({
   };
 
   const today = new Date();
+  // Label bulan dari BE selalu bahasa Indonesia, jadi format ulang sesuai bahasa aktif
+  const monthLabel = ymKey
+    ? new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(new Date(year, month - 1, 1))
+    : "";
 
   const selectedEntry = selectedDate ? dateMap.get(toISODate(selectedDate)) : null;
 
@@ -143,8 +154,8 @@ export default function RescheduleCalendar({
         {/* ── Header ── */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-100">
           <div>
-            <p className="text-[11px] font-medium text-gray-400 uppercase tracking-widest">Reschedule</p>
-            <h2 className="text-base font-bold text-gray-900 mt-0.5">Pilih Tanggal Baru</h2>
+            <p className="text-[11px] font-medium text-gray-400 uppercase tracking-widest">{t("reschedule.title")}</p>
+            <h2 className="text-base font-bold text-gray-900 mt-0.5">{t("reschedule.calendar.title")}</h2>
           </div>
           <button
             onClick={onClose}
@@ -159,8 +170,13 @@ export default function RescheduleCalendar({
           <div className="mx-4 mt-4 px-4 py-2.5 rounded-2xl bg-amber-50 border border-amber-100">
             <p className="text-[11px] text-amber-700 leading-relaxed">
               <span className="font-semibold">{data.policy.name}</span> ·{" "}
-              {data.policy.daysUntilCheckIn === 0 ? "hari H" : `H-${data.policy.daysUntilCheckIn}`} · potongan{" "}
-              {data.policy.penaltyPercent}% dari total booking lama
+              {t("reschedule.calendar.policyLine", {
+                window:
+                  data.policy.daysUntilCheckIn === 0
+                    ? t("reschedule.dayH")
+                    : t("reschedule.dayMinus", { days: data.policy.daysUntilCheckIn }),
+                percent: data.policy.penaltyPercent,
+              })}
             </p>
           </div>
 
@@ -174,7 +190,7 @@ export default function RescheduleCalendar({
               ‹
             </button>
             <span className="text-sm font-semibold text-gray-800">
-              {currentMonthData?.label}
+              {monthLabel}
             </span>
             <button
               onClick={goNext}
@@ -187,8 +203,8 @@ export default function RescheduleCalendar({
 
           {/* ── Day headers ── */}
           <div className="grid grid-cols-7 px-3 mb-1">
-            {DAYS_ID.map((d) => (
-              <div key={d} className="text-center text-[10px] font-semibold text-gray-400 py-1">
+            {weekdayNames(locale).map((d, i) => (
+              <div key={i} className="text-center text-[10px] font-semibold text-gray-400 py-1">
                 {d}
               </div>
             ))}
@@ -248,7 +264,7 @@ export default function RescheduleCalendar({
                         isSelected ? "text-gray-300" : "text-emerald-600",
                       ].join(" ")}
                     >
-                      {formatRupiah(price)}
+                      {formatCompactPrice(price, locale)}
                     </span>
                   ) : (
                     <span className="mt-0.5 text-[8px] leading-none text-transparent select-none">
@@ -264,11 +280,11 @@ export default function RescheduleCalendar({
           <div className="flex items-center gap-3 px-5 pb-3 pt-1">
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span className="text-[10px] text-gray-400">Tersedia + harga</span>
+              <span className="text-[10px] text-gray-400">{t("reschedule.calendar.legendAvailable")}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-gray-300" />
-              <span className="text-[10px] text-gray-400">Tidak tersedia</span>
+              <span className="text-[10px] text-gray-400">{t("reschedule.calendar.legendUnavailable")}</span>
             </div>
           </div>
 
@@ -285,20 +301,18 @@ export default function RescheduleCalendar({
               <div className="px-4 py-3 flex items-center justify-between">
                 <div>
                   <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">
-                    Check-in baru
+                    {t("reschedule.calendar.newCheckIn")}
                   </p>
                   <p className="text-sm font-bold text-gray-900 mt-0.5">
-                    {selectedDate.getDate()}{" "}
-                    {currentMonthData?.label.split(" ")[0]}{" "}
-                    {selectedDate.getFullYear()}
+                    {new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric" }).format(selectedDate)}
                   </p>
                   <p className="text-[10px] text-gray-400 mt-0.5">
-                    {data.originalNights} malam
+                    {t("reschedule.nights", { count: data.originalNights })}
                   </p>
                 </div>
                 {selectedEntry.sameTypePrice && (
                   <div className="text-right">
-                    <p className="text-[10px] text-gray-400">Harga/malam</p>
+                    <p className="text-[10px] text-gray-400">{t("reschedule.calendar.pricePerNight")}</p>
                     <p className="text-base font-bold text-gray-900">
                       Rp {selectedEntry.sameTypePrice.toLocaleString("id-ID")}
                     </p>
@@ -320,7 +334,7 @@ export default function RescheduleCalendar({
                   : "bg-gray-100 text-gray-400 cursor-not-allowed",
               ].join(" ")}
             >
-              {selectedDate ? "Lanjut ke Konfirmasi →" : "Pilih tanggal dulu"}
+              {selectedDate ? t("reschedule.calendar.continue") : t("reschedule.calendar.pickFirst")}
             </button>
           </div>
         </div>
