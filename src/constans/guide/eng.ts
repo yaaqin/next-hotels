@@ -75,19 +75,20 @@ const eng: GuideCategory[] = [
             {
                 id: "booking-quick",
                 title: "Quick booking from the home page",
-                summary: "Book one night straight from the \"Booking\" button on the home page.",
+                summary: "Book straight from the \"Booking\" button on the home page.",
                 blocks: [
                     {
                         type: "steps",
                         items: [
                             "On the home page, click the \"Booking\" button at the top.",
-                            "Choose the Check-in Date and number of guests (optional), then click \"Reserve\".",
+                            "On the calendar, click your check-in date and then your check-out date. The number of nights is shown automatically.",
+                            "Enter the number of guests (optional), then click \"Reserve\".",
                             "Pick an available room type, then click \"Reserve Now\".",
                         ],
                     },
                     {
                         type: "note",
-                        text: "Quick booking is always for one night. To stay longer, use \"Find a room & choose dates\".",
+                        text: "You can still change the dates on the room type list by clicking the dates at the top. Quick booking uses the main branch. To choose another branch, use \"Find a room & choose dates\".",
                     },
                 ],
             },

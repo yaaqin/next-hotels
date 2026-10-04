@@ -223,7 +223,10 @@
         "guests": "Guests",
         "optional": "optional",
         "checkinDate": "Check-in Date",
-        "reserve": "Reserve"
+        "reserve": "Reserve",
+        "stayDates": "Stay dates",
+        "selectDates": "Select check-in & check-out dates",
+        "nights": "{{count}} nights"
       }
     },
     "reservation": {

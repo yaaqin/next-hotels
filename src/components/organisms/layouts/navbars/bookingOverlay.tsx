@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
-import { DatePicker } from "@/src/components/molecules/inputs/datePicker";
+import { DateRangePicker, type StayRange } from "@/src/components/molecules/inputs/dateRangePicker";
 
 interface BookingOverlayProps {
   isOpen: boolean;
@@ -12,14 +12,17 @@ interface BookingOverlayProps {
 }
 
 export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
-  const [checkin, setCheckin] = useState<Date | undefined>(undefined);
+  const [stay, setStay] = useState<StayRange | undefined>(undefined);
   const [adults, setAdults] = useState("");
 
   const { t } = useTranslation()
 
   const handleBook = () => {
-    if (!checkin) return;
-    const params = new URLSearchParams({ checkin: format(checkin, "yyyy-MM-dd") });
+    if (!stay) return;
+    const params = new URLSearchParams({
+      checkin: format(stay.from, "yyyy-MM-dd"),
+      checkout: format(stay.to, "yyyy-MM-dd"),
+    });
     if (adults) params.set("adult", adults);
     window.location.href = `/booking?${params.toString()}`;
   };
@@ -121,15 +124,16 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
               </h3>
               <div className="w-8 h-px mb-8" style={{ background: "#1A56A0", opacity: 0.4 }} />
 
-              {/* Check-in */}
-              <DatePicker
+              {/* Check-in → check-out */}
+              <DateRangePicker
                 data-cy="btn-open-calendar"
                 className="mb-5"
-                label={t('text.navbar.booking.checkinDate')}
+                label={t('text.navbar.booking.stayDates')}
                 required
-                value={checkin}
-                onChange={setCheckin}
-                placeholder={t('text.navbar.booking.selectCheckin')}
+                value={stay}
+                onChange={setStay}
+                placeholder={t('text.navbar.booking.selectDates')}
+                nightsLabel={(count) => t('text.navbar.booking.nights', { count })}
               />
 
               {/* Adults */}
@@ -168,10 +172,10 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
               <button
                 onClick={handleBook}
                 data-cy="btn-reserve"
-                disabled={!checkin}
+                disabled={!stay}
                 className="w-full py-4 rounded-xl text-[0.68rem] tracking-[0.18em] uppercase font-normal transition-all duration-300"
                 style={
-                  checkin
+                  stay
                     ? {
                       background: "#0A1828",
                       color: "#C8DCEF",
@@ -184,21 +188,21 @@ export function BookingOverlay({ isOpen, onClose }: BookingOverlayProps) {
                     }
                 }
                 onMouseEnter={(e) => {
-                  if (checkin) e.currentTarget.style.background = "#163356";
+                  if (stay) e.currentTarget.style.background = "#163356";
                 }}
                 onMouseLeave={(e) => {
-                  if (checkin) e.currentTarget.style.background = "#0A1828";
+                  if (stay) e.currentTarget.style.background = "#0A1828";
                 }}
               >
                 {t('text.navbar.booking.reserveBtn')}
               </button>
 
-              {!checkin && (
+              {!stay && (
                 <p
                   className="text-center text-[0.62rem] mt-3"
                   style={{ color: "#8AADC8" }}
                 >
-                  {t('text.navbar.booking.selectCheckin')}
+                  {t('text.navbar.booking.selectDates')}
                 </p>
               )}
             </motion.div>

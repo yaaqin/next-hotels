@@ -199,7 +199,7 @@ export default function RoomAvlbCard({
               }}
             >
               {display ? (
-                <PriceTag display={display} field="totalPrice" amountIdr={price} {...priceTag} />
+                <PriceTag display={display} field="price" amountIdr={price} {...priceTag} />
               ) : (
                 formatCurrency(price, currency)
               )}

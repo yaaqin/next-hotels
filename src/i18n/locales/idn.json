@@ -223,7 +223,10 @@
         "guests": "Tamu",
         "optional": "opsional",
         "checkinDate": "Tanggal Check-in",
-        "reserve": "Reservasi"
+        "reserve": "Reservasi",
+        "stayDates": "Tanggal menginap",
+        "selectDates": "Pilih tanggal check-in & check-out",
+        "nights": "{{count}} malam"
       }
     },
     "reservation": {

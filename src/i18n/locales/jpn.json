@@ -223,7 +223,10 @@
         "guests": "ゲスト",
         "optional": "任意",
         "checkinDate": "チェックイン日",
-        "reserve": "予約"
+        "reserve": "予約",
+        "stayDates": "宿泊日",
+        "selectDates": "チェックイン日とチェックアウト日を選択",
+        "nights": "{{count}}泊"
       }
     },
     "reservation": {

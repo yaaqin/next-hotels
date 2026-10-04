@@ -3,12 +3,13 @@
 import RoomAvlbCard from "@/src/components/molecules/cards/publicRoomTypeAvlbCard"
 import { usePublicRoomTypeAvailibility } from "@/src/hooks/query/roomAvailibility/publicRoomTypeAvailibility"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useCallback, useMemo } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { roomListAvailableState } from "@/src/models/public/roomAvailibility/listRoomType"
 import { useBookingStore } from "@/src/stores/booking"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { format } from "date-fns"
+import { differenceInCalendarDays, format } from "date-fns"
+import type { DateRange } from "react-day-picker"
 
 const DEFAULT_SITE_CODE = "MERAK"
 
@@ -51,33 +52,60 @@ export default function BookingPublicPage() {
     // Cabang dari ?site=KODE — flow booking lama default ke cabang pertama (Merak)
     const siteCode = searchParams.get("site") ?? DEFAULT_SITE_CODE
     const checkinParam = searchParams.get("checkin")
-    const checkoutParam = searchParams.get("checkOut")
+    // "checkOut" = nama param lama
+    const checkoutParam = searchParams.get("checkout") ?? searchParams.get("checkOut")
 
-    const { checkinDate, checkoutDate, checkin, checkout } = useMemo(() => {
+    // Tanpa check-out (atau tidak valid) → default 1 malam
+    const { checkinDate, checkoutDate, checkin, checkout, nights } = useMemo(() => {
         const checkinDate = parseDateParam(checkinParam)
-        const checkoutDate = new Date(checkinDate)
-        checkoutDate.setDate(checkoutDate.getDate() + 1)
+        let checkoutDate = checkoutParam ? parseDateParam(checkoutParam) : null
+        if (!checkoutDate || differenceInCalendarDays(checkoutDate, checkinDate) < 1) {
+            checkoutDate = new Date(checkinDate)
+            checkoutDate.setDate(checkoutDate.getDate() + 1)
+        }
 
         return {
             checkinDate,
             checkoutDate,
             checkin: formatInputDate(checkinDate),
             checkout: formatInputDate(checkoutDate),
+            nights: differenceInCalendarDays(checkoutDate, checkinDate),
         }
-    }, [checkinParam])
+    }, [checkinParam, checkoutParam])
 
     const { data, isLoading } = usePublicRoomTypeAvailibility(checkin, checkout, siteCode)
 
-    const handleChangeDate = useCallback(
-        (date: Date | undefined) => {
-            if (!date) return
-            const value = formatInputDate(date)
-            const params = new URLSearchParams(searchParams.toString())
-            params.set("checkin", value)
-            router.replace(`${pathname}?${params.toString()}`, { scroll: false })
-        },
-        [router, pathname, searchParams],
-    )
+    // Pilihan di kalender baru dipakai (URL berubah → refetch) setelah klik Apply
+    const [calendarOpen, setCalendarOpen] = useState(false)
+    const [draftRange, setDraftRange] = useState<DateRange | undefined>()
+    const draftNights =
+        draftRange?.from && draftRange.to ? differenceInCalendarDays(draftRange.to, draftRange.from) : 0
+    const canApply = draftNights >= 1
+
+    const handleCalendarOpenChange = (open: boolean) => {
+        setCalendarOpen(open)
+        if (open) setDraftRange({ from: checkinDate, to: checkoutDate })
+    }
+
+    // Kalau rentang sudah lengkap, klik berikutnya memulai rentang baru (jadi check-in baru),
+    // bukan menggeser salah satu ujung rentang lama
+    const handleSelectRange = (range: DateRange | undefined, clicked: Date) => {
+        if (draftRange?.from && draftRange.to) {
+            setDraftRange({ from: clicked, to: undefined })
+            return
+        }
+        setDraftRange(range)
+    }
+
+    const handleApplyRange = useCallback(() => {
+        if (!draftRange?.from || !draftRange.to) return
+        const params = new URLSearchParams(searchParams.toString())
+        params.set("checkin", formatInputDate(draftRange.from))
+        params.set("checkout", formatInputDate(draftRange.to))
+        params.delete("checkOut")
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+        setCalendarOpen(false)
+    }, [draftRange, router, pathname, searchParams])
 
     const handleSelectRoom = useCallback(
         (roomType: roomListAvailableState) => {
@@ -125,7 +153,7 @@ export default function BookingPublicPage() {
                 </p>
 
                 {/* Center — date picker */}
-                <Popover>
+                <Popover open={calendarOpen} onOpenChange={handleCalendarOpenChange}>
                     <PopoverTrigger asChild>
                         <button
                             data-cy="btn-open-calendar"
@@ -140,14 +168,51 @@ export default function BookingPublicPage() {
                         </button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0 z-[200]" align="center">
-                        <Calendar
-                            mode="single"
-                            selected={checkinDate}
-                            onSelect={handleChangeDate}
-                            disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                            initialFocus
-                            className="rounded-lg border"
-                        />
+                        <div className="inline-flex flex-col rounded-lg border bg-white">
+                            <Calendar
+                                mode="range"
+                                selected={draftRange}
+                                onSelect={handleSelectRange}
+                                defaultMonth={checkinDate}
+                                disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                                initialFocus
+                            />
+                            {/* w-0 min-w-full: lebar footer ikut kalender, tidak ikut melebarkan popover */}
+                            <div
+                                className="w-0 min-w-full px-3 pb-3 pt-2.5 space-y-2.5"
+                                style={{ borderTop: "1px solid #DDE8F5" }}
+                            >
+                                <p className="text-[0.65rem] tracking-[0.08em] text-center" style={{ color: "#5B90C9" }}>
+                                    {canApply
+                                        ? `${format(draftRange!.from!, "dd MMM")} → ${format(draftRange!.to!, "dd MMM")} · ${draftNights} Malam`
+                                        : draftRange?.from
+                                            ? "Pilih tanggal check-out"
+                                            : "Pilih tanggal check-in"}
+                                </p>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        onClick={() => setCalendarOpen(false)}
+                                        className="py-2 rounded-lg text-[0.65rem] tracking-[0.12em] uppercase"
+                                        style={{ color: "#5B90C9", border: "0.5px solid #B5CDE8" }}
+                                    >
+                                        Batal
+                                    </button>
+                                    <button
+                                        data-cy="btn-apply-dates"
+                                        onClick={handleApplyRange}
+                                        disabled={!canApply}
+                                        className="py-2 rounded-lg text-[0.65rem] tracking-[0.12em] uppercase transition-colors disabled:cursor-not-allowed"
+                                        style={
+                                            canApply
+                                                ? { background: "#0A1828", color: "#C8DCEF" }
+                                                : { background: "#D0DCE8", color: "#8AADC8" }
+                                        }
+                                    >
+                                        Apply
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </PopoverContent>
                 </Popover>
 
@@ -156,7 +221,7 @@ export default function BookingPublicPage() {
                     className="text-[0.58rem] tracking-[0.2em] uppercase"
                     style={{ color: "#3A6A96" }}
                 >
-                    1 Malam · 1 Kamar
+                    {nights} Malam
                 </p>
             </div>
 
@@ -202,7 +267,7 @@ export default function BookingPublicPage() {
                                 { icon: "bar", label: "Armoire Khusus & Bar Koktail" },
                                 { icon: "bath", label: "Kamar mandi mewah dengan bak berendam" },
                             ]}
-                            price={roomType.pricing.totalPrice}
+                            price={roomType.pricing.price}
                             display={roomType.pricing.display}
                             bedInfo="2 Tempat Tidur Queen & Tempat Tidur King tersedia"
                             onViewDetail={() => handleViewDetail(roomType)}

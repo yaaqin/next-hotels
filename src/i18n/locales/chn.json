@@ -223,7 +223,10 @@
         "guests": "宾客",
         "optional": "可选",
         "checkinDate": "入住日期",
-        "reserve": "预订"
+        "reserve": "预订",
+        "stayDates": "入住日期",
+        "selectDates": "请选择入住和退房日期",
+        "nights": "{{count}}晚"
       }
     },
     "reservation": {

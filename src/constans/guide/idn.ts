@@ -75,19 +75,20 @@ const idn: GuideCategory[] = [
             {
                 id: "booking-quick",
                 title: "Booking cepat dari halaman utama",
-                summary: "Pesan 1 malam langsung dari tombol \"Pesan\" di halaman utama.",
+                summary: "Pesan langsung dari tombol \"Pesan\" di halaman utama.",
                 blocks: [
                     {
                         type: "steps",
                         items: [
                             "Di halaman utama, klik tombol \"Pesan\" di pojok atas.",
-                            "Pilih Tanggal Check-in dan jumlah tamu (opsional), lalu klik \"Reservasi\".",
+                            "Di kalender, klik tanggal check-in lalu tanggal check-out. Jumlah malam tampil otomatis.",
+                            "Isi jumlah tamu (opsional), lalu klik \"Reservasi\".",
                             "Pilih tipe kamar yang tersedia, lalu klik \"Reserve Now\".",
                         ],
                     },
                     {
                         type: "note",
-                        text: "Booking cepat selalu untuk 1 malam. Untuk menginap lebih dari 1 malam, pakai cara \"Cari kamar & pilih tanggal\".",
+                        text: "Tanggal masih bisa diganti di halaman daftar tipe kamar dengan mengklik tanggal di bagian atas. Booking cepat memakai cabang utama. Untuk memilih cabang lain, pakai cara \"Cari kamar & pilih tanggal\".",
                     },
                 ],
             },
