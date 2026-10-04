@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import Loading from '../../organisms/loading'
 import SiteSelect, { useNeedsSite } from '../../organisms/priceAdjustment/SiteSelect'
+import { DatePicker } from '../../molecules/inputs/datePicker'
+import { Selects } from '../../molecules/inputs/selects'
+import { format } from 'date-fns'
 import { ADJUSTMENT_LABEL, formatRp } from '../../organisms/priceAdjustment/helpers'
 import { usePriceAdjustmentOptions, usePriceCalendar } from '@/src/hooks/query/priceAdjustment'
 import { useCreatePriceAdjustment } from '@/src/hooks/mutation/priceAdjustment'
@@ -28,6 +31,16 @@ function applyChange(price: number, adjustment: AdjustmentType, value: number) {
 }
 
 const inputClass = 'w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-white'
+// Selects disamakan dengan inputClass supaya tinggi & sudutnya sejajar dengan input angka
+const selectClass = 'pl-3 text-sm rounded-md'
+
+// Form menyimpan tanggal sebagai "yyyy-MM-dd"; DatePicker pakai Date (zona lokal)
+const toDate = (value: string) => {
+  if (!value) return undefined
+  const [y, m, d] = value.split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
+const toDateString = (date: Date | undefined) => (date ? format(date, 'yyyy-MM-dd') : '')
 
 export default function CreatePriceAdjustmentPage() {
   const [siteCode, setSiteCode] = useState<string>()
@@ -129,11 +142,31 @@ export default function CreatePriceAdjustmentPage() {
         </div>
         <div>
           <label className="text-xs text-gray-500">Mulai</label>
-          <input type="date" className={inputClass} value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+          <DatePicker
+            variant="default"
+            className="mt-1"
+            placeholder="Pilih tanggal mulai"
+            displayFormat="dd MMM yyyy"
+            value={toDate(startDate)}
+            onChange={(date) => {
+              const next = toDateString(date)
+              setStartDate(next)
+              // Tanggal selesai tidak boleh sebelum tanggal mulai
+              if (endDate && next && endDate < next) setEndDate('')
+            }}
+          />
         </div>
         <div>
           <label className="text-xs text-gray-500">Sampai (termasuk)</label>
-          <input type="date" className={inputClass} value={endDate} min={startDate} onChange={(e) => setEndDate(e.target.value)} />
+          <DatePicker
+            variant="default"
+            className="mt-1"
+            placeholder="Pilih tanggal selesai"
+            displayFormat="dd MMM yyyy"
+            value={toDate(endDate)}
+            minDate={toDate(startDate)}
+            onChange={(date) => setEndDate(toDateString(date))}
+          />
         </div>
       </div>
 
@@ -160,26 +193,29 @@ export default function CreatePriceAdjustmentPage() {
                 <div className="grid md:grid-cols-3 gap-3">
                   <div>
                     <label className="text-xs text-gray-500">Tipe kamar</label>
-                    <select
-                      className={inputClass}
+                    <Selects
+                      label=""
                       value={item.roomTypeId}
-                      onChange={(e) => update(idx, { roomTypeId: e.target.value, roomIds: [] })}
-                    >
-                      <option value="" disabled>Pilih tipe</option>
-                      {roomTypes.map((t) => <option key={t.id} value={t.id}>{t.name ?? t.id}</option>)}
-                    </select>
+                      onChange={(roomTypeId) => update(idx, { roomTypeId, roomIds: [] })}
+                      placeholder="Pilih tipe"
+                      options={roomTypes.map((t) => ({ id: t.id, value: t.id, label: t.name ?? t.id }))}
+                      selectClassName={selectClass}
+                    />
                   </div>
                   <div>
                     <label className="text-xs text-gray-500">Jenis perubahan</label>
-                    <select
-                      className={inputClass}
+                    <Selects
+                      label=""
                       value={item.adjustment}
-                      onChange={(e) => update(idx, { adjustment: e.target.value as AdjustmentType })}
-                    >
-                      {(Object.keys(ADJUSTMENT_LABEL) as AdjustmentType[]).map((a) => (
-                        <option key={a} value={a}>{ADJUSTMENT_LABEL[a]}</option>
-                      ))}
-                    </select>
+                      onChange={(adjustment) => update(idx, { adjustment: adjustment as AdjustmentType })}
+                      options={(Object.keys(ADJUSTMENT_LABEL) as AdjustmentType[]).map((a) => ({
+                        id: a,
+                        value: a,
+                        label: ADJUSTMENT_LABEL[a],
+                      }))}
+                      showPlaceholder={false}
+                      selectClassName={selectClass}
+                    />
                   </div>
                   <div>
                     <label className="text-xs text-gray-500">

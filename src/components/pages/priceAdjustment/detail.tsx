@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import Loading from '../../organisms/loading'
 import PriceCompareCalendar from '../../organisms/priceAdjustment/PriceCompareCalendar'
@@ -8,6 +9,7 @@ import { usePriceAdjustmentDetail } from '@/src/hooks/query/priceAdjustment'
 import { useApprovePriceAdjustment, useRejectPriceAdjustment } from '@/src/hooks/mutation/priceAdjustment'
 import { useMe } from '@/src/hooks/query/auth/me'
 import { STATUS_STYLE, describeChange, formatDate } from '../../organisms/priceAdjustment/helpers'
+import { ReviewModal } from '../../organisms/priceAdjustment/ReviewModal'
 
 const REVIEWER_ROLES = ['SUPERADMIN', 'OWNER']
 
@@ -17,6 +19,7 @@ export default function PriceAdjustmentDetailPage() {
   const { data: me } = useMe()
   const approve = useApprovePriceAdjustment()
   const reject = useRejectPriceAdjustment()
+  const [reviewAction, setReviewAction] = useState<'approve' | 'reject' | null>(null)
 
   if (isLoading) return <Loading />
   const adj = data?.data
@@ -93,26 +96,33 @@ export default function PriceAdjustmentDetailPage() {
         <section className="flex justify-end gap-3">
           <button
             disabled={reviewing}
-            onClick={() => {
-              const note = prompt('Alasan reject (opsional)')
-              if (note !== null) reject.mutate({ id: adj.id, note: note || undefined })
-            }}
+            onClick={() => setReviewAction('reject')}
             className="px-4 py-2 text-sm font-medium text-red-600 border border-red-200 hover:bg-red-50 rounded-md disabled:opacity-50"
           >
             Reject
           </button>
           <button
             disabled={reviewing || adj.uncovered.length > 0}
-            onClick={() => {
-              if (confirm('Approve adjustment ini? Harga baru langsung dipakai untuk booking berikutnya. Booking yang sudah dibuat tidak berubah.')) {
-                approve.mutate({ id: adj.id })
-              }
-            }}
+            onClick={() => setReviewAction('approve')}
             className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md disabled:opacity-50"
           >
             {approve.isPending ? 'Approving...' : 'Approve'}
           </button>
         </section>
+      )}
+
+      {reviewAction && (
+        <ReviewModal
+          action={reviewAction}
+          title={adj.title}
+          isPending={reviewing}
+          onClose={() => setReviewAction(null)}
+          onConfirm={(note) => {
+            const done = { onSuccess: () => setReviewAction(null) }
+            if (reviewAction === 'approve') approve.mutate({ id: adj.id }, done)
+            else reject.mutate({ id: adj.id, note }, done)
+          }}
+        />
       )}
     </div>
   )
