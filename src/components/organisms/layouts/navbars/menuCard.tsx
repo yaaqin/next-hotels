@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { UserIcon, Clock01Icon, Settings01Icon, BookOpen02Icon, Globe02Icon, CoinsSwapIcon, HelpCircleIcon } from "hugeicons-react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLanguageStore } from "@/src/stores/languageStore";
 import { useCurrentLanguage } from '@/src/hooks/useCurrentLanguage'
 import { useCurrency } from '@/src/components/organisms/providers/CurrencyProvider'
@@ -28,24 +28,53 @@ const languages: { value: Lang; label: string; flag: string }[] = [
 
 export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
   const { t } = useTranslation();
-  const [langOpen, setLangOpen] = useState(false);
+  // Cuma satu dropdown yang boleh terbuka; dropUp = buka ke atas kalau ruang di bawah tidak cukup
+  const [openDropdown, setOpenDropdown] = useState<"lang" | "curr" | null>(null);
+  const [dropUp, setDropUp] = useState(false);
+  const langOpen = openDropdown === "lang";
+  const currOpen = openDropdown === "curr";
+
+  const toggleDropdown = (key: "lang" | "curr", optionCount: number, e: React.MouseEvent<HTMLButtonElement>) => {
+    if (openDropdown === key) {
+      setOpenDropdown(null);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const needed = optionCount * 34 + 12; // tinggi kira-kira tiap opsi + padding
+    const spaceBelow = window.innerHeight - rect.bottom;
+    setDropUp(spaceBelow < needed && rect.top > spaceBelow);
+    setOpenDropdown(key);
+  };
+
+  // Overlay ditutup → dropdown ikut ditutup
+  useEffect(() => {
+    if (!isOpen) setOpenDropdown(null);
+  }, [isOpen]);
+
+  const dropdownPosition = dropUp ? "bottom-[calc(100%+4px)]" : "top-[calc(100%+4px)]";
+  const dropdownMotion = {
+    initial: { opacity: 0, y: dropUp ? 4 : -4, scaleY: 0.97 },
+    animate: { opacity: 1, y: 0, scaleY: 1 },
+    exit: { opacity: 0, y: dropUp ? 4 : -4, scaleY: 0.97 },
+    transition: { duration: 0.15 },
+  };
+
   const { setLanguage } = useLanguageStore();
   const selected = useCurrentLanguage();
   const queryClient = useQueryClient();
 
   const handleChangeLanguage = (lang: Lang) => {
     setLanguage(lang);
-    setLangOpen(false);
+    setOpenDropdown(null);
     queryClient.invalidateQueries();
   };
 
-  const [currOpen, setCurrOpen] = useState(false);
   const { currency, setCurrency } = useCurrency();
 
   // Sama seperti ganti bahasa: data harga di-fetch ulang dengan x-currency baru
   const handleChangeCurrency = (next: SupportedCurrency) => {
     setCurrency(next);
-    setCurrOpen(false);
+    setOpenDropdown(null);
     queryClient.invalidateQueries();
   };
 
@@ -182,7 +211,7 @@ export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
                   className="relative"
                 >
                   <button
-                    onClick={() => setLangOpen((prev) => !prev)}
+                    onClick={(e) => toggleDropdown("lang", languages.length, e)}
                     className="flex items-center gap-3 w-full px-4 py-3 rounded-xl border border-blue-100 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 group"
                   >
                     <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 group-hover:bg-blue-100 transition-colors flex-shrink-0">
@@ -207,11 +236,8 @@ export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
                   <AnimatePresence>
                     {langOpen && (
                       <motion.div
-                        initial={{ opacity: 0, y: -4, scaleY: 0.97 }}
-                        animate={{ opacity: 1, y: 0, scaleY: 1 }}
-                        exit={{ opacity: 0, y: -4, scaleY: 0.97 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute left-0 right-0 top-[calc(100%+4px)] z-10 bg-white border border-blue-100 rounded-xl shadow-md overflow-hidden"
+                        {...dropdownMotion}
+                        className={`absolute left-0 right-0 ${dropdownPosition} z-10 bg-white border border-blue-100 rounded-xl shadow-md overflow-hidden`}
                       >
                         {languages.map((lang) => (
                           <button
@@ -242,7 +268,7 @@ export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
                   className="relative"
                 >
                   <button
-                    onClick={() => setCurrOpen((prev) => !prev)}
+                    onClick={(e) => toggleDropdown("curr", CURRENCY_OPTIONS.length, e)}
                     className="flex items-center gap-3 w-full px-4 py-3 rounded-xl border border-blue-100 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 group"
                   >
                     <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 group-hover:bg-blue-100 transition-colors flex-shrink-0">
@@ -266,11 +292,8 @@ export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
                   <AnimatePresence>
                     {currOpen && (
                       <motion.div
-                        initial={{ opacity: 0, y: -4, scaleY: 0.97 }}
-                        animate={{ opacity: 1, y: 0, scaleY: 1 }}
-                        exit={{ opacity: 0, y: -4, scaleY: 0.97 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute left-0 right-0 top-[calc(100%+4px)] z-10 bg-white border border-blue-100 rounded-xl shadow-md overflow-hidden"
+                        {...dropdownMotion}
+                        className={`absolute left-0 right-0 ${dropdownPosition} z-10 bg-white border border-blue-100 rounded-xl shadow-md overflow-hidden`}
                       >
                         {CURRENCY_OPTIONS.map((opt) => (
                           <button
