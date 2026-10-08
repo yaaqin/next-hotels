@@ -10,8 +10,9 @@ export interface CreateProposalReq {
   monthlyCapIdr: number | null
   surchargeAfterCapPct: number | null
   revenueSharePct: number | null
-  freePeriodDays: number | null
+  freePeriodDays: number
   startDate: string
+  endDate: string
   note: string
 }
 
@@ -28,6 +29,7 @@ export interface CreateProposalRes {
     revenueSharePct: number | null
     freePeriodDays: number | null
     startDate: string
+    endDate: string
     note: string
     createdAt: string
   }

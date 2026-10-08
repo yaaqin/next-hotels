@@ -2,12 +2,7 @@ import { partnerProposalListState } from '@/src/models/partnerProposal/list'
 import { ColumnDef } from '@tanstack/react-table'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
-
-const statusColor: Record<string, string> = {
-  PENDING: 'bg-yellow-100 text-yellow-700',
-  APPROVED: 'bg-green-100 text-green-700',
-  REJECTED: 'bg-red-100 text-red-700',
-}
+import { formatContractDate, PROPOSAL_STATUS_COLOR as statusColor } from './helpers'
 
 const typeColor: Record<string, string> = {
   SUBSCRIPTION: 'bg-blue-100 text-blue-700',
@@ -66,6 +61,13 @@ export function usePartnerProposalColumns(): ColumnDef<partnerProposalListState>
             day: 'numeric',
           })}
         </span>
+      ),
+    },
+    {
+      accessorKey: 'endDate',
+      header: 'End Date',
+      cell: (info) => (
+        <span className="text-sm text-gray-600">{formatContractDate(info.getValue() as string)}</span>
       ),
     },
     {

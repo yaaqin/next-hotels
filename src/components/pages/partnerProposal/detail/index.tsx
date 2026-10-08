@@ -4,12 +4,11 @@ import { usePartnerProposalDetail } from '@/src/hooks/query/partnerProposal/deta
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import Loading from '@/src/components/organisms/loading'
-
-const statusColor: Record<string, string> = {
-  PENDING: 'bg-yellow-100 text-yellow-700',
-  APPROVED: 'bg-green-100 text-green-700',
-  REJECTED: 'bg-red-100 text-red-700',
-}
+import ExtendContract from '@/src/components/organisms/partnerProposal/extendContract'
+import {
+  formatContractDate,
+  PROPOSAL_STATUS_COLOR as statusColor,
+} from '@/src/components/organisms/partnerProposal/helpers'
 
 const typeColor: Record<string, string> = {
   SUBSCRIPTION: 'bg-blue-100 text-blue-700',
@@ -40,7 +39,7 @@ export default function PartnerProposalDetailPage() {
       <section className="flex justify-between items-center">
         <h6 className="text-xl font-semibold">Detail Partnership Proposal</h6>
         <Link
-          href="/dashboard/partnership-proposal"
+          href="/dashboard/partner-proposal"
           className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-300 hover:bg-gray-50 rounded-md transition-colors"
         >
           {t('label.back')}
@@ -97,6 +96,11 @@ export default function PartnerProposalDetailPage() {
           </div>
 
           <div>
+            <p className="text-xs text-gray-400 uppercase mb-1">End Date</p>
+            <p className="text-sm text-gray-700">{formatContractDate(proposal.endDate)}</p>
+          </div>
+
+          <div>
             <p className="text-xs text-gray-400 uppercase mb-1">Free Period</p>
             <p className="text-sm text-gray-700">
               {proposal.freePeriodDays ? `${proposal.freePeriodDays} days` : '-'}
@@ -139,6 +143,8 @@ export default function PartnerProposalDetailPage() {
           </div>
         </div>
       </div>
+
+      <ExtendContract proposal={proposal} />
 
       {/* Review Info */}
       <div className="bg-white rounded-lg shadow p-6">

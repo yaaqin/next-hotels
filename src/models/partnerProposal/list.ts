@@ -14,6 +14,7 @@ export interface partnerProposalListState {
   revenueSharePct: any
   freePeriodDays: number
   startDate: string
+  endDate: string
   note: string
   createdAt: string
   reviewedAt: string

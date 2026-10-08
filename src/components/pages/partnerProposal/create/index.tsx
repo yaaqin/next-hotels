@@ -7,6 +7,14 @@ import { ProposalType } from '@/src/models/partnerProposal/create'
 import { useCreateProposal } from '@/src/hooks/mutation/partnerProposal/create'
 import { Inputs } from '../../../molecules/inputs/inputs'
 import { Selects } from '../../../molecules/inputs/selects'
+import { DatePicker } from '../../../molecules/inputs/datePicker'
+import {
+  DEFAULT_CONTRACT_DAYS,
+  plusContractDays,
+  toDate,
+  toDateString,
+  toWibIso,
+} from '../../../organisms/partnerProposal/helpers'
 
 const proposalTypeOptions = [
   { id: 1, value: ProposalType.SUBSCRIPTION, label: 'Subscription' },
@@ -27,6 +35,7 @@ export default function CreateProposalPage() {
     revenueSharePct: '',
     freePeriodDays: '',
     startDate: '',
+    endDate: '',
     note: '',
   })
 
@@ -39,6 +48,7 @@ export default function CreateProposalPage() {
     revenueSharePct: '',
     freePeriodDays: '',
     startDate: '',
+    endDate: '',
   })
 
   const isSubscription = form.type === ProposalType.SUBSCRIPTION
@@ -54,6 +64,7 @@ export default function CreateProposalPage() {
       revenueSharePct: '',
       freePeriodDays: '',
       startDate: '',
+      endDate: '',
     }
     let valid = true
 
@@ -69,6 +80,14 @@ export default function CreateProposalPage() {
 
     if (!form.startDate) {
       newErrors.startDate = 'Start date is required'
+      valid = false
+    }
+
+    if (!form.endDate) {
+      newErrors.endDate = 'End date is required'
+      valid = false
+    } else if (form.startDate && form.endDate <= form.startDate) {
+      newErrors.endDate = 'End date must be after start date'
       valid = false
     }
 
@@ -108,12 +127,13 @@ export default function CreateProposalPage() {
       monthlyCapIdr: isSubscription ? Number(form.monthlyCapIdr) : null,
       surchargeAfterCapPct: isSubscription ? Number(form.surchargeAfterCapPct) : null,
       revenueSharePct: isRevenueShare ? Number(form.revenueSharePct) : null,
-      freePeriodDays: form.freePeriodDays ? Number(form.freePeriodDays) : null,
-      startDate: form.startDate,
+      freePeriodDays: form.freePeriodDays ? Number(form.freePeriodDays) : 0,
+      startDate: toWibIso(form.startDate),
+      endDate: toWibIso(form.endDate),
       note: form.note,
     }, {
       onSuccess: () => {
-        router.push('/dashboard/partnership-proposal')
+        router.push('/dashboard/partner-proposal')
       },
       onError: (err) => {
         console.error(err)
@@ -207,14 +227,46 @@ export default function CreateProposalPage() {
           placeholder="7"
         />
 
-        <Inputs
-          label="Start Date"
-          value={form.startDate}
-          onChange={(val) => setForm((prev) => ({ ...prev, startDate: val }))}
-          error={errors.startDate}
-          required
-          placeholder="2026-06-01"
-        />
+        <div>
+          <label className="block text-md font-medium mb-1 md:mb-2">
+            Start Date<span className="text-red-500 ml-1">*</span>
+          </label>
+          <DatePicker
+            variant="default"
+            placeholder="Pilih tanggal mulai"
+            displayFormat="dd MMM yyyy"
+            minDate={new Date(2000, 0, 1)}
+            value={toDate(form.startDate)}
+            onChange={(date) => {
+              const startDate = toDateString(date)
+              // End date ikut digeser ke start + 30 hari selama belum diisi atau jadi tidak valid
+              setForm((prev) => ({
+                ...prev,
+                startDate,
+                endDate: !prev.endDate || prev.endDate <= startDate ? plusContractDays(startDate) : prev.endDate,
+              }))
+            }}
+          />
+          {errors.startDate && <p className="text-xs text-red-500 mt-1">{errors.startDate}</p>}
+        </div>
+
+        <div>
+          <label className="block text-md font-medium mb-1 md:mb-2">
+            End Date<span className="text-red-500 ml-1">*</span>
+          </label>
+          <DatePicker
+            variant="default"
+            placeholder="Pilih tanggal berakhir"
+            displayFormat="dd MMM yyyy"
+            minDate={toDate(form.startDate)}
+            value={toDate(form.endDate)}
+            onChange={(date) => setForm((prev) => ({ ...prev, endDate: toDateString(date) }))}
+          />
+          <p className="text-xs text-gray-400 mt-1">
+            Default {DEFAULT_CONTRACT_DAYS} hari dari start date. Setelah tanggal ini menu resto tidak tampil ke tamu.
+          </p>
+          {errors.endDate && <p className="text-xs text-red-500 mt-1">{errors.endDate}</p>}
+        </div>
 
         <Inputs
           label="Note"

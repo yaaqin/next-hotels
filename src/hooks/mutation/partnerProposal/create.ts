@@ -8,7 +8,7 @@ export const useCreateProposal = () => {
   return useMutation<CreateProposalRes, Error, CreateProposalReq>({
     mutationFn: createProposal,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["proposal-list"] })
+      queryClient.invalidateQueries({ queryKey: ["partner-proposal-list"] })
     },
   })
 }

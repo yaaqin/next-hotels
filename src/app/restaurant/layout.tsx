@@ -1,5 +1,6 @@
 import Sidebar from "@/src/components/organisms/restaurant/restoDashboard/sidebar";
 import Topbar from "@/src/components/organisms/restaurant/restoDashboard/topBar";
+import ContractNotice from "@/src/components/organisms/restaurant/restoDashboard/contractNotice";
 
 export default function DashboardLayout({
   children,
@@ -11,7 +12,10 @@ export default function DashboardLayout({
       <Sidebar />
       <div className="pl-64">
         <Topbar title="Dashboard" />
-        <main className="p-6">{children}</main>
+        <main className="p-6">
+          <ContractNotice />
+          {children}
+        </main>
       </div>
     </div>
   );
