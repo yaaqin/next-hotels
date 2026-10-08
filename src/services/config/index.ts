@@ -11,9 +11,11 @@ import {
   MenuTranslations,
   PaymentMethodConfig,
   PaymentScope,
+  ReportAppSetting,
   Role,
   Site,
   UpdatePaymentMethodPayload,
+  UpdateReportAppSettingPayload,
 } from '@/src/models/config'
 
 // Semua endpoint /config/* khusus role sistem (DEV, SUPERADMIN) — dijaga SystemRoleGuard di BE
@@ -86,3 +88,11 @@ export const updatePaymentMethod = async (
   payload: UpdatePaymentMethodPayload,
 ): Promise<ApiResponse<PaymentMethodConfig[]>> =>
   (await axiosPrivate.put('/config/payment-methods', payload)).data
+
+// ── Report App ─────────────────────────────────
+export const getReportAppSetting = async (): Promise<ApiResponse<ReportAppSetting>> =>
+  (await axiosPrivate.get('/config/report-app')).data
+
+export const updateReportAppSetting = async (
+  payload: UpdateReportAppSettingPayload,
+): Promise<ApiResponse<ReportAppSetting>> => (await axiosPrivate.put('/config/report-app', payload)).data

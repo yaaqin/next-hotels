@@ -115,3 +115,16 @@ export interface UpdatePaymentMethodPayload {
   // null = hapus setting → ikut level di atasnya
   isEnabled: boolean | null
 }
+
+// Pengaturan Report App (Flutter) — /config/report-app
+export interface ReportAppSetting {
+  idleTimeoutSeconds: number
+  pinMaxAttempts: number
+  updatedAt: string
+  updatedBy: string | null
+}
+
+export interface UpdateReportAppSettingPayload {
+  idleTimeoutSeconds?: number
+  pinMaxAttempts?: number
+}

@@ -17,4 +17,5 @@ export const CONFIG_TABS = [
   { label: 'Menus', href: '/config-panel/menus' },
   { label: 'Access Control', href: '/config-panel/access-control' },
   { label: 'Payment Methods', href: '/config-panel/payment-methods' },
+  { label: 'Report App', href: '/config-panel/report-app' },
 ]

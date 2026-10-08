@@ -13,10 +13,12 @@ import {
   getConfigMenus,
   getConfigMenuTranslations,
   getPaymentMethodConfig,
+  getReportAppSetting,
   getRoles,
   getSites,
   updateMenu,
   updatePaymentMethod,
+  updateReportAppSetting,
   updateRole,
 } from '@/src/services/config'
 import {
@@ -25,6 +27,7 @@ import {
   CreateRolePayload,
   PaymentScope,
   UpdatePaymentMethodPayload,
+  UpdateReportAppSettingPayload,
 } from '@/src/models/config'
 
 export const configKeys = {
@@ -37,6 +40,7 @@ export const configKeys = {
   sites: ['config', 'sites'] as const,
   paymentMethods: (scope: PaymentScope, siteCode?: string) =>
     ['config', 'payment-methods', scope, siteCode ?? '*'] as const,
+  reportApp: ['config', 'report-app'] as const,
 }
 
 // ── Queries ────────────────────────────────────
@@ -185,6 +189,20 @@ export const useUpdatePaymentMethod = () => {
       toast.success('Metode pembayaran disimpan')
       // Setting semua cabang ikut mengubah status efektif di tiap cabang
       qc.invalidateQueries({ queryKey: ['config', 'payment-methods', payload.scope] })
+    },
+  })
+}
+
+export const useReportAppSetting = () =>
+  useQuery({ queryKey: configKeys.reportApp, queryFn: getReportAppSetting })
+
+export const useUpdateReportAppSetting = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: UpdateReportAppSettingPayload) => updateReportAppSetting(payload),
+    onSuccess: () => {
+      toast.success('Pengaturan Report App disimpan')
+      qc.invalidateQueries({ queryKey: configKeys.reportApp })
     },
   })
 }
