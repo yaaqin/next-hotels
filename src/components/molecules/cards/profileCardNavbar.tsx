@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import Images from "../../atoms/images";
 import { MoonIcon, Sun01Icon } from "hugeicons-react";
 import { queryClient } from "@/src/libs/react-query";
@@ -21,12 +21,26 @@ const ProfileCardnavbar: React.FC<{
   name: string;
   email: string;
   avatarUrl: string;
-}> = ({ name, email, avatarUrl }) => {
-  const [open, setOpen] = useState(false);
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  // Layar kecil: tampil foto saja, nama & email pindah ke dropdown
+  compact?: boolean;
+}> = ({ name, email, avatarUrl, open, onOpenChange, compact = false }) => {
+  const rootRef = useRef<HTMLDivElement>(null);
   const { isDark, toggleTheme } = useThemeMode();
 
   const { setLanguage } = useLanguageStore();
   const language = useCurrentLanguage();
+
+  // 🔹 klik di luar kartu → tutup dropdown
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) onOpenChange(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [open, onOpenChange]);
 
   // 🔹 listen language-change event → invalidate queries
   useEffect(() => {
@@ -46,35 +60,46 @@ const ProfileCardnavbar: React.FC<{
   };
 
   return (
-    <div className="relative">
-      {/* Card */}
-      <div className="flex items-center justify-between rounded-xl bg-blue-400 px-3 py-2">
-        <div className="flex items-center gap-3">
-          <Images
-            src={avatarUrl}
-            alt={name}
-            width={30}
-            height={30}
-            className="h-10 w-10 rounded-full object-cover"
-          />
+    <div ref={rootRef} className="relative shrink-0">
+      {/* Card — seluruh kartu bisa diklik */}
+      <button
+        type="button"
+        onClick={() => onOpenChange(!open)}
+        aria-expanded={open}
+        aria-label="Menu profil"
+        className={`flex items-center rounded-xl bg-blue-400 transition hover:bg-blue-500 cursor-pointer ${compact ? "p-1" : "gap-3 px-3 py-2"}`}
+      >
+        <Images
+          src={avatarUrl}
+          alt={name}
+          width={30}
+          height={30}
+          className={`rounded-full object-cover ${compact ? "h-8 w-8" : "h-10 w-10"}`}
+        />
 
-          <div className="leading-tight">
-            <p className="text-xs font-semibold text-white">{name}</p>
-            <p className="text-xs text-white">{email}</p>
-          </div>
-        </div>
-
-        <button
-          onClick={() => setOpen(!open)}
-          className="ml-2 flex h-8 w-8 items-center justify-center rounded-full text-gray-700 hover:bg-blue-300"
-        >
-          ⋮
-        </button>
-      </div>
+        {!compact && (
+          <>
+            <div className="leading-tight text-left">
+              <p className="text-xs font-semibold text-white">{name}</p>
+              <p className="text-xs text-white">{email}</p>
+            </div>
+            <span className="ml-1 text-white">⋮</span>
+          </>
+        )}
+      </button>
 
       {/* Dropdown */}
       {open && (
         <div className="absolute right-0 mt-2 w-56 rounded-xl border bg-white shadow-lg z-50">
+          {compact && (
+            <>
+              <div className="px-4 py-3 leading-tight">
+                <p className="text-sm font-semibold text-gray-800">{name}</p>
+                <p className="text-xs text-gray-500 truncate">{email}</p>
+              </div>
+              <div className="h-px bg-gray-200" />
+            </>
+          )}
           {/* Language */}
           <div className="px-4 py-3">
             <p className="mb-1 text-xs font-semibold text-gray-500">

@@ -1,112 +1,84 @@
 import Heads from '@/src/components/molecules/cards/heads'
+import Images from '@/src/components/atoms/images';
 import { AnimatePresence, motion } from 'framer-motion';
 import ProfileCardnavbar from '@/src/components/molecules/cards/profileCardNavbar'
 import { useActiveSidebar, useNavigation } from '@/src/stores/layouts/useNavigationStore';
-import { NavItem } from '@/src/constans/menu/navbar';
-import Link from 'next/link';
-import { ArrowDown01Icon } from 'hugeicons-react';
+import { Menu01Icon } from 'hugeicons-react';
 import { useState } from 'react';
 import { useMe } from '@/src/hooks/query/auth/me';
+import NavScroller from './navScroller';
+import MobileMenu from './mobileMenu';
 
-// const NAVBAR_MAP = {
-//   dashboard: ['Profile', 'Floor', 'Setting'],
-//   site: ['Room', 'Room Type', 'Unit', 'Bed', 'Facility'],
-//   user: ['Admin', 'Role', 'Menu'],
-//   food: ['History', 'Stock', 'Order'],
-//   finance: ['Price plan', 'History', 'Revenue'],
-// };
+const AVATAR_URL = 'https://i.pinimg.com/736x/68/b2/ac/68b2ace58b8a78df5abceafa4a80c8cd.jpg'
+const LOGO_URL = 'https://id.marinabaysands.com/content/dam/marinabaysands/secondary-navigation/logo-white-svg.svg'
 
-interface Props {
-  item: NavItem;
-}
-
-export function NavbarItem({ item }: Props) {
-  const [open, setOpen] = useState(false);
-
-  if (item.children && item.children.length > 0) {
-    return (
-      <div
-        className="relative z-50"
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
-      >
-        {/* Parent */}
-        <button
-          className="flex items-center gap-1 font-medium cursor-pointer hover:text-primary"
-        >
-          {item.label}
-          <ArrowDown01Icon
-            size={16}
-            className={`transition-transform duration-200 ${open ? 'rotate-180' : ''
-              }`}
-          />
-        </button>
-
-        {/* Dropdown */}
-        {open && (
-          <div className="absolute top-4 left-0 mt-2 w-48 rounded-lg border bg-white shadow-lg z-50">
-            {item.children.map((child) => (
-              <Link
-                key={child.key}
-                href={child.path || '/dashboard'}
-                className="block px-4 py-2 text-sm hover:bg-gray-100 rounded-lg"
-              >
-                {child.label}
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // Simple link
-  return (
-    <Link
-      href={item.path || '/dashboard'}
-      className="font-medium cursor-pointer hover:text-primary"
-    >
-      {item.label}
-    </Link>
-  );
-}
+// Panel yang sedang terbuka: dropdown profil atau menu hamburger, tidak boleh dua-duanya
+type OpenPanel = 'profile' | 'menu' | null
 
 export default function Navbar() {
   const activeSidebar = useActiveSidebar();
   const navigation = useNavigation();
   const { data: myData } = useMe()
+  const [panel, setPanel] = useState<OpenPanel>(null)
 
-
-  // const menu = NAVIGATION.find((item) => item.label.toLocaleLowerCase() === activeSidebar)
   const navbarItems = navigation.find(i => i.key === activeSidebar)?.children ?? [];
 
-  return (
-    <section className="flex items-center justify-between gap-4 px-4 p-2">
-      <Heads label="Dashboard" className="text-3xl" iconSize={35} />
+  const profile = (compact: boolean) => (
+    <ProfileCardnavbar
+      name={myData?.data.username || '-'}
+      email={myData?.data.email || "-"}
+      avatarUrl={AVATAR_URL}
+      compact={compact}
+      open={panel === 'profile'}
+      onOpenChange={(open) => setPanel(open ? 'profile' : null)}
+    />
+  )
 
-      <div className="flex-1 overflow-visible">
+  return (
+    <>
+      {/* Desktop */}
+      <section className="hidden lg:flex items-center gap-2 px-4 py-2">
+        <Heads label="Dashboard" className="shrink-0 text-3xl" iconSize={35} />
+
         <AnimatePresence mode="wait">
-          <motion.section
+          <motion.div
             key={activeSidebar}
-            className="relative w-full flex justify-center items-center gap-6"
+            className="flex min-w-0 flex-1"
             initial={{ y: 40, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -40, opacity: 0 }}
             transition={{ duration: 0.35, ease: 'easeInOut' }}
           >
-            {navbarItems.map((item) => (
-              <NavbarItem key={item.key} item={item} />
-            ))}
-          </motion.section>
+            <NavScroller items={navbarItems} />
+          </motion.div>
         </AnimatePresence>
-      </div>
 
-      <ProfileCardnavbar
-        name={myData?.data.username || '-'}
-        email={myData?.data.email || "-"}
-        avatarUrl="https://i.pinimg.com/736x/68/b2/ac/68b2ace58b8a78df5abceafa4a80c8cd.jpg"
-      />
-    </section>
+        {profile(false)}
+      </section>
 
+      {/* Mobile: logo · profil · hamburger (sidebar & menu atas pindah ke hamburger) */}
+      <section className="flex lg:hidden items-center gap-2 px-4 py-3 border-b dark:border-slate-800">
+        <div className="mr-auto flex items-center gap-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-400 p-1.5">
+            <Images src={LOGO_URL} width={28} height={28} />
+          </div>
+          <span className="text-lg font-bold">MBS</span>
+        </div>
+
+        {profile(true)}
+
+        <button
+          type="button"
+          onClick={() => setPanel(panel === 'menu' ? null : 'menu')}
+          aria-label="Buka menu"
+          aria-expanded={panel === 'menu'}
+          className="flex h-10 w-10 items-center justify-center rounded-xl border text-gray-700 hover:bg-gray-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+        >
+          <Menu01Icon size={22} />
+        </button>
+      </section>
+
+      <MobileMenu open={panel === 'menu'} onClose={() => setPanel(null)} />
+    </>
   )
 }

@@ -40,6 +40,15 @@ body {
     display: none; /* For Chrome, Safari, and Edge */
 }
 
+/* Sembunyikan scrollbar tanpa memaksa arah overflow (beda dengan .hide-scrollbar) */
+.no-scrollbar {
+    scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
 /* -----------------special css crypto list------------------------------- */
 @keyframes ticker {
   0% {
