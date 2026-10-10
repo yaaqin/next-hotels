@@ -48,7 +48,16 @@
   "text": {
     "login": {
       "welcome": "欢迎回来",
-      "desk": "请输入您的详细信息以登录"
+      "desk": "请输入您的详细信息以登录",
+      "title": "登录",
+      "headline": "Marina Bay Sands",
+      "tagline": "在一个仪表板中管理预订、客房和酒店报告。",
+      "showPassword": "显示",
+      "hidePassword": "隐藏",
+      "forgot": "忘记密码？",
+      "submit": "登录",
+      "submitting": "登录中...",
+      "toggleTheme": "切换浅色/深色主题"
     },
     "footer": {
       "follow": "关注我们",

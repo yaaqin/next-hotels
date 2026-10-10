@@ -48,7 +48,16 @@
   "text": {
     "login": {
       "welcome": "おかえりなさい",
-      "desk": "サインインするために詳細を入力してください"
+      "desk": "サインインするために詳細を入力してください",
+      "title": "サインイン",
+      "headline": "Marina Bay Sands",
+      "tagline": "予約、客室、ホテルレポートをひとつのダッシュボードで管理。",
+      "showPassword": "表示",
+      "hidePassword": "非表示",
+      "forgot": "パスワードをお忘れですか？",
+      "submit": "サインイン",
+      "submitting": "サインイン中...",
+      "toggleTheme": "ライト/ダークテーマ切替"
     },
     "footer": {
       "follow": "フォローする",

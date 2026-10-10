@@ -5,16 +5,22 @@ import React, { useState } from 'react';
 import Images from '../../atoms/images';
 import { useTranslation } from 'react-i18next';
 import { isSystemRole } from '@/src/constans/config';
+import { LockPasswordIcon, MoonIcon, Sun01Icon, UserIcon } from 'hugeicons-react';
+import { useThemeMode } from '@/src/hooks/useThemeMode';
+
+const LOGO_URL = 'https://id.marinabaysands.com/content/dam/marinabaysands/secondary-navigation/logo-white-svg.svg'
 
 export default function LoginPage() {
     const router = useRouter()
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [rememberMe, setRememberMe] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const { t } = useTranslation()
+    const { isDark, toggleTheme } = useThemeMode()
 
-    const { mutate, isPending, isError, error } = useLoginPinMutation();
+    // Pesan error login sudah ditampilkan toast oleh interceptor axiosPublic
+    const { mutate, isPending } = useLoginPinMutation();
 
     const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -39,168 +45,109 @@ export default function LoginPage() {
         );
     };
 
-    const handleGoogleLogin = () => {
-        // Handle Google login logic here
-        console.log('Google login clicked');
-        console.log('nickname==>', username)
-        console.log("password==>", password)
-    };
-
     return (
-        <div className="h-screen flex items-center justify-center">
-            <div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 bg-white rounded-3xl overflow-hidden">
+        <main className="min-h-screen flex items-center justify-center p-4 sm:p-8 bg-gradient-to-br from-[#5b8ad0] via-[#3f6db5] to-[#2a4f8f] dark:from-slate-950 dark:via-slate-900 dark:to-blue-950 transition-colors">
+            <div className="relative w-full max-w-5xl min-h-[580px] grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] rounded-3xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xl shadow-blue-950/30 transition-colors">
 
-                {/* Left Side - Login Form */}
-                <div className="p-8 lg:p-12 flex flex-col justify-center">
-                    <div className="mb-8">
-                        <div className="flex items-center gap-2 mb-2">
+                {/* Kiri: panel sambutan dengan lingkaran dekoratif */}
+                <section className="relative hidden lg:flex flex-col justify-center pl-14 pr-28 text-white">
+                    <div aria-hidden className="absolute -left-[35%] -top-[22%] h-[118%] aspect-square rounded-full bg-gradient-to-br from-[#4c7cc6] to-[#24498a] dark:from-blue-700 dark:to-blue-950" />
+                    <div aria-hidden className="absolute -left-24 -bottom-40 w-80 h-80 rounded-full bg-gradient-to-tr from-[#2d5598] to-[#5585cf] dark:from-blue-950 dark:to-blue-800" />
+                    <div aria-hidden className="absolute left-[52%] -bottom-6 w-44 h-44 rounded-full bg-gradient-to-br from-[#6b97da] to-[#2f5ba3] shadow-2xl shadow-blue-950/40 dark:from-blue-600 dark:to-blue-900" />
+
+                    <div className="relative z-10 max-w-sm -mt-16">
+                        <div className="flex items-center gap-2 mb-10">
+                            <Images src={LOGO_URL} width={35} height={35} />
+                            <span className="text-xl font-bold tracking-wide">MBS</span>
+                        </div>
+                        <h1 className="text-4xl xl:text-5xl font-extrabold uppercase tracking-wider">{t('text.login.welcome')}</h1>
+                        <p className="mt-3 text-lg font-semibold uppercase tracking-widest text-blue-100">{t('text.login.headline')}</p>
+                        <p className="mt-5 text-sm leading-relaxed text-blue-100/80">{t('text.login.tagline')}</p>
+                    </div>
+                </section>
+
+                {/* Kanan: form login */}
+                <section className="relative flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-14">
+                    <div aria-hidden className="absolute -right-12 -bottom-12 w-36 h-36 rounded-full bg-gradient-to-tr from-[#2d5598] to-[#6b97da] dark:from-blue-950 dark:to-blue-700" />
+
+                    <button
+                        type="button"
+                        onClick={toggleTheme}
+                        aria-label={t('text.login.toggleTheme')}
+                        title={t('text.login.toggleTheme')}
+                        className="absolute top-5 right-5 p-2 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition"
+                    >
+                        {isDark ? <MoonIcon size={18} /> : <Sun01Icon size={18} />}
+                    </button>
+
+                    <div className="relative z-10 w-full max-w-sm mx-auto">
+                        {/* Logo untuk layar kecil (panel kiri disembunyikan) */}
+                        <div className="lg:hidden flex items-center gap-2 mb-8">
                             <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center p-2">
-                                <Images src='https://id.marinabaysands.com/content/dam/marinabaysands/secondary-navigation/logo-white-svg.svg' width={35} height={35} />
+                                <Images src={LOGO_URL} width={35} height={35} />
                             </div>
-                            <h1 className="text-2xl font-bold text-gray-800">MBS</h1>
-                        </div>
-                    </div>
-
-                    <h2 className="text-3xl font-bold text-gray-800 mb-2">{t('text.login.welcome')}</h2>
-                    <p className="text-gray-500 mb-8">{t('text.login.desk')}</p>
-
-                    <form onSubmit={handleLogin} className="space-y-5">
-                        {/* Username Input */}
-                        <div>
-                            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                                {t('label.username')}
-                            </label>
-                            <input
-                                type="text"
-                                id="username"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                placeholder={t('placeholder.login.username')}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
-                                required
-                            />
+                            <span className="text-2xl font-bold text-gray-800 dark:text-slate-100">MBS</span>
                         </div>
 
-                        {/* Password Input */}
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                                {t('label.password')}
-                            </label>
-                            <input
-                                type="password"
-                                id="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder={t('placeholder.login.password')}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
-                                required
-                            />
-                        </div>
+                        <h2 className="text-4xl font-bold text-gray-800 dark:text-slate-100">{t('text.login.title')}</h2>
+                        <p className="mt-2 mb-8 text-sm text-gray-500 dark:text-slate-400">{t('text.login.desk')}</p>
 
-                        {/* Remember Me & Forgot Password */}
-                        <div className="flex items-center justify-end">
-                            {/* <label className="flex items-center cursor-pointer">
+                        <form onSubmit={handleLogin} className="space-y-4">
+                            <div className="flex items-center gap-3 px-4 rounded-xl bg-gray-100 dark:bg-slate-800 focus-within:ring-2 focus-within:ring-blue-500 transition">
+                                <UserIcon size={20} className="shrink-0 text-gray-600 dark:text-slate-400" />
+                                <label htmlFor="username" className="sr-only">{t('label.username')}</label>
                                 <input
-                                    type="checkbox"
-                                    checked={rememberMe}
-                                    onChange={(e) => setRememberMe(e.target.checked)}
-                                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                    type="text"
+                                    id="username"
+                                    autoComplete="username"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    placeholder={t('placeholder.login.username')}
+                                    className="w-full py-3.5 bg-transparent text-sm text-gray-800 placeholder:text-gray-400 dark:text-slate-100 dark:placeholder:text-slate-500 outline-none"
+                                    required
                                 />
-                                <span className="ml-2 text-sm text-gray-600">Remember me</span>
-                            </label> */}
-                            <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                                Forgot password?
-                            </a>
-                        </div>
-
-                        {/* Login Button */}
-                        <button
-                            type="submit"
-                            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition duration-200 shadow-lg hover:shadow-xl"
-                        >
-                            Sign In
-                        </button>
-
-                        {/* Divider */}
-                        {/* <div className="relative my-6">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-300"></div>
                             </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="px-4 bg-white text-gray-500">Or continue with</span>
+
+                            <div className="flex items-center gap-3 px-4 rounded-xl bg-gray-100 dark:bg-slate-800 focus-within:ring-2 focus-within:ring-blue-500 transition">
+                                <LockPasswordIcon size={20} className="shrink-0 text-gray-600 dark:text-slate-400" />
+                                <label htmlFor="password" className="sr-only">{t('label.password')}</label>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    id="password"
+                                    autoComplete="current-password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder={t('placeholder.login.password')}
+                                    className="w-full py-3.5 bg-transparent text-sm text-gray-800 placeholder:text-gray-400 dark:text-slate-100 dark:placeholder:text-slate-500 outline-none"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword((v) => !v)}
+                                    aria-pressed={showPassword}
+                                    className="shrink-0 text-xs font-bold tracking-wide text-[#2b4f8e] hover:text-[#4c7cc6] dark:text-blue-300 dark:hover:text-blue-200"
+                                >
+                                    {showPassword ? t('text.login.hidePassword') : t('text.login.showPassword')}
+                                </button>
                             </div>
-                        </div> */}
 
-                        {/* Google Login Button */}
-                        {/* <button
-                            type="button"
-                            onClick={handleGoogleLogin}
-                            className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition duration-200 group"
-                        >
-                            <svg className="w-5 h-5" viewBox="0 0 24 24">
-                                <path
-                                    fill="#4285F4"
-                                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                                />
-                                <path
-                                    fill="#34A853"
-                                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                                />
-                                <path
-                                    fill="#FBBC05"
-                                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                                />
-                                <path
-                                    fill="#EA4335"
-                                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                                />
-                            </svg>
-                            <span className="text-gray-700 font-medium">Continue with Google</span>
-                        </button> */}
-                    </form>
-
-                    {/* Sign Up Link */}
-                    {/* <p className="mt-8 text-center text-sm text-gray-600">
-                        Don't have an account?{' '}
-                        <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">
-                            Sign up now
-                        </a>
-                    </p> */}
-                </div>
-
-                {/* Right Side - Image/Dashboard Preview */}
-                <div className="hidden lg:block bg-gradient-to-br from-blue-600 to-blue-800 p-12 relative overflow-hidden">
-                    <div className="relative z-10 h-full flex flex-col justify-center">
-                        <div className="mb-8">
-                            <h3 className="text-3xl font-bold text-white mb-4">Get more with less</h3>
-                            <p className="text-blue-100">
-                                Waydev analyzes your codebase from GitHub, GitLab, Azure DevOps & Bitbucket
-                                to help you bring out the best in your engineer's work.
-                            </p>
-                        </div>
-
-                        {/* Dashboard Preview Image Placeholder */}
-                        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                            <div className="bg-white rounded-lg shadow-2xl p-4">
-                                <div className="flex gap-4 mb-4">
-                                    <div className="flex-1 bg-gray-100 rounded h-8"></div>
-                                    <div className="flex-1 bg-gray-100 rounded h-8"></div>
-                                    <div className="flex-1 bg-gray-100 rounded h-8"></div>
-                                </div>
-                                <div className="bg-gradient-to-r from-blue-100 to-blue-50 rounded h-32 mb-4"></div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="bg-gray-50 rounded h-16"></div>
-                                    <div className="bg-blue-100 rounded h-16"></div>
-                                </div>
+                            <div className="flex items-center justify-end">
+                                <a href="#" className="text-sm font-medium text-[#2b4f8e] hover:text-[#4c7cc6] dark:text-blue-300 dark:hover:text-blue-200">
+                                    {t('text.login.forgot')}
+                                </a>
                             </div>
-                        </div>
+
+                            <button
+                                type="submit"
+                                disabled={isPending}
+                                className="w-full py-3.5 rounded-xl font-semibold text-white bg-[#2b4f8e] hover:bg-[#223f73] dark:bg-blue-600 dark:hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-blue-900/20 transition"
+                            >
+                                {isPending ? t('text.login.submitting') : t('text.login.submit')}
+                            </button>
+                        </form>
                     </div>
-
-                    {/* Background Decoration */}
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
-                    <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl"></div>
-                </div>
+                </section>
             </div>
-        </div>
+        </main>
     );
 }

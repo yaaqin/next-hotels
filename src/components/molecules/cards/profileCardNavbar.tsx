@@ -6,6 +6,7 @@ import { MoonIcon, Sun01Icon } from "hugeicons-react";
 import { queryClient } from "@/src/libs/react-query";
 import { useLanguageStore } from "@/src/stores/languageStore";
 import { useCurrentLanguage } from '@/src/hooks/useCurrentLanguage'
+import { useThemeMode } from '@/src/hooks/useThemeMode'
 
 const LANG_OPTIONS = [
   { label: "Bahasa Indonesia", value: "idn" },
@@ -22,20 +23,10 @@ const ProfileCardnavbar: React.FC<{
   avatarUrl: string;
 }> = ({ name, email, avatarUrl }) => {
   const [open, setOpen] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const { isDark, toggleTheme } = useThemeMode();
 
   const { setLanguage } = useLanguageStore();
   const language = useCurrentLanguage();
-
-  const isDark = theme === "dark";
-
-  // 🔹 init theme from localStorage
-  useEffect(() => {
-    const savedTheme =
-      (localStorage.getItem("theme") as "light" | "dark") ?? "light";
-    setTheme(savedTheme);
-    document.documentElement.classList.toggle("dark", savedTheme === "dark");
-  }, []);
 
   // 🔹 listen language-change event → invalidate queries
   useEffect(() => {
@@ -43,14 +34,6 @@ const ProfileCardnavbar: React.FC<{
     window.addEventListener("language-change", handler);
     return () => window.removeEventListener("language-change", handler);
   }, []);
-
-  // 🔹 change theme
-  const toggleTheme = () => {
-    const next = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    localStorage.setItem("theme", next);
-    document.documentElement.classList.toggle("dark", next === "dark");
-  };
 
   // 🔹 change language
   const changeLanguage = (value: string) => {

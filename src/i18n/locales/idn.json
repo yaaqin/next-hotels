@@ -48,7 +48,16 @@
   "text": {
     "login": {
       "welcome": "Selamat Datang Kembali",
-      "desk": "Silahkan masukan username dan password untuk masuk"
+      "desk": "Silahkan masukan username dan password untuk masuk",
+      "title": "Masuk",
+      "headline": "Marina Bay Sands",
+      "tagline": "Kelola reservasi, kamar, dan laporan hotel dalam satu dashboard.",
+      "showPassword": "LIHAT",
+      "hidePassword": "TUTUP",
+      "forgot": "Lupa kata sandi?",
+      "submit": "Masuk",
+      "submitting": "Memproses...",
+      "toggleTheme": "Ganti tema terang/gelap"
     },
     "footer": {
       "follow": "Ikuti Kami",

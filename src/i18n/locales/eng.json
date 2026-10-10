@@ -48,7 +48,16 @@
   "text": {
     "login": {
       "welcome": "Welcome Back",
-      "desk": "Please enter your details to sign in"
+      "desk": "Please enter your details to sign in",
+      "title": "Sign in",
+      "headline": "Marina Bay Sands",
+      "tagline": "Manage reservations, rooms and hotel reports in one dashboard.",
+      "showPassword": "SHOW",
+      "hidePassword": "HIDE",
+      "forgot": "Forgot password?",
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "toggleTheme": "Toggle light/dark theme"
     },
     "footer": {
       "follow": "Follow Us",
