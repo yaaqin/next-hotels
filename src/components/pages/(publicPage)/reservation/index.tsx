@@ -292,6 +292,7 @@ function ContactCard({
           <div className="relative">
             <UserIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
             <input
+              data-cy="input-full-name"
               type="text"
               placeholder={t("text.reservation.fullNamePlaceholder")}
               value={contact.fullName}
@@ -350,6 +351,7 @@ function ContactCard({
               <div className="relative flex-1 min-w-0">
                 <SmartPhone01Icon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
                 <input
+                  data-cy="input-phone"
                   type="tel"
                   inputMode="numeric"
                   autoComplete="tel-national"
@@ -371,6 +373,7 @@ function ContactCard({
             <div className="relative">
               <IdIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
               <select
+                data-cy="select-id-type"
                 value={contact.idType ?? ''}
                 onChange={(e) => {
                   const idType = (e.target.value as any) || undefined
@@ -393,6 +396,7 @@ function ContactCard({
           </div>
           <div>
             <input
+              data-cy="input-id-number"
               type="text"
               inputMode={contact.idType === 'PASSPORT' ? 'text' : 'numeric'}
               placeholder={t("text.reservation.idNumberPlaceholder")}

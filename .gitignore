@@ -40,3 +40,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .blackboxcli/
+
+# playwright
+/e2e/.auth/
+/e2e/.results/
+/e2e/.report/
+
+# cypress
+/cypress/screenshots/
