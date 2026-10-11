@@ -5,7 +5,7 @@ export const isSystemRole = (roleName?: string | null) =>
   !!roleName && SYSTEM_ROLES.includes(roleName)
 
 // Role global boleh tanpa site, sisanya wajib punya sitecode (aturan BE admin.service)
-export const GLOBAL_ROLES = ['DEV', 'OWNER', 'SUPERADMIN']
+export const GLOBAL_ROLES = ['DEV', 'OWNER', 'SUPERADMIN', 'ARTICLE_ADMIN']
 
 // Role level >= ini selalu punya akses penuh, tidak bisa di-toggle (aturan BE accessControl)
 export const FULL_ACCESS_LEVEL = 800

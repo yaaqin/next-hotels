@@ -5,8 +5,9 @@ import { logout } from '@/src/libs/auth';
 import { useActiveSidebar, useNavigationStore } from '@/src/stores/layouts/useNavigationStore';
 import { sidebarMap } from '@/src/utils/menu';
 import { isSystemRole } from '@/src/constans/config';
+import { canAccessNewsroom } from '@/src/constans/newsroom';
 import { useMe } from '@/src/hooks/query/auth/me';
-import { Building03Icon, ComputerUserIcon, DashboardCircleIcon, Logout01Icon, MarketAnalysisIcon, Monocle01Icon, Pizza01Icon, Settings02Icon } from 'hugeicons-react'
+import { Building03Icon, ComputerUserIcon, DashboardCircleIcon, Logout01Icon, MarketAnalysisIcon, Monocle01Icon, News01Icon, Pizza01Icon, Settings02Icon } from 'hugeicons-react'
 import Link from 'next/link';
 
 // Ikon per menu level 1 (dipakai juga di menu hamburger mobile)
@@ -55,6 +56,12 @@ export default function Sidebars() {
                     <Link href="/config-panel" className="relative group p-2 rounded-lg transition-colors hover:bg-white/20">
                         <Settings02Icon />
                         <Tooltips label={'Config Panel'} />
+                    </Link>
+                )}
+                {canAccessNewsroom(me?.data?.role?.name) && (
+                    <Link href="/newsroom" className="relative group p-2 rounded-lg transition-colors hover:bg-white/20">
+                        <News01Icon />
+                        <Tooltips label={'Newsroom'} />
                     </Link>
                 )}
                 <div onClick={logout} className="relative group p-2 rounded-lg transition-colors hover:bg-white/20 cursor-pointer">

@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import Images from '../../atoms/images';
 import { useTranslation } from 'react-i18next';
 import { isSystemRole } from '@/src/constans/config';
+import { ARTICLE_ADMIN_ROLE } from '@/src/constans/newsroom';
 import { LockPasswordIcon, MoonIcon, Sun01Icon, UserIcon } from 'hugeicons-react';
 import { useThemeMode } from '@/src/hooks/useThemeMode';
 
@@ -35,6 +36,8 @@ export default function LoginPage() {
                     const accountType = res.data?.accountType;
                     if (accountType === 'RESTAURANT_ADMIN') {
                         router.push('/restaurant');
+                    } else if (res.data?.user?.role?.name === ARTICLE_ADMIN_ROLE) {
+                        router.push('/newsroom');
                     } else if (isSystemRole(res.data?.user?.role?.name)) {
                         router.push('/config-panel');
                     } else {

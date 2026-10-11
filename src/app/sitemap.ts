@@ -1,5 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { getPublicSites, resolveRoomListing, searchRoomListing } from '@/src/services/roomListing'
+import { getNewsSitemap } from '@/src/services/news'
+import { articleCanonical, articlePath, isIndexable as isArticleIndexable } from '@/src/components/organisms/news/helpers'
 import {
   effectiveCanonicalPath,
   MIN_INDEXABLE_ROOMS,
@@ -57,9 +59,31 @@ async function roomListingPaths() {
   return checks.filter((p): p is string => !!p)
 }
 
+// Artikel yang indexable & canonical-nya ke dirinya sendiri
+async function newsEntries(): Promise<MetadataRoute.Sitemap> {
+  try {
+    const articles = await getNewsSitemap()
+    const entries = articles
+      .filter((a) => isArticleIndexable(a.metaRobots))
+      .filter((a) => articleCanonical(a) === `${SITE_URL}${articlePath(a.slug)}`)
+      .map((a) => ({
+        url: `${SITE_URL}${articlePath(a.slug)}`,
+        lastModified: new Date(a.updatedAt),
+        changeFrequency: 'weekly' as const,
+        priority: 0.6,
+      }))
+    return [{ url: `${SITE_URL}/news`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.7 }, ...entries]
+  } catch (err) {
+    console.error('[sitemap] gagal generate URL news:', err)
+    return []
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const news = await newsEntries()
   const home: MetadataRoute.Sitemap = [
     { url: SITE_URL, lastModified: new Date(), priority: 1 },
+    ...news,
   ]
 
   try {
