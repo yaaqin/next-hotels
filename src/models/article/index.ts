@@ -20,6 +20,13 @@ export interface ArticleFields {
   canonicalUrl: string
 }
 
+// GET /articles/tags — urut: pernah dipakai admin ini dulu, lalu paling sering dipakai
+export interface ArticleTagSuggestion {
+  tag: string
+  globalCount: number
+  myCount: number
+}
+
 export interface ArticleListItem {
   id: string
   title: string

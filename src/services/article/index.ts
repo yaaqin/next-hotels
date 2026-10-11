@@ -4,6 +4,7 @@ import {
   ArticleDetail,
   ArticleList,
   ArticleStatus,
+  ArticleTagSuggestion,
   CreateArticlePayload,
   UpdateArticlePayload,
 } from '@/src/models/article'
@@ -14,6 +15,9 @@ export type ArticleListParams = { status?: ArticleStatus; search?: string; page?
 
 export const getArticles = async (params: ArticleListParams): Promise<ApiResponse<ArticleList>> =>
   (await axiosPrivate.get('/articles', { params })).data
+
+export const getArticleTags = async (): Promise<ApiResponse<ArticleTagSuggestion[]>> =>
+  (await axiosPrivate.get('/articles/tags')).data
 
 export const getArticle = async (id: string): Promise<ApiResponse<ArticleDetail>> =>
   (await axiosPrivate.get(`/articles/${id}`)).data

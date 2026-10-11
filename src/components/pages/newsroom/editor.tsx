@@ -2,6 +2,7 @@
 import { NewsroomHeader } from '@/src/components/organisms/newsroom/shell'
 import { Button, Card, Chip, Field, Modal, inputClass } from '@/src/components/organisms/configPanel/ui'
 import {
+  ARTICLE_MAX_TAGS,
   META_DESCRIPTION_LIMIT,
   META_ROBOTS_OPTIONS,
   SEO_TITLE_LIMIT,
@@ -14,6 +15,7 @@ import {
   useScheduleArticle,
   useTakedownArticle,
   useUnscheduleArticle,
+  useArticleTags,
   useUpdateArticle,
   useUploadArticleImage,
 } from '@/src/hooks/query/article'
@@ -35,7 +37,7 @@ import {
   X,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { ReactNode, useMemo, useRef, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { STATUS_TONE, formatDateTime, localInputToIso, toLocalInput } from './helpers'
 
@@ -49,6 +51,9 @@ const toSlug = (v: string) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
+
+// Default alt text cover: "cover-{slug}"
+const autoAlt = (slug: string) => (slug ? `cover-${slug}` : '')
 
 const fromArticle = (a?: ArticleDetail): ArticleFields => ({
   title: a?.title ?? '',
@@ -75,11 +80,21 @@ export default function ArticleEditor({ article, children }: { article?: Article
   const [publishAt, setPublishAt] = useState('')
 
   const set = <K extends keyof ArticleFields>(key: K, value: ArticleFields[K]) =>
-    setForm((f) => ({
-      ...f,
-      [key]: value,
-      ...(key === 'title' && !slugTouched && { slug: toSlug(value as string) }),
-    }))
+    setForm((f) => {
+      const next = {
+        ...f,
+        [key]: value,
+        ...(key === 'title' && !slugTouched && { slug: toSlug(value as string) }),
+      }
+      // Alt cover ikut slug selama masih kosong / masih nilai default
+      if (next.slug !== f.slug && (!f.coverAlt || f.coverAlt === autoAlt(f.slug))) {
+        next.coverAlt = autoAlt(next.slug)
+      }
+      return next
+    })
+
+  // Alt kosong saat simpan → pakai default (slug kosong = BE membuat slug dari judul)
+  const payload = () => ({ ...form, coverAlt: form.coverAlt || autoAlt(toSlug(form.slug || form.title)) })
 
   const dirty = JSON.stringify(form) !== JSON.stringify(initial)
 
@@ -101,7 +116,7 @@ export default function ArticleEditor({ article, children }: { article?: Article
   const handleSave = () => {
     const error = validate()
     if (error) return toast.error(error)
-    update.mutate(form)
+    update.mutate(payload())
   }
 
   const handleCreate = () => {
@@ -109,7 +124,7 @@ export default function ArticleEditor({ article, children }: { article?: Article
     if (error) return toast.error(error)
     create.mutate(
       {
-        ...form,
+        ...payload(),
         publishMode: mode,
         ...(mode === 'SCHEDULE' && { publishAt: localInputToIso(publishAt) }),
       },
@@ -125,7 +140,7 @@ export default function ArticleEditor({ article, children }: { article?: Article
       toast.error(error)
       return false
     }
-    await update.mutateAsync(form)
+    await update.mutateAsync(payload())
     return true
   }
 
@@ -266,6 +281,7 @@ export default function ArticleEditor({ article, children }: { article?: Article
           <CoverCard
             image={form.coverImage}
             alt={form.coverAlt}
+            defaultAlt={autoAlt(toSlug(form.slug || form.title)) || 'cover-slug-artikel'}
             onImage={(v) => set('coverImage', v)}
             onAlt={(v) => set('coverAlt', v)}
           />
@@ -286,26 +302,69 @@ function ContentEditor({ value, onChange }: { value: string; onChange: (v: strin
   const [preview, setPreview] = useState(false)
   const upload = useUploadArticleImage()
 
-  // Bungkus teks terpilih (atau sisipkan placeholder) lalu kembalikan fokus ke textarea
+  // Kembalikan fokus + seleksi setelah value berubah (React memindah kursor ke akhir)
+  const select = (start: number, end: number) => {
+    const el = ref.current
+    requestAnimationFrame(() => {
+      el?.focus()
+      el?.setSelectionRange(start, end)
+    })
+  }
+
+  // Bungkus teks terpilih (atau sisipkan placeholder). Dibungkus per baris dan spasi/enter di tepi
+  // tetap di luar penanda — markdown tidak mengenali "**teks\n**" (seleksi satu baris penuh ikut enter-nya).
   const wrap = (before: string, after = '', placeholder = '') => {
     const el = ref.current
     if (!el) return
     const { selectionStart: s, selectionEnd: e } = el
-    const selected = value.slice(s, e) || placeholder
-    onChange(value.slice(0, s) + before + selected + after + value.slice(e))
-    requestAnimationFrame(() => {
-      el.focus()
-      el.setSelectionRange(s + before.length, s + before.length + selected.length)
-    })
+    const selected = value.slice(s, e)
+
+    if (!selected.trim()) {
+      onChange(value.slice(0, s) + before + placeholder + after + value.slice(e))
+      select(s + before.length, s + before.length + placeholder.length)
+      return
+    }
+
+    const wrapped = selected
+      .split('\n')
+      .map((line) => {
+        const [, lead, text, trail] = line.match(/^(\s*)(.*?)(\s*)$/)!
+        return text ? lead + before + text + after + trail : line
+      })
+      .join('\n')
+    onChange(value.slice(0, s) + wrapped + value.slice(e))
+    select(s, s + wrapped.length)
   }
 
-  // Prefix di awal baris (heading, list, quote)
+  // Prefix di awal setiap baris terpilih (heading, list, quote). Prefix blok lain di baris itu diganti;
+  // kalau semua baris sudah ber-prefix yang sama, prefix dilepas (toggle).
   const linePrefix = (prefix: string) => {
     const el = ref.current
     if (!el) return
-    const lineStart = value.lastIndexOf('\n', el.selectionStart - 1) + 1
-    onChange(value.slice(0, lineStart) + prefix + value.slice(lineStart))
-    requestAnimationFrame(() => el.focus())
+    const { selectionStart: s, selectionEnd: e } = el
+    const start = value.lastIndexOf('\n', s - 1) + 1
+    // seleksi yang berakhir tepat setelah enter tidak ikut mengambil baris berikutnya
+    const lastIdx = e > s && value[e - 1] === '\n' ? e - 1 : e
+    const endIdx = value.indexOf('\n', lastIdx)
+    const end = endIdx === -1 ? value.length : endIdx
+
+    const numbered = prefix === '1. '
+    const hasPrefix = (l: string) => (numbered ? /^\d+\. /.test(l) : l.startsWith(prefix))
+    const lines = value.slice(start, end).split('\n')
+    const toggleOff = lines.every((l) => !l.trim() || hasPrefix(l))
+
+    let n = 0
+    const next = lines
+      .map((l) => {
+        if (!l.trim()) return l
+        const bare = l.replace(/^(#{1,6} |[-*+] |\d+\. |> )/, '')
+        if (toggleOff) return bare
+        n += 1
+        return (numbered ? `${n}. ` : prefix) + bare
+      })
+      .join('\n')
+    onChange(value.slice(0, start) + next + value.slice(end))
+    select(start, start + next.length)
   }
 
   const insertImage = async (file?: File) => {
@@ -558,11 +617,13 @@ function Row({ label, value }: { label: string; value: ReactNode }) {
 function CoverCard({
   image,
   alt,
+  defaultAlt,
   onImage,
   onAlt,
 }: {
   image: string
   alt: string
+  defaultAlt: string
   onImage: (v: string) => void
   onAlt: (v: string) => void
 }) {
@@ -606,52 +667,149 @@ function CoverCard({
           if (res) onImage(res.data.url)
         }}
       />
-      <Field label="Alt text" hint="Deskripsi gambar untuk aksesibilitas & SEO gambar.">
-        <input value={alt} onChange={(e) => onAlt(e.target.value)} maxLength={200} className={inputClass} />
+      <Field
+        label="Alt text"
+        hint={
+          <>
+            Deskripsi gambar untuk aksesibilitas & SEO gambar. Kosong = <code>{defaultAlt}</code>.
+          </>
+        }
+      >
+        <input
+          value={alt}
+          onChange={(e) => onAlt(e.target.value)}
+          maxLength={200}
+          placeholder={defaultAlt}
+          className={inputClass}
+        />
       </Field>
     </Card>
   )
 }
 
 // ── Tag ────────────────────────────────────────
+const formatCount = (n: number) => new Intl.NumberFormat('id-ID', { notation: 'compact' }).format(n)
+
 function TagsCard({ tags, onChange }: { tags: string[]; onChange: (v: string[]) => void }) {
   const [draft, setDraft] = useState('')
+  const [open, setOpen] = useState(false)
+  const [active, setActive] = useState(0)
+  const { data } = useArticleTags()
+  const full = tags.length >= ARTICLE_MAX_TAGS
 
-  const add = () => {
-    const tag = draft.trim().toLowerCase()
+  const query = draft.trim().toLowerCase()
+  const suggestions = useMemo(
+    () =>
+      (data?.data ?? [])
+        .filter((s) => !tags.includes(s.tag) && (!query || s.tag.toLowerCase().includes(query)))
+        .slice(0, 8),
+    [data, tags, query],
+  )
+  const isNew = !!query && !tags.includes(query) && !suggestions.some((s) => s.tag.toLowerCase() === query)
+  // Baris di dropdown: tag baru (kalau ada) lalu rekomendasi
+  const options = [...(isNew ? [query] : []), ...suggestions.map((s) => s.tag)]
+
+  useEffect(() => setActive(0), [query])
+
+  const add = (raw: string) => {
+    const tag = raw.trim().toLowerCase()
     setDraft('')
-    if (!tag || tags.includes(tag) || tags.length >= 10) return
+    if (!tag || tags.includes(tag) || full) return
     onChange([...tags, tag])
   }
 
   return (
     <Card className="space-y-3">
-      <h2 className="text-sm font-medium">Tag</h2>
-      <div className="flex flex-wrap gap-1.5">
-        {tags.map((t) => (
-          <span key={t} className="inline-flex items-center gap-1 rounded-full bg-[var(--cp-card-2)] py-1 pl-3 pr-1.5 text-xs">
-            {t}
-            <button aria-label={`Hapus tag ${t}`} onClick={() => onChange(tags.filter((x) => x !== t))}>
-              <X size={12} />
-            </button>
-          </span>
-        ))}
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-medium">Tag</h2>
+        <span className="text-[11px] text-[var(--cp-muted)]">
+          {tags.length}/{ARTICLE_MAX_TAGS}
+        </span>
       </div>
-      <input
-        value={draft}
-        onChange={(e) => setDraft(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ',') {
-            e.preventDefault()
-            add()
-          }
-        }}
-        onBlur={add}
-        maxLength={40}
-        placeholder={tags.length >= 10 ? 'Maksimal 10 tag' : 'Ketik tag lalu Enter'}
-        disabled={tags.length >= 10}
-        className={inputClass}
-      />
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {tags.map((t) => (
+            <span key={t} className="inline-flex items-center gap-1 rounded-full bg-[var(--cp-card-2)] py-1 pl-3 pr-1.5 text-xs">
+              {t}
+              <button aria-label={`Hapus tag ${t}`} onClick={() => onChange(tags.filter((x) => x !== t))}>
+                <X size={12} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="relative">
+        <input
+          value={draft}
+          onChange={(e) => {
+            setDraft(e.target.value)
+            setOpen(true)
+          }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+              e.preventDefault()
+              setOpen(true)
+              if (options.length) setActive((i) => (i + (e.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length)
+            } else if (e.key === 'Enter' || e.key === ',') {
+              e.preventDefault()
+              add(open && options[active] ? options[active] : draft)
+            } else if (e.key === 'Escape') {
+              setOpen(false)
+            }
+          }}
+          onBlur={() => {
+            setOpen(false)
+            add(draft)
+          }}
+          maxLength={40}
+          placeholder={full ? `Maksimal ${ARTICLE_MAX_TAGS} tag` : 'Ketik tag lalu Enter'}
+          disabled={full}
+          role="combobox"
+          aria-expanded={open && options.length > 0}
+          aria-controls="tag-suggestions"
+          className={inputClass}
+        />
+        {open && !full && options.length > 0 && (
+          <ul
+            id="tag-suggestions"
+            role="listbox"
+            className="absolute inset-x-0 top-full z-20 mt-1.5 max-h-72 overflow-y-auto rounded-2xl border border-[var(--cp-line)] bg-[var(--cp-card)] p-1.5 shadow-xl"
+          >
+            {options.map((tag, i) => {
+              const s = suggestions.find((x) => x.tag === tag)
+              return (
+                <li
+                  key={tag}
+                  role="option"
+                  aria-selected={i === active}
+                  // mousedown + preventDefault: pilih sebelum input blur
+                  onMouseDown={(e) => {
+                    e.preventDefault()
+                    add(tag)
+                  }}
+                  onMouseEnter={() => setActive(i)}
+                  className={`flex cursor-pointer items-center justify-between gap-3 rounded-xl px-3 py-2 text-xs ${
+                    i === active ? 'bg-[var(--cp-card-2)]' : ''
+                  }`}
+                >
+                  <span className="min-w-0 truncate">
+                    {s ? tag : <>Tambah tag baru “{tag}”</>}
+                    {s && s.myCount > 0 && (
+                      <span className="ml-2 rounded-full bg-[var(--cp-accent)] px-1.5 py-0.5 text-[10px] text-[var(--cp-accent-ink)]">
+                        pernah kamu pakai
+                      </span>
+                    )}
+                  </span>
+                  {s && (
+                    <span className="shrink-0 text-[var(--cp-muted)]">dipakai {formatCount(s.globalCount)}×</span>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </div>
     </Card>
   )
 }

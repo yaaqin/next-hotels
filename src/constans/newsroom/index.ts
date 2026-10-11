@@ -7,6 +7,9 @@ export const NEWSROOM_ROLES = ['DEV', 'SUPERADMIN', ARTICLE_ADMIN_ROLE]
 export const canAccessNewsroom = (roleName?: string | null) =>
   !!roleName && NEWSROOM_ROLES.includes(roleName)
 
+// Harus sama dengan ARTICLE_MAX_TAGS di BE
+export const ARTICLE_MAX_TAGS = 5
+
 export const META_ROBOTS_OPTIONS = [
   { value: 'index,follow', label: 'index, follow', hint: 'Default — muncul di Google, link diikuti' },
   { value: 'noindex,follow', label: 'noindex, follow', hint: 'Tidak muncul di Google, link tetap diikuti' },

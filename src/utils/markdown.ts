@@ -31,7 +31,13 @@ const marked = new Marked({
   },
 })
 
-export const renderMarkdown = (md: string) => marked.parse(md ?? '', { async: false }) as string
+// Konten lama dari toolbar newsroom bisa berisi "**teks\n**" (enter ikut terbungkus) yang tidak dikenali
+// markdown — pindahkan penanda penutup ke sebelum enter.
+const tidyEmphasis = (md: string) =>
+  md.replace(/(\*\*|_)([^\s*_](?:[^*\n]*?[^\s*])?)([ \t]*\n[ \t]*)\1(?=\s|$)/g, '$1$2$1$3')
+
+export const renderMarkdown = (md: string) =>
+  marked.parse(tidyEmphasis(md ?? ''), { async: false }) as string
 
 // Teks polos dari markdown — fallback meta description kalau ringkasan kosong
 export const markdownToPlain = (md: string, max = 160) => {

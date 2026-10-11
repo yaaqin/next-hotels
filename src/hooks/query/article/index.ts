@@ -4,6 +4,7 @@ import {
   ArticleListParams,
   createArticle,
   getArticle,
+  getArticleTags,
   getArticles,
   publishArticle,
   restoreArticle,
@@ -14,11 +15,13 @@ import {
   uploadArticleImage,
 } from '@/src/services/article'
 import { CreateArticlePayload, UpdateArticlePayload } from '@/src/models/article'
+import { revalidateNewsAction } from '@/src/actions/news/revalidate-news.action'
 
 export const articleKeys = {
   all: ['articles'] as const,
   list: (params: ArticleListParams) => ['articles', 'list', params] as const,
   detail: (id: string) => ['articles', 'detail', id] as const,
+  tags: ['articles', 'tags'] as const,
 }
 
 export const useArticles = (params: ArticleListParams) =>
@@ -26,6 +29,10 @@ export const useArticles = (params: ArticleListParams) =>
 
 export const useArticle = (id?: string) =>
   useQuery({ queryKey: articleKeys.detail(id ?? ''), queryFn: () => getArticle(id!), enabled: !!id })
+
+// Ikut ter-invalidate setiap simpan artikel (prefix articleKeys.all)
+export const useArticleTags = () =>
+  useQuery({ queryKey: articleKeys.tags, queryFn: getArticleTags, staleTime: 5 * 60_000 })
 
 // Error sudah di-toast interceptor axiosPrivate
 const useArticleMutation = <V,>(fn: (vars: V) => Promise<unknown>, success: string) => {
@@ -35,6 +42,8 @@ const useArticleMutation = <V,>(fn: (vars: V) => Promise<unknown>, success: stri
     onSuccess: () => {
       toast.success(success)
       qc.invalidateQueries({ queryKey: articleKeys.all })
+      // Cache halaman publik /news ikut di-expire
+      revalidateNewsAction().catch(() => {})
     },
   })
 }
