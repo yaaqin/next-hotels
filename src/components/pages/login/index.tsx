@@ -6,7 +6,8 @@ import Images from '../../atoms/images';
 import { useTranslation } from 'react-i18next';
 import { isSystemRole } from '@/src/constans/config';
 import { ARTICLE_ADMIN_ROLE } from '@/src/constans/newsroom';
-import { LockPasswordIcon, MoonIcon, Sun01Icon, UserIcon } from 'hugeicons-react';
+import { AlertCircleIcon, LockPasswordIcon, MoonIcon, Sun01Icon, UserIcon } from 'hugeicons-react';
+import { isAxiosError } from 'axios';
 import { useThemeMode } from '@/src/hooks/useThemeMode';
 
 const LOGO_URL = 'https://id.marinabaysands.com/content/dam/marinabaysands/secondary-navigation/logo-white-svg.svg'
@@ -16,15 +17,18 @@ export default function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [errorKey, setErrorKey] = useState<string | null>(null);
 
     const { t } = useTranslation()
     const { isDark, toggleTheme } = useThemeMode()
 
-    // Pesan error login sudah ditampilkan toast oleh interceptor axiosPublic
+    // Halaman login tidak punya <Toaster/>, jadi toast dari interceptor axiosPublic tidak tampil.
+    // Error ditampilkan inline di atas form.
     const { mutate, isPending } = useLoginPinMutation();
 
     const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setErrorKey(null);
 
         mutate(
             {
@@ -43,6 +47,12 @@ export default function LoginPage() {
                     } else {
                         router.push('/dashboard');
                     }
+                },
+                onError: (err) => {
+                    const status = isAxiosError(err) ? err.response?.status : undefined;
+                    if (status === 401) setErrorKey('text.login.errorInvalid');
+                    else if (status === 403) setErrorKey('text.login.errorInactive');
+                    else setErrorKey('text.login.errorGeneric');
                 },
             }
         );
@@ -96,7 +106,14 @@ export default function LoginPage() {
                         <p className="mt-2 mb-8 text-sm text-gray-500 dark:text-slate-400">{t('text.login.desk')}</p>
 
                         <form onSubmit={handleLogin} className="space-y-4">
-                            <div className="flex items-center gap-3 px-4 rounded-xl bg-gray-100 dark:bg-slate-800 focus-within:ring-2 focus-within:ring-blue-500 transition">
+                            {errorKey && (
+                                <div role="alert" className="flex items-start gap-2.5 px-4 py-3 rounded-xl border border-red-200 bg-red-50 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">
+                                    <AlertCircleIcon size={18} className="shrink-0 mt-0.5" />
+                                    <span>{t(errorKey)}</span>
+                                </div>
+                            )}
+
+                            <div className={`flex items-center gap-3 px-4 rounded-xl bg-gray-100 dark:bg-slate-800 focus-within:ring-2 transition ${errorKey ? 'ring-2 ring-red-400 focus-within:ring-red-500 dark:ring-red-500/70' : 'focus-within:ring-blue-500'}`}>
                                 <UserIcon size={20} className="shrink-0 text-gray-600 dark:text-slate-400" />
                                 <label htmlFor="username" className="sr-only">{t('label.username')}</label>
                                 <input
@@ -104,14 +121,15 @@ export default function LoginPage() {
                                     id="username"
                                     autoComplete="username"
                                     value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
+                                    onChange={(e) => { setUsername(e.target.value); setErrorKey(null); }}
+                                    aria-invalid={!!errorKey}
                                     placeholder={t('placeholder.login.username')}
                                     className="w-full py-3.5 bg-transparent text-sm text-gray-800 placeholder:text-gray-400 dark:text-slate-100 dark:placeholder:text-slate-500 outline-none"
                                     required
                                 />
                             </div>
 
-                            <div className="flex items-center gap-3 px-4 rounded-xl bg-gray-100 dark:bg-slate-800 focus-within:ring-2 focus-within:ring-blue-500 transition">
+                            <div className={`flex items-center gap-3 px-4 rounded-xl bg-gray-100 dark:bg-slate-800 focus-within:ring-2 transition ${errorKey ? 'ring-2 ring-red-400 focus-within:ring-red-500 dark:ring-red-500/70' : 'focus-within:ring-blue-500'}`}>
                                 <LockPasswordIcon size={20} className="shrink-0 text-gray-600 dark:text-slate-400" />
                                 <label htmlFor="password" className="sr-only">{t('label.password')}</label>
                                 <input
@@ -119,7 +137,8 @@ export default function LoginPage() {
                                     id="password"
                                     autoComplete="current-password"
                                     value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    onChange={(e) => { setPassword(e.target.value); setErrorKey(null); }}
+                                    aria-invalid={!!errorKey}
                                     placeholder={t('placeholder.login.password')}
                                     className="w-full py-3.5 bg-transparent text-sm text-gray-800 placeholder:text-gray-400 dark:text-slate-100 dark:placeholder:text-slate-500 outline-none"
                                     required
