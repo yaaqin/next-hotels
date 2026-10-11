@@ -13,12 +13,22 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     const router = useRouter()
-    const { data: me } = useMe()
+    const { data: me, isLoading } = useMe()
+    const isArticleAdmin = me?.data?.role?.name === ARTICLE_ADMIN_ROLE
 
     // Admin artikel tidak punya akses ke dashboard hotel (BE membalas 403), arahkan ke newsroom
     useEffect(() => {
-        if (me?.data?.role?.name === ARTICLE_ADMIN_ROLE) router.replace('/newsroom')
-    }, [me, router])
+        if (isArticleAdmin) router.replace('/newsroom')
+    }, [isArticleAdmin, router])
+
+    // Tahan render sampai role diketahui supaya dashboard tidak sempat berkedip sebelum redirect
+    if (isLoading || isArticleAdmin) {
+        return (
+            <section className="flex h-screen items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-transparent" />
+            </section>
+        )
+    }
 
     return (
         <section className="flex h-screen overflow-hidden">
