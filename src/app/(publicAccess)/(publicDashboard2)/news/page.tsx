@@ -1,8 +1,11 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { Eye, Heart } from 'lucide-react'
 import { getNewsList } from '@/src/services/news'
 import { BRAND, SITE_URL } from '../hotel/hotel.helper'
 import { formatNewsDate, shownPublishDate } from '@/src/components/organisms/news/helpers'
+
+const compact = (n?: number) => new Intl.NumberFormat('id-ID', { notation: 'compact' }).format(n ?? 0)
 
 type PageProps = { searchParams: Promise<Record<string, string | string[] | undefined>> }
 
@@ -84,9 +87,17 @@ export default async function NewsListPage({ searchParams }: PageProps) {
                       {a.title}
                     </h2>
                     {a.excerpt && <p className="mt-2 line-clamp-3 text-sm text-gray-600">{a.excerpt}</p>}
-                    {a.tags.length > 0 && (
-                      <p className="mt-auto pt-4 text-xs text-blue-600">{a.tags.slice(0, 3).map((t) => `#${t}`).join(' ')}</p>
-                    )}
+                    <div className="mt-auto flex items-end justify-between gap-3 pt-4 text-xs">
+                      <p className="min-w-0 truncate text-blue-600">{a.tags.slice(0, 3).map((t) => `#${t}`).join(' ')}</p>
+                      <p className="flex shrink-0 items-center gap-3 text-gray-500">
+                        <span className="inline-flex items-center gap-1" aria-label={`${a.viewCount} kali dilihat`}>
+                          <Eye size={13} /> {compact(a.viewCount)}
+                        </span>
+                        <span className="inline-flex items-center gap-1" aria-label={`${a.likeCount} suka`}>
+                          <Heart size={13} /> {compact(a.likeCount)}
+                        </span>
+                      </p>
+                    </div>
                   </div>
                 </Link>
               </li>

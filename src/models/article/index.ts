@@ -93,6 +93,8 @@ export interface PublicArticleItem {
   publishAt: string | null
   publishedAt: string | null
   updatedAt: string
+  viewCount: number
+  likeCount: number
 }
 
 export interface PublicArticle extends PublicArticleItem {
