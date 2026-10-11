@@ -120,6 +120,7 @@ export interface UpdatePaymentMethodPayload {
 export interface ReportAppSetting {
   idleTimeoutSeconds: number
   pinMaxAttempts: number
+  newsExportMaxDays: number
   updatedAt: string
   updatedBy: string | null
 }
@@ -127,4 +128,5 @@ export interface ReportAppSetting {
 export interface UpdateReportAppSettingPayload {
   idleTimeoutSeconds?: number
   pinMaxAttempts?: number
+  newsExportMaxDays?: number
 }

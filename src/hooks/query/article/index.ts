@@ -1,9 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import {
   ArticleListParams,
   createArticle,
   getArticle,
+  getArticleAnalytics,
   getArticleTags,
   getArticles,
   publishArticle,
@@ -14,7 +15,7 @@ import {
   updateArticle,
   uploadArticleImage,
 } from '@/src/services/article'
-import { CreateArticlePayload, UpdateArticlePayload } from '@/src/models/article'
+import { AnalyticsRange, CreateArticlePayload, UpdateArticlePayload } from '@/src/models/article'
 import { revalidateNewsAction } from '@/src/actions/news/revalidate-news.action'
 
 export const articleKeys = {
@@ -22,6 +23,7 @@ export const articleKeys = {
   list: (params: ArticleListParams) => ['articles', 'list', params] as const,
   detail: (id: string) => ['articles', 'detail', id] as const,
   tags: ['articles', 'tags'] as const,
+  analytics: (range: AnalyticsRange) => ['articles', 'analytics', range] as const,
 }
 
 export const useArticles = (params: ArticleListParams) =>
@@ -29,6 +31,15 @@ export const useArticles = (params: ArticleListParams) =>
 
 export const useArticle = (id?: string) =>
   useQuery({ queryKey: articleKeys.detail(id ?? ''), queryFn: () => getArticle(id!), enabled: !!id })
+
+// Ganti periode tetap menampilkan data lama sampai data baru datang
+export const useArticleAnalytics = (range: AnalyticsRange) =>
+  useQuery({
+    queryKey: articleKeys.analytics(range),
+    queryFn: () => getArticleAnalytics(range),
+    placeholderData: keepPreviousData,
+    refetchInterval: 5 * 60_000,
+  })
 
 // Ikut ter-invalidate setiap simpan artikel (prefix articleKeys.all)
 export const useArticleTags = () =>

@@ -1,6 +1,10 @@
 import { axiosPrivate } from '@/src/libs/instance'
+import { API_BASE_URL } from '@/src/libs/apiUrl'
+import { getAccessTokenClient } from '@/src/utils/auth/token'
 import { ApiResponse } from '@/src/models/config'
 import {
+  AnalyticsRange,
+  ArticleAnalytics,
   ArticleDetail,
   ArticleList,
   ArticleStatus,
@@ -18,6 +22,9 @@ export const getArticles = async (params: ArticleListParams): Promise<ApiRespons
 
 export const getArticleTags = async (): Promise<ApiResponse<ArticleTagSuggestion[]>> =>
   (await axiosPrivate.get('/articles/tags')).data
+
+export const getArticleAnalytics = async (range: AnalyticsRange): Promise<ApiResponse<ArticleAnalytics>> =>
+  (await axiosPrivate.get('/articles/analytics', { params: { range } })).data
 
 export const getArticle = async (id: string): Promise<ApiResponse<ArticleDetail>> =>
   (await axiosPrivate.get(`/articles/${id}`)).data
@@ -52,4 +59,27 @@ export const uploadArticleImage = async (file: File): Promise<ApiResponse<{ url:
       headers: { 'Content-Type': 'multipart/form-data' },
     })
   ).data
+}
+
+// ── Laporan news: download Excel (GET /report/news/export) ──
+
+export const getNewsExportLimit = async (): Promise<ApiResponse<{ maxDays: number; today: string }>> =>
+  (await axiosPrivate.get('/report/news/export-limit')).data
+
+// fetch biasa (bukan axios) supaya pesan error BE (rentang terlalu panjang, tunggu jeda) bisa dibaca dari body
+export const downloadNewsReport = async (from: string, to: string) => {
+  const res = await fetch(`${API_BASE_URL}/report/news/export?from=${from}&to=${to}`, {
+    headers: { Authorization: `Bearer ${getAccessTokenClient() ?? ''}` },
+  })
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as { message?: string | string[] } | null
+    const msg = Array.isArray(body?.message) ? body.message.join(', ') : body?.message
+    throw new Error(msg || `Gagal download (${res.status})`)
+  }
+  const url = URL.createObjectURL(await res.blob())
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `laporan-news_${from}_${to}.xlsx`
+  a.click()
+  URL.revokeObjectURL(url)
 }

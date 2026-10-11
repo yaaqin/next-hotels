@@ -14,7 +14,7 @@ import {
 import { STATUS_LABEL } from '@/src/constans/newsroom'
 import { useArticles } from '@/src/hooks/query/article'
 import { ArticleListItem, ArticleStatus } from '@/src/models/article'
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { BarChart3, ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { STATUS_TONE, formatDateTime } from './helpers'
@@ -62,9 +62,14 @@ export default function NewsroomListPage() {
         title="Artikel"
         subtitle="Tulis, jadwalkan, dan kelola artikel yang tampil di /news"
         actions={
-          <Button onClick={() => router.push('/newsroom/create')}>
-            <Plus size={15} /> Tulis artikel
-          </Button>
+          <>
+            <Button variant="ghost" onClick={() => router.push('/newsroom/report')}>
+              <BarChart3 size={15} /> Laporan
+            </Button>
+            <Button onClick={() => router.push('/newsroom/create')}>
+              <Plus size={15} /> Tulis artikel
+            </Button>
+          </>
         }
       />
 

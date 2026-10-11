@@ -128,3 +128,66 @@ export interface PublicArticleSitemapItem {
   metaRobots: string
   canonicalUrl: string | null
 }
+
+// ── Laporan /newsroom/report (GET /articles/analytics) ──
+export type AnalyticsRange = '24h' | '7d' | '30d' | '90d'
+
+export interface AnalyticsArticle {
+  slug: string
+  title: string
+  tags: string[]
+  publishedAt: string | null
+  views: number
+  viewsPrev: number
+  likes: number
+  likesPrev: number
+  first6h: number
+  first24h: number
+}
+
+export interface AnalyticsSpike {
+  slug: string
+  title: string
+  tags: string[]
+  day: string // YYYY-MM-DD (WIB)
+  views: number
+  baseline: number // rata-rata view harian 7 hari sebelumnya
+  ratio: number
+  // Artikel lain dengan tag yang sama di hari lonjakan; ratio null = tidak punya baseline
+  halo: { tag: string; articles: number; views: number; baseline: number; ratio: number | null; lifted: boolean }[]
+}
+
+export interface AnalyticsTagStat {
+  articles: number
+  views: number
+  viewsPrev: number
+  likes: number
+  avgViews: number
+  avgFirst24h: number | null
+}
+
+export interface ArticleAnalytics {
+  range: AnalyticsRange
+  bucket: 'hour' | 'day'
+  from: string
+  to: string
+  prevFrom: string
+  trackingStart: string | null
+  summary: {
+    views: number
+    viewsPrev: number
+    likes: number
+    likesPrev: number
+    viewedArticles: number
+    totalArticles: number
+    published: number
+  }
+  timeline: { t: string; views: number; likes: number }[]
+  topViews: AnalyticsArticle[]
+  risers: AnalyticsArticle[]
+  topLikes: AnalyticsArticle[]
+  fastStarts: (AnalyticsArticle & { running: boolean })[]
+  spikes: AnalyticsSpike[]
+  tags: (AnalyticsTagStat & { tag: string })[]
+  tagPairs: (AnalyticsTagStat & { tags: string[] })[]
+}

@@ -9,6 +9,10 @@ const IDLE_MIN = 10
 const IDLE_MAX = 3600
 const PIN_MIN = 3
 const PIN_MAX = 10
+const EXPORT_MIN = 1
+const EXPORT_MAX = 366
+
+const EXPORT_PRESETS = [7, 30, 90]
 
 const IDLE_PRESETS = [15, 30, 60, 300]
 
@@ -21,11 +25,13 @@ export default function ConfigReportAppPage() {
 
   const [idle, setIdle] = useState('')
   const [attempts, setAttempts] = useState('')
+  const [exportDays, setExportDays] = useState('')
 
   useEffect(() => {
     if (!setting) return
     setIdle(String(setting.idleTimeoutSeconds))
     setAttempts(String(setting.pinMaxAttempts))
+    setExportDays(String(setting.newsExportMaxDays))
   }, [setting])
 
   const idleNum = Number(idle)
@@ -38,14 +44,23 @@ export default function ConfigReportAppPage() {
     !Number.isInteger(attemptsNum) || attemptsNum < PIN_MIN || attemptsNum > PIN_MAX
       ? `Isi ${PIN_MIN}–${PIN_MAX} kali`
       : null
+  const exportNum = Number(exportDays)
+  const exportError =
+    !Number.isInteger(exportNum) || exportNum < EXPORT_MIN || exportNum > EXPORT_MAX
+      ? `Isi ${EXPORT_MIN}–${EXPORT_MAX} hari`
+      : null
   const changed =
-    !!setting && (idleNum !== setting.idleTimeoutSeconds || attemptsNum !== setting.pinMaxAttempts)
+    !!setting &&
+    (idleNum !== setting.idleTimeoutSeconds ||
+      attemptsNum !== setting.pinMaxAttempts ||
+      exportNum !== setting.newsExportMaxDays)
+  const invalid = !!idleError || !!attemptsError || !!exportError
 
   return (
     <>
       <PageHeader
         title="Report App"
-        subtitle="Keamanan aplikasi laporan (Flutter) untuk Owner & Manager: kunci otomatis dan batas salah PIN."
+        subtitle="Aplikasi laporan (Flutter) untuk Owner & Manager: kunci otomatis, batas salah PIN, dan batas download laporan."
       />
 
       <Card className="mt-6 max-w-xl p-4 sm:p-5">
@@ -59,8 +74,8 @@ export default function ConfigReportAppPage() {
             className="space-y-5"
             onSubmit={(e) => {
               e.preventDefault()
-              if (idleError || attemptsError || !changed) return
-              mutate({ idleTimeoutSeconds: idleNum, pinMaxAttempts: attemptsNum })
+              if (invalid || !changed) return
+              mutate({ idleTimeoutSeconds: idleNum, pinMaxAttempts: attemptsNum, newsExportMaxDays: exportNum })
             }}
           >
             <Field
@@ -106,13 +121,41 @@ export default function ConfigReportAppPage() {
               />
             </Field>
 
+            <Field
+              label="Maksimal rentang download laporan news (hari)"
+              hint={
+                exportError ??
+                `Download Excel laporan news (Report App & newsroom) paling panjang ${exportNum} hari per file. Rentang besar memperberat server.`
+              }
+            >
+              <input
+                className={inputClass}
+                inputMode="numeric"
+                value={exportDays}
+                onChange={(e) => setExportDays(e.target.value.replace(/\D/g, ''))}
+              />
+            </Field>
+            <div className="-mt-2 flex flex-wrap gap-2">
+              {EXPORT_PRESETS.map((d) => (
+                <Button
+                  key={d}
+                  type="button"
+                  variant={exportNum === d ? 'accent' : 'ghost'}
+                  className="h-8 px-3"
+                  onClick={() => setExportDays(String(d))}
+                >
+                  {d} hari
+                </Button>
+              ))}
+            </div>
+
             <div className="flex items-center justify-between gap-3 pt-1">
               <p className="text-[11px] text-[var(--cp-muted)]">
                 Terakhir diubah{' '}
                 {new Date(setting.updatedAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}.
                 Berlaku di app saat login / buka kunci berikutnya.
               </p>
-              <Button type="submit" disabled={isPending || !changed || !!idleError || !!attemptsError}>
+              <Button type="submit" disabled={isPending || !changed || invalid}>
                 {isPending ? 'Menyimpan…' : 'Simpan'}
               </Button>
             </div>
