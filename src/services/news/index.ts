@@ -3,6 +3,7 @@ import { API_BASE_URL } from '@/src/libs/apiUrl'
 import { ApiResponse } from '@/src/models/config'
 import {
   PublicArticleList,
+  PublicArticleRelated,
   PublicArticleResolved,
   PublicArticleSitemapItem,
 } from '@/src/models/article'
@@ -40,6 +41,18 @@ export const getNewsArticle = cache(async (slug: string): Promise<PublicArticleR
   } catch (err) {
     if (err instanceof NewsApiError && err.status === 404) return null
     throw err
+  }
+})
+
+const EMPTY_RELATED: PublicArticleRelated = { latest: [], similar: [], alsoLiked: [], others: [] }
+
+// Gagal ambil artikel terkait tidak boleh menggagalkan halaman artikel
+export const getNewsRelated = cache(async (slug: string) => {
+  try {
+    return await request<PublicArticleRelated>(`/public/news/${encodeURIComponent(slug)}/related`)
+  } catch (err) {
+    console.error('[news] gagal ambil artikel terkait:', err)
+    return EMPTY_RELATED
   }
 })
 

@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound, permanentRedirect } from 'next/navigation'
+import { Suspense } from 'react'
 import JsonLd from '@/src/components/organisms/roomListing/JsonLd'
+import RelatedNews from '@/src/components/organisms/news/RelatedNews'
 import { getNewsArticle } from '@/src/services/news'
 import { renderMarkdown } from '@/src/utils/markdown'
 import { BRAND } from '../../hotel/hotel.helper'
@@ -108,6 +110,11 @@ export default async function NewsArticlePage({ params }: PageProps) {
           </footer>
         )}
       </article>
+
+      {/* Artikel terkait dimuat terpisah supaya isi artikel tidak menunggu */}
+      <Suspense fallback={null}>
+        <RelatedNews slug={a.slug} />
+      </Suspense>
     </div>
   )
 }

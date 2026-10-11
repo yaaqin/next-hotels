@@ -103,6 +103,14 @@ export interface PublicArticle extends PublicArticleItem {
   canonicalUrl: string | null
 }
 
+// Kartu di bawah artikel /news/[slug] (GET /public/news/:slug/related), masing-masing maks 5
+export interface PublicArticleRelated {
+  latest: PublicArticleItem[]
+  similar: PublicArticleItem[]
+  alsoLiked: PublicArticleItem[]
+  others: PublicArticleItem[]
+}
+
 export interface PublicArticleList {
   items: PublicArticleItem[]
   meta: { page: number; pageSize: number; total: number }
