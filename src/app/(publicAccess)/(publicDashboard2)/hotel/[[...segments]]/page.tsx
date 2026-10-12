@@ -5,11 +5,13 @@ import RoomDetailView from '@/src/components/organisms/roomDetail/RoomDetailView
 import Breadcrumbs from '@/src/components/organisms/roomListing/Breadcrumbs'
 import JsonLd from '@/src/components/organisms/roomListing/JsonLd'
 import ListingFilters from '@/src/components/organisms/roomListing/ListingFilters'
+import ListingSearch from '@/src/components/organisms/roomListing/ListingSearch'
 import ListingPagination from '@/src/components/organisms/roomListing/ListingPagination'
 import RelatedLinks from '@/src/components/organisms/roomListing/RelatedLinks'
 import RoomListingCard from '@/src/components/organisms/roomListing/RoomListingCard'
 import { ResolvedListing } from '@/src/models/public/roomListing'
 import {
+  getListingFacilities,
   getPublicRoomDetail,
   getRequestCurrency,
   getRequestLang,
@@ -29,8 +31,10 @@ import {
   itemListJsonLd,
   listingDisplayText,
   ListingQuery,
+  MAX_FACILITIES,
   parseListingQuery,
   priceTagLabels,
+  searchLabels,
   stayFromQuery,
   toQueryString,
 } from '../hotel.helper'
@@ -52,10 +56,13 @@ async function load({ params, searchParams }: PageProps) {
   const resolved = await resolveRoomListing(segments.map(decodeURIComponent), lang)
   const query = parseListingQuery(rawSearchParams)
 
-  const result =
-    resolved?.kind === 'listing' && !resolved.redirect
-      ? await searchRoomListing(searchPayload(resolved, query), lang, currency)
-      : null
+  const isListing = resolved?.kind === 'listing' && !resolved.redirect
+  const [result, facilities] = isListing
+    ? await Promise.all([
+        searchRoomListing(searchPayload(resolved, query), lang, currency),
+        getListingFacilities(resolved.filters, lang),
+      ])
+    : [null, []]
 
   const stay = stayFromQuery(query)
   const room =
@@ -63,7 +70,7 @@ async function load({ params, searchParams }: PageProps) {
       ? await getPublicRoomDetail(resolved.room.id, stay, lang, currency)
       : null
 
-  return { resolved, query, result, room, stay, rawSearchParams, lang, currency }
+  return { resolved, query, result, facilities, room, stay, rawSearchParams, lang, currency }
 }
 
 function searchPayload(resolved: ResolvedListing, query: ListingQuery) {
@@ -71,6 +78,8 @@ function searchPayload(resolved: ResolvedListing, query: ListingQuery) {
     site_codes: resolved.filters.siteCodes,
     room_type_ids: resolved.filters.roomTypeIds,
     promo: resolved.filters.promo,
+    ...(query.facilities.length && { facility_codes: query.facilities }),
+    ...(query.q && { q: query.q }),
     ...(query.checkin && { check_in: query.checkin, check_out: query.checkout }),
     ...(query.sort && { sort: query.sort }),
     page: query.page,
@@ -85,7 +94,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 }
 
 export default async function HotelListingPage(props: PageProps) {
-  const { resolved, query, result, room, stay, rawSearchParams, lang, currency } = await load(props)
+  const { resolved, query, result, facilities, room, stay, rawSearchParams, lang, currency } = await load(props)
   const t = getServerT(lang)
   const locale = LANG_LOCALE[lang]
   const priceLabels = priceTagLabels(t)
@@ -121,7 +130,7 @@ export default async function HotelListingPage(props: PageProps) {
     )
   }
 
-  const { items, meta } = result!
+  const { items, meta, search } = result!
   const { heading, intro } = listingDisplayText(resolved, lang, t)
   const stayQuery = query.checkin ? `?checkin=${query.checkin}&checkout=${query.checkout}` : ''
   const site = resolved.location?.kind === 'site' ? resolved.location.site : null
@@ -147,9 +156,19 @@ export default async function HotelListingPage(props: PageProps) {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-8 space-y-8">
-        <Suspense>
-          <ListingFilters labels={filterLabels(t)} />
-        </Suspense>
+        <div className="space-y-3">
+          <Suspense>
+            <ListingSearch
+              facilities={facilities}
+              search={search}
+              labels={searchLabels(t)}
+              maxFacilities={MAX_FACILITIES}
+            />
+          </Suspense>
+          <Suspense>
+            <ListingFilters labels={filterLabels(t)} />
+          </Suspense>
+        </div>
 
         {/* Hub kota: daftar cabang di kota ini */}
         {resolved.location?.kind === 'city' && (
@@ -185,7 +204,9 @@ export default async function HotelListingPage(props: PageProps) {
             <p className="text-base font-semibold text-[#05111F]">
               {resolved.promo ? t('roomListing.emptyPromoTitle') : t('roomListing.emptyTitle')}
             </p>
-            <p className="text-sm text-gray-500">{t('roomListing.emptyHint')}</p>
+            <p className="text-sm text-gray-500">
+              {search ? t('roomListing.search.emptyHint') : t('roomListing.emptyHint')}
+            </p>
           </div>
         )}
 

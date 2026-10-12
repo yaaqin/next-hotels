@@ -443,7 +443,19 @@
     "headingPromoRooms": "{{place}}的{{type}}客房優惠",
     "linkRooms": "{{type}}客房",
     "intro": "{{title}}。查看最新價格、選擇客房，並透過虛擬帳戶或加密貨幣安全地直接預訂。",
-    "address": "地址：{{address}}"
+    "address": "地址：{{address}}",
+    "search": {
+      "placeholder": "搜尋設施，例如：城市夜景、私人按摩浴缸、禁菸",
+      "submit": "搜尋",
+      "clear": "清除搜尋",
+      "searchText": "搜尋「{{text}}」",
+      "roomCount": "{{count}}間",
+      "noSuggestion": "沒有符合的設施 — 按 Enter 搜尋此文字",
+      "matched": "搜尋設施",
+      "unmatched": "無法辨識",
+      "remove": "移除",
+      "emptyHint": "沒有具備這些設施的客房。請減少設施條件或更改日期。"
+    }
   },
   "currency": {
     "label": "貨幣",

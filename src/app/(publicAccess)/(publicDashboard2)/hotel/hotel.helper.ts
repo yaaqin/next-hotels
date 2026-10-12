@@ -18,6 +18,7 @@ export const BRAND = 'MBS Hotel'
 // Di bawah ini halaman listing dianggap thin content → noindex, follow
 export const MIN_INDEXABLE_ROOMS = 2
 const PAGE_SIZE = 12
+export const MAX_FACILITIES = 10
 
 type SearchParams = Record<string, string | string[] | undefined>
 
@@ -31,10 +32,17 @@ export function parseListingQuery(searchParams: SearchParams) {
   const hasDates = isDate(checkin) && isDate(checkout) && checkout! > checkin!
   const sort = first(searchParams.sort) as ListingSort | undefined
   const page = Math.max(1, Number.parseInt(first(searchParams.page) ?? '1', 10) || 1)
+  // ?facilities=CL01,JC02 (pilihan autocomplete) & ?q=teks bebas
+  const facilities = Array.from(
+    new Set((first(searchParams.facilities) ?? '').split(',').map((c) => c.trim()).filter(Boolean)),
+  ).slice(0, MAX_FACILITIES)
+  const q = first(searchParams.q)?.trim().slice(0, 100) || undefined
 
   return {
     checkin: hasDates ? checkin : undefined,
     checkout: hasDates ? checkout : undefined,
+    facilities,
+    q,
     sort: sort && ['price_asc', 'price_desc', 'number'].includes(sort) ? sort : undefined,
     page,
     pageSize: PAGE_SIZE,
@@ -284,6 +292,20 @@ export function filterLabels(t: ServerT) {
     sortPriceDesc: t('roomListing.filters.sortPriceDesc'),
     sortNumber: t('roomListing.filters.sortNumber'),
     selectDate: t('roomListing.filters.selectDate'),
+  }
+}
+
+export function searchLabels(t: ServerT) {
+  return {
+    placeholder: t('roomListing.search.placeholder'),
+    submit: t('roomListing.search.submit'),
+    clear: t('roomListing.search.clear'),
+    searchText: t('roomListing.search.searchText'),
+    roomCount: t('roomListing.search.roomCount'),
+    noSuggestion: t('roomListing.search.noSuggestion'),
+    matched: t('roomListing.search.matched'),
+    unmatched: t('roomListing.search.unmatched'),
+    remove: t('roomListing.search.remove'),
   }
 }
 

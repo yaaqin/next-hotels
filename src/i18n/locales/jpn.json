@@ -443,7 +443,19 @@
     "headingPromoRooms": "{{place}}の{{type}}客室プロモ",
     "linkRooms": "{{type}}客室",
     "intro": "{{title}}。最新料金を確認し、客室を選んで、バーチャルアカウントまたは暗号資産で安全に直接予約できます。",
-    "address": "住所：{{address}}"
+    "address": "住所：{{address}}",
+    "search": {
+      "placeholder": "設備で検索（例：夜景、プライベートジャグジー、禁煙）",
+      "submit": "検索",
+      "clear": "検索をクリア",
+      "searchText": "「{{text}}」で検索",
+      "roomCount": "{{count}}室",
+      "noSuggestion": "一致する設備がありません — Enterでこのテキストを検索",
+      "matched": "検索中の設備",
+      "unmatched": "認識できない語",
+      "remove": "削除",
+      "emptyHint": "該当する設備の客室はありません。設備の条件を減らすか、日程を変更してください。"
+    }
   },
   "currency": {
     "label": "通貨",

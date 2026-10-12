@@ -443,7 +443,19 @@
     "headingPromoRooms": "Promo Kamar {{type}} di {{place}}",
     "linkRooms": "Kamar {{type}}",
     "intro": "{{title}}. Cek harga terbaru, pilih kamar, dan pesan langsung dengan pembayaran aman via Virtual Account & Crypto.",
-    "address": "Alamat: {{address}}."
+    "address": "Alamat: {{address}}.",
+    "search": {
+      "placeholder": "Cari fasilitas, mis. city light, jacuzzi pribadi, bebas rokok",
+      "submit": "Cari",
+      "clear": "Hapus pencarian",
+      "searchText": "Cari “{{text}}”",
+      "roomCount": "{{count}} kamar",
+      "noSuggestion": "Tidak ada fasilitas yang cocok — tekan Enter untuk mencari teks ini",
+      "matched": "Mencari kamar dengan",
+      "unmatched": "Tidak dikenali",
+      "remove": "Hapus",
+      "emptyHint": "Tidak ada kamar dengan fasilitas tersebut. Coba kurangi filter fasilitas atau ganti tanggal."
+    }
   },
   "currency": {
     "label": "Mata uang",

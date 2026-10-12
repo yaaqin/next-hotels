@@ -443,7 +443,19 @@
     "headingPromoRooms": "{{type}} Room Promos in {{place}}",
     "linkRooms": "{{type}} Rooms",
     "intro": "{{title}}. Check the latest prices, choose a room, and book directly with secure payment via Virtual Account & Crypto.",
-    "address": "Address: {{address}}."
+    "address": "Address: {{address}}.",
+    "search": {
+      "placeholder": "Search facilities, e.g. city light, private jacuzzi, non-smoking",
+      "submit": "Search",
+      "clear": "Clear search",
+      "searchText": "Search “{{text}}”",
+      "roomCount": "{{count}} rooms",
+      "noSuggestion": "No matching facility — press Enter to search this text",
+      "matched": "Rooms with",
+      "unmatched": "Not recognized",
+      "remove": "Remove",
+      "emptyHint": "No rooms have those facilities. Try removing a facility filter or changing dates."
+    }
   },
   "currency": {
     "label": "Currency",

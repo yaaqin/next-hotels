@@ -78,6 +78,10 @@ export type ListingSort = 'price_asc' | 'price_desc' | 'number'
 export interface SearchListingPayload {
   site_codes?: string[]
   room_type_ids?: string[]
+  // Kode facility item pilihan autocomplete — kamar wajib punya semua
+  facility_codes?: string[]
+  // Teks bebas, dicocokkan BE ke nama fasilitas
+  q?: string
   promo?: boolean
   check_in?: string
   check_out?: string
@@ -109,9 +113,33 @@ export interface ListingRoom {
   }
 }
 
+export interface FacilityLabel {
+  code: string
+  name: string
+}
+
+// Tafsiran BE atas pencarian fasilitas; null kalau user tidak mencari
+export interface ListingSearchInfo {
+  facilities: FacilityLabel[]
+  query: string | null
+  // Potongan teks yang dikenali → fasilitas yang dicari (cukup salah satu)
+  terms: { term: string; facilities: FacilityLabel[] }[]
+  // Kata yang tidak cocok ke fasilitas mana pun (tidak ikut memfilter)
+  unmatched: string[]
+}
+
 export interface SearchListingResult {
   items: ListingRoom[]
   meta: { page: number; pageSize: number; total: number; totalPages: number; hasDates: boolean }
+  search: ListingSearchInfo | null
+}
+
+// Opsi autocomplete: fasilitas yang dimiliki kamar di halaman listing ini
+export interface ListingFacility extends FacilityLabel {
+  typeName: string | null
+  // Nama di semua bahasa, untuk mencocokkan ketikan user
+  keywords: string[]
+  roomCount: number
 }
 
 export interface PublicSiteWithRooms extends PublicSite {
