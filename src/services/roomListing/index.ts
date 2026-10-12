@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import {
   ApiResponse,
   ListingFacility,
+  ListingFaqFacts,
   PublicSiteWithRooms,
   ResolvedPath,
   SearchListingPayload,
@@ -109,6 +110,24 @@ export const getListingFacilities = (
   filters: { siteCodes: string[]; roomTypeIds: string[] },
   lang: string = DEFAULT_LANG,
 ) => facilitiesByKey(filters.siteCodes.join(','), filters.roomTypeIds.join(','), lang).catch(() => [])
+
+const faqByKey = cache(async (siteCodes: string, roomTypeIds: string, promo: boolean, lang: string) => {
+  const qs = new URLSearchParams({
+    ...(siteCodes && { site_codes: siteCodes }),
+    ...(roomTypeIds && { room_type_ids: roomTypeIds }),
+    ...(promo && { promo: 'true' }),
+  }).toString()
+  return request<ListingFaqFacts>(`/public/room-listing/faq${qs ? `?${qs}` : ''}`, lang, {
+    next: { revalidate: 300 },
+  })
+})
+
+// Fakta FAQ sesuai cakupan path (tanpa tanggal/pencarian). Gagal → null, FAQ tidak ditampilkan
+export const getListingFaq = (
+  filters: { siteCodes: string[]; roomTypeIds: string[]; promo: boolean },
+  lang: string = DEFAULT_LANG,
+) =>
+  faqByKey(filters.siteCodes.join(','), filters.roomTypeIds.join(','), filters.promo, lang).catch(() => null)
 
 // Detail kamar untuk RDP — ketersediaan & harga ikut tanggal, jadi tidak di-cache.
 // null = kamar tidak ditemukan (404 dari BE)

@@ -5,6 +5,7 @@ import RoomDetailView from '@/src/components/organisms/roomDetail/RoomDetailView
 import Breadcrumbs from '@/src/components/organisms/roomListing/Breadcrumbs'
 import JsonLd from '@/src/components/organisms/roomListing/JsonLd'
 import ListingFilters from '@/src/components/organisms/roomListing/ListingFilters'
+import ListingFaq from '@/src/components/organisms/roomListing/ListingFaq'
 import ListingSearch from '@/src/components/organisms/roomListing/ListingSearch'
 import ListingPagination from '@/src/components/organisms/roomListing/ListingPagination'
 import RelatedLinks from '@/src/components/organisms/roomListing/RelatedLinks'
@@ -12,6 +13,7 @@ import RoomListingCard from '@/src/components/organisms/roomListing/RoomListingC
 import { ResolvedListing } from '@/src/models/public/roomListing'
 import {
   getListingFacilities,
+  getListingFaq,
   getPublicRoomDetail,
   getRequestCurrency,
   getRequestLang,
@@ -38,6 +40,7 @@ import {
   stayFromQuery,
   toQueryString,
 } from '../hotel.helper'
+import { buildListingFaq, faqJsonLd } from '../faq.helper'
 
 type PageProps = {
   params: Promise<{ segments?: string[] }>
@@ -57,12 +60,13 @@ async function load({ params, searchParams }: PageProps) {
   const query = parseListingQuery(rawSearchParams)
 
   const isListing = resolved?.kind === 'listing' && !resolved.redirect
-  const [result, facilities] = isListing
+  const [result, facilities, faqFacts] = isListing
     ? await Promise.all([
         searchRoomListing(searchPayload(resolved, query), lang, currency),
         getListingFacilities(resolved.filters, lang),
+        getListingFaq(resolved.filters, lang),
       ])
-    : [null, []]
+    : [null, [], null]
 
   const stay = stayFromQuery(query)
   const room =
@@ -70,7 +74,7 @@ async function load({ params, searchParams }: PageProps) {
       ? await getPublicRoomDetail(resolved.room.id, stay, lang, currency)
       : null
 
-  return { resolved, query, result, facilities, room, stay, rawSearchParams, lang, currency }
+  return { resolved, query, result, facilities, faqFacts, room, stay, rawSearchParams, lang, currency }
 }
 
 function searchPayload(resolved: ResolvedListing, query: ListingQuery) {
@@ -94,7 +98,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 }
 
 export default async function HotelListingPage(props: PageProps) {
-  const { resolved, query, result, facilities, room, stay, rawSearchParams, lang, currency } = await load(props)
+  const { resolved, query, result, facilities, faqFacts, room, stay, rawSearchParams, lang, currency } =
+    await load(props)
   const t = getServerT(lang)
   const locale = LANG_LOCALE[lang]
   const priceLabels = priceTagLabels(t)
@@ -134,6 +139,7 @@ export default async function HotelListingPage(props: PageProps) {
   const { heading, intro } = listingDisplayText(resolved, lang, t)
   const stayQuery = query.checkin ? `?checkin=${query.checkin}&checkout=${query.checkout}` : ''
   const site = resolved.location?.kind === 'site' ? resolved.location.site : null
+  const faq = faqFacts ? buildListingFaq(resolved, faqFacts, t, locale) : []
   const prices = items.map((i) => i.pricing.price)
   const priceRange = prices.length
     ? `${formatRupiah(Math.min(...prices))} - ${formatRupiah(Math.max(...prices))}`
@@ -145,6 +151,7 @@ export default async function HotelListingPage(props: PageProps) {
       <JsonLd data={breadcrumbJsonLd(resolved.breadcrumb)} />
       {items.length > 0 && <JsonLd data={itemListJsonLd(items, (meta.page - 1) * meta.pageSize + 1)} />}
       {site && <JsonLd data={hotelJsonLd(site, priceRange)} />}
+      {faq.length > 0 && <JsonLd data={faqJsonLd(faq)} />}
 
       {/* ── Header ── */}
       <header className="bg-[#05111F] px-6 py-8 md:py-10">
@@ -217,6 +224,8 @@ export default async function HotelListingPage(props: PageProps) {
           searchParams={rawSearchParams}
           t={t}
         />
+
+        <ListingFaq title={t('roomListing.faq.title')} items={faq} />
 
         <RelatedLinks title={t('roomListing.otherRoomTypes')} links={resolved.links.roomTypes} t={t} />
         <RelatedLinks title={t('roomListing.otherBranches')} links={resolved.links.locations} t={t} />

@@ -145,3 +145,37 @@ export interface ListingFacility extends FacilityLabel {
 export interface PublicSiteWithRooms extends PublicSite {
   totalRooms: number
 }
+
+// Fakta FAQ RLP (/public/room-listing/faq) — kalimatnya dirakit FE per bahasa
+export interface ListingFaqFacts {
+  total: number
+  discounted: number
+  // Harga "mulai dari" hari ini, per mata uang tagihan cabang
+  prices: { currency: string; min: number; max: number }[]
+  roomTypes: { name: string; slug: string | null; count: number; minPrice: number; currency: string }[]
+  sites: { nama: string; slug: string | null; city: string | null; address: string | null; roomCount: number }[]
+  facilities: { everyRoom: string[]; someRooms: string[] }
+  paymentMethods: { method: string; label: string }[]
+  reschedule: {
+    policies: { minDays: number; maxDays: number | null; penaltyPercent: number }[]
+    allowReReschedule: boolean
+  }
+  refund: {
+    policies: { minDays: number; maxDays: number | null; refundPercent: number; allowCash: boolean; allowCredit: boolean }[]
+  }
+  // FAQ otomatis yang tampil (yang disembunyikan admin tidak ada di sini) + urutannya
+  auto?: { key: AutoFaqKey; sortOrder: number }[]
+  // FAQ buatan admin untuk cakupan halaman ini, sudah dalam bahasa user
+  custom?: { question: string; answer: string; sortOrder: number }[]
+}
+
+export type AutoFaqKey =
+  | 'price'
+  | 'roomTypes'
+  | 'facilities'
+  | 'location'
+  | 'availability'
+  | 'payment'
+  | 'reschedule'
+  | 'refund'
+  | 'bookingData'
