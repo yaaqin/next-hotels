@@ -589,5 +589,18 @@
       "tip": "Tip",
       "warning": "Important"
     }
+  },
+  "notFound": {
+    "eyebrow": "Error 404",
+    "general": {
+      "title": "Looks like you're lost",
+      "description": "The page you're looking for doesn't exist or has moved. Head back home and start again from there.",
+      "cta": "Back to home"
+    },
+    "news": {
+      "title": "News not found",
+      "description": "The article you're looking for may have been removed, renamed, or the link is wrong.",
+      "cta": "Browse other news"
+    }
   }
 }

@@ -589,5 +589,18 @@
       "tip": "Tips",
       "warning": "Penting"
     }
+  },
+  "notFound": {
+    "eyebrow": "Error 404",
+    "general": {
+      "title": "Sepertinya kamu tersesat",
+      "description": "Halaman yang kamu tuju tidak ada atau sudah dipindahkan. Yuk kembali ke beranda dan mulai lagi dari sana.",
+      "cta": "Kembali ke beranda"
+    },
+    "news": {
+      "title": "Berita tidak ditemukan",
+      "description": "Artikel yang kamu cari mungkin sudah dihapus, judulnya berubah, atau tautannya salah.",
+      "cta": "Lihat berita lainnya"
+    }
   }
 }
