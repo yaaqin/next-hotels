@@ -439,7 +439,7 @@ function ContentEditor({ value, onChange }: { value: string; onChange: (v: strin
             <input
               ref={fileRef}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp,image/gif"
               hidden
               onChange={(e) => {
                 insertImage(e.target.files?.[0])
@@ -658,7 +658,7 @@ function CoverCard({
       <input
         ref={fileRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp,image/gif"
         hidden
         onChange={async (e) => {
           const file = e.target.files?.[0]

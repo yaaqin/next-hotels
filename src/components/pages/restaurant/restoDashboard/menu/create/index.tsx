@@ -199,7 +199,7 @@ export default function CreateMenuPage() {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp,image/gif"
             multiple
             className="hidden"
             onChange={handleFileChange}
