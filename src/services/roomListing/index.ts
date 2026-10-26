@@ -18,6 +18,10 @@ import { API_BASE_URL } from '@/src/libs/apiUrl'
 // kombinasi filter dikirim lewat body POST dan tidak pernah jadi URL API.
 
 
+// Dipakai data yang membentuk daftar URL RLP (sitemap) — di-expire dashboard setelah kamar / tipe kamar berubah
+export const ROOM_LISTING_CACHE_TAG = 'room-listing'
+const LISTING_CACHE = { revalidate: 300, tags: [ROOM_LISTING_CACHE_TAG] }
+
 class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message)
@@ -65,7 +69,7 @@ const resolveByKey = cache(async (path: string, lang: string) => {
     return await request<ResolvedPath>(
       `/public/room-listing/resolve?path=${encodeURIComponent(path)}`,
       lang,
-      { next: { revalidate: 300 } },
+      { next: LISTING_CACHE },
     )
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) return null
@@ -91,6 +95,27 @@ export const searchRoomListing = (
   lang: string = DEFAULT_LANG,
   currency: string = 'IDR',
 ) => searchByKey(JSON.stringify(payload), lang, currency)
+
+// Jumlah kamar untuk cek indexable di sitemap — versi ter-cache dari search.
+// Search biasa no-store, dan fetch no-store bikin sitemap gagal di-render statis.
+const countByKey = cache(async (body: string) => {
+  const result = await request<SearchListingResult>('/public/room-listing/search', DEFAULT_LANG, {
+    method: 'POST',
+    body,
+    next: LISTING_CACHE,
+  })
+  return result.meta.total
+})
+
+export const countRoomListing = (filters: { siteCodes: string[]; roomTypeIds: string[]; promo: boolean }) =>
+  countByKey(
+    JSON.stringify({
+      site_codes: filters.siteCodes,
+      room_type_ids: filters.roomTypeIds,
+      promo: filters.promo,
+      page_size: 1,
+    }),
+  )
 
 const facilitiesByKey = cache(async (siteCodes: string, roomTypeIds: string, lang: string) => {
   const qs = new URLSearchParams({
@@ -156,5 +181,5 @@ export const getPublicRoomDetail = (
 ) => roomDetailByKey(id, stay.checkin, stay.checkout, lang, currency)
 
 export const getPublicSites = cache(async () =>
-  request<PublicSiteWithRooms[]>('/public/sites', DEFAULT_LANG, { next: { revalidate: 300 } }),
+  request<PublicSiteWithRooms[]>('/public/sites', DEFAULT_LANG, { next: LISTING_CACHE }),
 )

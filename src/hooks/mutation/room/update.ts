@@ -2,6 +2,7 @@
 import { UpdateRoomReq, UpdateRoomRes } from "@/src/models/room/update";
 import { updateRoom } from "@/src/services/rooms/update";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { revalidateRoomListingAction } from "@/src/actions/roomListing/revalidate-room-listing.action";
 
 export const useUpdateRoom = (id: string) => {
   const queryClient = useQueryClient();
@@ -16,6 +17,7 @@ export const useUpdateRoom = (id: string) => {
       queryClient.invalidateQueries({
         queryKey: ["room", id],
       });
+      revalidateRoomListingAction();
     },
   });
 };

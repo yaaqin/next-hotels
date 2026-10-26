@@ -1,5 +1,6 @@
 import { createRoomType, CreateRoomTypePayload } from "@/src/services/roomTypes/create";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { revalidateRoomListingAction } from "@/src/actions/roomListing/revalidate-room-listing.action";
 
 export const useCreateRoomType = () => {
   const queryClient = useQueryClient();
@@ -17,6 +18,7 @@ export const useCreateRoomType = () => {
       await queryClient.invalidateQueries({
         queryKey: ["room-types"],
       });
+      revalidateRoomListingAction();
     },
   });
 };

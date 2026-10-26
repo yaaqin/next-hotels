@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
-import { getPublicSites, resolveRoomListing, searchRoomListing } from '@/src/services/roomListing'
+import { unstable_rethrow } from 'next/navigation'
+import { countRoomListing, getPublicSites, resolveRoomListing } from '@/src/services/roomListing'
 import { getNewsSitemap } from '@/src/services/news'
 import { articleCanonical, articlePath, isIndexable as isArticleIndexable } from '@/src/components/organisms/news/helpers'
 import {
@@ -18,13 +19,7 @@ async function isIndexable(path: string) {
   // Halaman yang canonical-nya menunjuk ke halaman lain tidak dimasukkan ke sitemap
   if (effectiveCanonicalPath(resolved) !== resolved.canonicalPath) return false
 
-  const result = await searchRoomListing({
-    site_codes: resolved.filters.siteCodes,
-    room_type_ids: resolved.filters.roomTypeIds,
-    promo: resolved.filters.promo,
-    page_size: 1,
-  })
-  return result.meta.total >= MIN_INDEXABLE_ROOMS
+  return (await countRoomListing(resolved.filters)) >= MIN_INDEXABLE_ROOMS
 }
 
 async function roomListingPaths() {
@@ -98,6 +93,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })),
     ]
   } catch (err) {
+    // Error internal Next (mis. render dinamis) jangan ditelan, nanti RLP hilang diam-diam dari sitemap
+    unstable_rethrow(err)
     // BE tidak bisa dihubungi → tetap sajikan sitemap minimal daripada error
     console.error('[sitemap] gagal generate URL RLP:', err)
     return home

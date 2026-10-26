@@ -1,6 +1,7 @@
 import { CreateRoomReq, CreateRoomRes } from "@/src/models/room/create";
 import { createRoom } from "@/src/services/rooms/create";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { revalidateRoomListingAction } from "@/src/actions/roomListing/revalidate-room-listing.action";
 
 export const useCreateRoom = () => {
   const queryClient = useQueryClient();
@@ -12,6 +13,7 @@ export const useCreateRoom = () => {
       queryClient.invalidateQueries({
         queryKey: ["room-list"],
       });
+      revalidateRoomListingAction();
     },
   });
 };
