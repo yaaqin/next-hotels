@@ -1,14 +1,9 @@
 import type { MetadataRoute } from 'next'
 import { unstable_rethrow } from 'next/navigation'
 import { countRoomListing, getPublicSites, resolveRoomListing } from '@/src/services/roomListing'
-import { getNewsSitemap } from '@/src/services/news'
-import { articleCanonical, articlePath, isIndexable as isArticleIndexable } from '@/src/components/organisms/news/helpers'
-import {
-  effectiveCanonicalPath,
-  MIN_INDEXABLE_ROOMS,
-  SITE_URL,
-} from './(publicAccess)/(publicDashboard2)/hotel/hotel.helper'
+import { effectiveCanonicalPath, MIN_INDEXABLE_ROOMS, SITE_URL } from './hotel.helper'
 
+// /hotel/sitemap.xml — bagian RLP dari sitemap index (/sitemap.xml)
 export const revalidate = 3600
 
 // Halaman RLP yang masuk sitemap = yang indexable saja (cukup kamar, bukan alias/redirect)
@@ -54,49 +49,20 @@ async function roomListingPaths() {
   return checks.filter((p): p is string => !!p)
 }
 
-// Artikel yang indexable & canonical-nya ke dirinya sendiri
-async function newsEntries(): Promise<MetadataRoute.Sitemap> {
-  try {
-    const articles = await getNewsSitemap()
-    const entries = articles
-      .filter((a) => isArticleIndexable(a.metaRobots))
-      .filter((a) => articleCanonical(a) === `${SITE_URL}${articlePath(a.slug)}`)
-      .map((a) => ({
-        url: `${SITE_URL}${articlePath(a.slug)}`,
-        lastModified: new Date(a.updatedAt),
-        changeFrequency: 'weekly' as const,
-        priority: 0.6,
-      }))
-    return [{ url: `${SITE_URL}/news`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.7 }, ...entries]
-  } catch (err) {
-    console.error('[sitemap] gagal generate URL news:', err)
-    return []
-  }
-}
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const news = await newsEntries()
-  const home: MetadataRoute.Sitemap = [
-    { url: SITE_URL, lastModified: new Date(), priority: 1 },
-    ...news,
-  ]
-
   try {
     const paths = await roomListingPaths()
-    return [
-      ...home,
-      ...paths.map((path) => ({
-        url: `${SITE_URL}${path}`,
-        lastModified: new Date(),
-        changeFrequency: 'daily' as const,
-        priority: path === '/hotel' ? 0.9 : 0.8,
-      })),
-    ]
+    return paths.map((path) => ({
+      url: `${SITE_URL}${path}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: path === '/hotel' ? 0.9 : 0.8,
+    }))
   } catch (err) {
     // Error internal Next (mis. render dinamis) jangan ditelan, nanti RLP hilang diam-diam dari sitemap
     unstable_rethrow(err)
-    // BE tidak bisa dihubungi → tetap sajikan sitemap minimal daripada error
+    // BE tidak bisa dihubungi → sajikan sitemap kosong daripada error
     console.error('[sitemap] gagal generate URL RLP:', err)
-    return home
+    return []
   }
 }

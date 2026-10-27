@@ -42,6 +42,9 @@ async function resolve(path: string): Promise<Outcome> {
 }
 
 export async function proxy(req: NextRequest) {
+  // Sitemap RLP (hotel/sitemap.ts) bukan path RLP
+  if (req.nextUrl.pathname === '/hotel/sitemap.xml') return NextResponse.next()
+
   let path: string
   try {
     path = decodeURIComponent(req.nextUrl.pathname.replace(/^\/hotel\/?/, ''))
