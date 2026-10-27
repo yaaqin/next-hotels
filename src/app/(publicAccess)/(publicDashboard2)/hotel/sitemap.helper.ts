@@ -1,10 +1,9 @@
-import type { MetadataRoute } from 'next'
 import { unstable_rethrow } from 'next/navigation'
 import { countRoomListing, getPublicSites, resolveRoomListing } from '@/src/services/roomListing'
-import { effectiveCanonicalPath, MIN_INDEXABLE_ROOMS, SITE_URL } from './hotel.helper'
+import { effectiveCanonicalPath, MIN_INDEXABLE_ROOMS } from './hotel.helper'
 
-// /hotel/sitemap.xml — bagian RLP dari sitemap index (/sitemap.xml)
-export const revalidate = 3600
+// Jumlah URL per file sitemap RLP (/hotel/sitemap/{n}.xml); sisanya lanjut ke file berikutnya
+export const RLP_SITEMAP_SIZE = 6
 
 // Halaman RLP yang masuk sitemap = yang indexable saja (cukup kamar, bukan alias/redirect)
 async function isIndexable(path: string) {
@@ -17,7 +16,7 @@ async function isIndexable(path: string) {
   return (await countRoomListing(resolved.filters)) >= MIN_INDEXABLE_ROOMS
 }
 
-async function roomListingPaths() {
+async function collectPaths() {
   const sites = await getPublicSites()
   const paths = new Set<string>(['/hotel'])
 
@@ -49,20 +48,18 @@ async function roomListingPaths() {
   return checks.filter((p): p is string => !!p)
 }
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+// Semua path RLP indexable. Dipakai sitemap RLP dan sitemap index (untuk hitung jumlah file).
+export async function roomListingPaths() {
   try {
-    const paths = await roomListingPaths()
-    return paths.map((path) => ({
-      url: `${SITE_URL}${path}`,
-      lastModified: new Date(),
-      changeFrequency: 'daily' as const,
-      priority: path === '/hotel' ? 0.9 : 0.8,
-    }))
+    return await collectPaths()
   } catch (err) {
     // Error internal Next (mis. render dinamis) jangan ditelan, nanti RLP hilang diam-diam dari sitemap
     unstable_rethrow(err)
-    // BE tidak bisa dihubungi → sajikan sitemap kosong daripada error
+    // BE tidak bisa dihubungi → anggap kosong daripada error
     console.error('[sitemap] gagal generate URL RLP:', err)
     return []
   }
 }
+
+// Minimal 1 file supaya /hotel/sitemap/1.xml selalu ada
+export const rlpSitemapCount = (total: number) => Math.max(1, Math.ceil(total / RLP_SITEMAP_SIZE))

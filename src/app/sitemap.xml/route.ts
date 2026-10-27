@@ -1,17 +1,19 @@
+import { sitemapIndexResponse } from '@/src/utils/sitemapXml'
 import { SITE_URL } from '../(publicAccess)/(publicDashboard2)/hotel/hotel.helper'
+import { rlpSitemapCount, roomListingPaths } from '../(publicAccess)/(publicDashboard2)/hotel/sitemap.helper'
 
 // /sitemap.xml = sitemap index. Isi URL-nya ada di sitemap per bagian:
-// halaman umum (/sitemap-pages.xml), RLP (hotel/sitemap.ts), news (news/sitemap.ts)
-export const dynamic = 'force-static'
+// halaman umum (/sitemap-pages.xml), RLP (/hotel/sitemap/{n}.xml), news (news/sitemap.ts).
+// Jumlah file RLP ikut data, jadi index ikut di-expire tag 'room-listing'.
+export const revalidate = 3600
 
-const SITEMAPS = ['/sitemap-pages.xml', '/hotel/sitemap.xml', '/news/sitemap.xml']
-
-export function GET() {
-  const body = SITEMAPS.map((path) => `<sitemap><loc>${SITE_URL}${path}</loc></sitemap>`).join('\n')
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${body}
-</sitemapindex>
-`
-  return new Response(xml, { headers: { 'Content-Type': 'application/xml' } })
+export async function GET() {
+  const rlpCount = rlpSitemapCount((await roomListingPaths()).length)
+  return sitemapIndexResponse(
+    [
+      '/sitemap-pages.xml',
+      ...Array.from({ length: rlpCount }, (_, i) => `/hotel/sitemap/${i + 1}.xml`),
+      '/news/sitemap.xml',
+    ].map((path) => `${SITE_URL}${path}`),
+  )
 }

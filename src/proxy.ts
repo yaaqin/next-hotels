@@ -42,8 +42,8 @@ async function resolve(path: string): Promise<Outcome> {
 }
 
 export async function proxy(req: NextRequest) {
-  // Sitemap RLP (hotel/sitemap.ts) bukan path RLP
-  if (req.nextUrl.pathname === '/hotel/sitemap.xml') return NextResponse.next()
+  // Sitemap RLP (hotel/sitemap.ts → /hotel/sitemap/{n}.xml) bukan path RLP
+  if (/^\/hotel\/sitemap\/[^/]+\.xml$/.test(req.nextUrl.pathname)) return NextResponse.next()
 
   let path: string
   try {
