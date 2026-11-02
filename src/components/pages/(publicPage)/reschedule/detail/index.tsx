@@ -18,6 +18,7 @@ import { useEnabledPaymentMethods } from '@/src/hooks/query/paymentMethod/public
 import { useSgtPayment } from '@/src/hooks/custom/payment/useSgtPayment'
 import { SlushWalletButton } from '@/src/components/atoms/slushWalletButton'
 import { axiosPublic } from '@/src/libs/instance'
+import { QRIS_PROVIDERS, type QrisProvider } from '@/src/constans/payment'
 import {
   reschedulePaymentMethod,
   reschedulePolicySummary,
@@ -44,6 +45,7 @@ const PAY_CATS: PaymentCategory[] = ['va', 'qris', 'sgt', 'credit']
 // On/off metode diatur di config panel (scope BOOKING, per cabang)
 function isCategoryEnabled(cat: PaymentCategory, enabledMethods: string[]) {
   if (cat === 'va') return VA_BANKS.some((b) => enabledMethods.includes(b.value))
+  if (cat === 'qris') return QRIS_PROVIDERS.some((p) => enabledMethods.includes(p.value))
   return enabledMethods.includes(cat)
 }
 
@@ -67,6 +69,7 @@ function formatPaymentMethod(method: string | null, t: TFunction) {
   if (!method) return '—'
   if (method === 'CREDIT') return t('reschedule.pay.bookingCredit')
   if (method === 'QRIS') return t('reschedule.pay.qris')
+  if (method === 'QRIS_DPAY') return `${t('reschedule.pay.qris')} Duit`
   if (method === 'SGT') return t('reschedule.pay.sgt')
   if (method.startsWith('VA_')) return t('reschedule.pay.vaBank', { bank: method.replace('VA_', '') })
   return method
@@ -420,8 +423,10 @@ interface PaymentCardProps {
   enabledMethods: string[]
   paymentCategory: PaymentCategory | null
   selectedVA: VABank | null
+  selectedQris: QrisProvider | null
   onSelectCategory: (cat: PaymentCategory) => void
   onSelectVA: (va: VABank) => void
+  onSelectQris: (provider: QrisProvider) => void
   onWalletConnected: (address: string) => void
   onWalletDisconnected: () => void
   isPending: boolean
@@ -434,8 +439,10 @@ function PaymentMethodCard({
   enabledMethods,
   paymentCategory,
   selectedVA,
+  selectedQris,
   onSelectCategory,
   onSelectVA,
+  onSelectQris,
   onWalletConnected,
   onWalletDisconnected,
   isPending,
@@ -518,6 +525,29 @@ function PaymentMethodCard({
             </div>
           )}
 
+          {paymentCategory === 'qris' && (
+            <div className="mt-2">
+              <p className="text-[10px] tracking-widest uppercase text-gray-400 mb-2">{t('reschedule.pay.selectQrisProvider')}</p>
+              <div className="border border-gray-100 rounded-xl overflow-hidden">
+                {QRIS_PROVIDERS.filter((p) => enabledMethods.includes(p.value)).map((provider) => (
+                  <button
+                    key={provider.value}
+                    onClick={() => onSelectQris(provider.value)}
+                    className={[
+                      'w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition text-left border-b border-gray-50 last:border-b-0',
+                      selectedQris === provider.value ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700',
+                    ].join(' ')}
+                  >
+                    <span className="w-10 h-6 bg-gray-100 rounded text-[10px] font-bold text-gray-500 flex items-center justify-center shrink-0">
+                      {provider.logo}
+                    </span>
+                    {t('reschedule.pay.qris')} {provider.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {paymentCategory === 'sgt' && (
             <div className="mt-2 space-y-2">
               <div className="px-4 py-3 bg-amber-50 border border-amber-100 rounded-xl">
@@ -595,6 +625,7 @@ export default function ReschedulePage() {
 
   const [paymentCategory, setPaymentCategory] = useState<PaymentCategory | null>(null)
   const [selectedVA, setSelectedVA] = useState<VABank | null>(null)
+  const [selectedQris, setSelectedQris] = useState<QrisProvider | null>(null)
   const [sgtWalletAddress, setSgtWalletAddress] = useState<string | null>(null)
   const [isPayingSgt, setIsPayingSgt] = useState(false)
 
@@ -638,7 +669,9 @@ export default function ReschedulePage() {
     ? undefined
     : paymentCategory === 'va'
       ? selectedVA ?? undefined
-      : paymentCategory ?? undefined
+      : paymentCategory === 'qris'
+        ? selectedQris ?? undefined
+        : paymentCategory ?? undefined
 
   const canSubmit =
     !isFetching &&
@@ -648,6 +681,9 @@ export default function ReschedulePage() {
   const handleSelectCategory = (cat: PaymentCategory) => {
     setPaymentCategory(cat)
     setSelectedVA(null)
+    // Cuma satu provider QRIS yang aktif → langsung terpilih
+    const enabledQris = QRIS_PROVIDERS.filter((p) => enabledMethods.includes(p.value))
+    setSelectedQris(cat === 'qris' && enabledQris.length === 1 ? enabledQris[0].value : null)
     if (cat !== 'sgt') setSgtWalletAddress(null)
   }
 
@@ -743,11 +779,13 @@ export default function ReschedulePage() {
           enabledMethods={enabledMethods}
           paymentCategory={paymentCategory}
           selectedVA={selectedVA}
+          selectedQris={selectedQris}
           onSelectCategory={handleSelectCategory}
           onSelectVA={(va) => {
             setSelectedVA(va)
             setPaymentCategory('va')
           }}
+          onSelectQris={setSelectedQris}
           onWalletConnected={setSgtWalletAddress}
           onWalletDisconnected={() => setSgtWalletAddress(null)}
           isPending={isPending || isPayingSgt}

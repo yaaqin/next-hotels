@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type PaymentMethod = 'bca' | 'bni' | 'bri' | 'mandiri' | 'qris' | 'gopay'
+export type PaymentMethod = 'bca' | 'bni' | 'bri' | 'mandiri' | 'qris' | 'qris_dpay' | 'gopay'
 export type IdType = 'KTP' | 'PASSPORT' | 'SIM'
 
 export interface BookingContact {

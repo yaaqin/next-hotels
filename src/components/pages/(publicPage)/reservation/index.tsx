@@ -29,6 +29,7 @@ import { PriceTag } from '@/src/components/molecules/priceTag'
 import { usePriceTagConfig } from '@/src/hooks/usePriceTagConfig'
 import { PaymentCurrencyModal } from '@/src/components/organisms/reservation/PaymentCurrencyModal'
 import type { DisplayPricing } from '@/src/models/public/currency'
+import { QRIS_PROVIDERS, type QrisProvider } from '@/src/constans/payment'
 
 type PaymentMethod = 'va_bca' | 'va_bni' | 'va_bri' | 'va_mandiri' | 'qris' | 'sgt' | 'credit'
 type PaymentCategory = 'va' | 'qris' | 'sgt' | 'credit'
@@ -51,12 +52,14 @@ function validateForm({
   selectedRoomCount,
   paymentCategory,
   selectedVA,
+  selectedQris,
   sgtWalletAddress,
 }: {
   contact: any
   selectedRoomCount: number
   paymentCategory: PaymentCategory | null
   selectedVA: PaymentMethod | null
+  selectedQris: QrisProvider | null
   sgtWalletAddress: string | null
 }): FormErrors {
   const errors: FormErrors = {}
@@ -90,6 +93,8 @@ function validateForm({
     errors.paymentMethod = 'Metode pembayaran wajib dipilih'
   } else if (paymentCategory === 'va' && !selectedVA) {
     errors.paymentMethod = 'Bank virtual account wajib dipilih'
+  } else if (paymentCategory === 'qris' && !selectedQris) {
+    errors.paymentMethod = 'Provider QRIS wajib dipilih'
   } else if (paymentCategory === 'sgt' && !sgtWalletAddress) {
     errors.paymentMethod = 'Hubungkan wallet SGT terlebih dahulu'
   }
@@ -469,11 +474,29 @@ export default function ReservationPage() {
   const [paymentCategory, setPaymentCategory] = useState<PaymentCategory | null>(null)
   const [selectedVA, setSelectedVA] = useState<PaymentMethod | null>(null)
   const [vaOpen, setVaOpen] = useState(false)
+  const [selectedQris, setSelectedQris] = useState<QrisProvider | null>(null)
+
+  // On/off metode diatur di config panel (scope BOOKING, per cabang)
+  const { enabledMethods } = useEnabledPaymentMethods('BOOKING', payload.siteCode)
+  const enabledBanks = VA_BANKS.filter((b) => enabledMethods.includes(b.value.replace('va_', '')))
+  const enabledQris = QRIS_PROVIDERS.filter((p) => enabledMethods.includes(p.value))
+  const isCategoryEnabled = (cat: PaymentCategory) =>
+    cat === 'va' ? enabledBanks.length > 0
+      : cat === 'qris' ? enabledQris.length > 0
+        : enabledMethods.includes(cat)
+
+  const handleSelectQris = (provider: QrisProvider) => {
+    setSelectedQris(provider)
+    setPaymentMethod(provider)
+    if (submitted) setErrors((prev) => ({ ...prev, paymentMethod: undefined }))
+  }
 
   const handleSelectPayment = (cat: PaymentCategory) => {
     setPaymentCategory(cat)
     setSelectedVA(null)
-    if (cat === 'qris') setPaymentMethod('qris' as any)
+    setSelectedQris(null)
+    // Cuma satu provider QRIS yang aktif → langsung terpilih
+    if (cat === 'qris' && enabledQris.length === 1) handleSelectQris(enabledQris[0].value)
     if (cat === 'credit') setPaymentMethod('credit' as any)
     if (cat !== 'sgt') setSgtWalletAddress(null)
     if (submitted) setErrors((prev) => ({ ...prev, paymentMethod: undefined }))
@@ -490,7 +513,7 @@ export default function ReservationPage() {
   const { reset } = useBookingStore()
   const router = useRouter()
 
-  // Harga dilihat dalam mata uang lain, tapi VA/QRIS (Midtrans) menagih IDR → konfirmasi dulu
+  // Harga dilihat dalam mata uang lain, tapi VA/QRIS menagih IDR → konfirmasi dulu
   const [showCurrencyModal, setShowCurrencyModal] = useState(false)
   const needsCurrencyNotice =
     (paymentCategory === 'va' || paymentCategory === 'qris') &&
@@ -498,7 +521,7 @@ export default function ReservationPage() {
     totalDisplay.currency !== 'IDR'
   const paymentMethodLabel =
     paymentCategory === 'qris'
-      ? 'QRIS'
+      ? `QRIS ${QRIS_PROVIDERS.find((p) => p.value === selectedQris)?.name ?? ''}`.trim()
       : VA_BANKS.find((b) => b.value === selectedVA)?.label ?? 'Virtual Account'
   const priceTag = usePriceTagConfig()
 
@@ -514,13 +537,13 @@ export default function ReservationPage() {
   // ── Re-validate on field change after first submit attempt ────────────────
   useEffect(() => {
     if (!submitted) return
-    const newErrors = validateForm({ contact, selectedRoomCount: selectedRooms.length, paymentCategory, selectedVA, sgtWalletAddress })
+    const newErrors = validateForm({ contact, selectedRoomCount: selectedRooms.length, paymentCategory, selectedVA, selectedQris, sgtWalletAddress })
     setErrors(newErrors)
-  }, [contact, selectedRooms.length, paymentCategory, selectedVA, sgtWalletAddress, submitted])
+  }, [contact, selectedRooms.length, paymentCategory, selectedVA, selectedQris, sgtWalletAddress, submitted])
 
   const handleBooking = async () => {
     setSubmitted(true)
-    const newErrors = validateForm({ contact, selectedRoomCount: selectedRooms.length, paymentCategory, selectedVA, sgtWalletAddress })
+    const newErrors = validateForm({ contact, selectedRoomCount: selectedRooms.length, paymentCategory, selectedVA, selectedQris, sgtWalletAddress })
     setErrors(newErrors)
 
     if (Object.keys(newErrors).length > 0) return
@@ -627,12 +650,6 @@ export default function ReservationPage() {
   const canSubmit = isAuthenticated && !isPending
 
   const { t } = useTranslation()
-
-  // On/off metode diatur di config panel (scope BOOKING, per cabang)
-  const { enabledMethods } = useEnabledPaymentMethods('BOOKING', payload.siteCode)
-  const enabledBanks = VA_BANKS.filter((b) => enabledMethods.includes(b.value.replace('va_', '')))
-  const isCategoryEnabled = (cat: PaymentCategory) =>
-    cat === 'va' ? enabledBanks.length > 0 : enabledMethods.includes(cat)
 
   return (
     <div className="min-h-screen bg-[#f5f4f0] py-10 px-4">
@@ -829,10 +846,27 @@ export default function ReservationPage() {
                 </div>
               )}
 
-              {/* QRIS Info */}
+              {/* QRIS Provider + Info */}
               {paymentCategory === 'qris' && (
-                <div className="mt-2 px-4 py-3 bg-blue-50 rounded-xl text-sm text-blue-600 text-center">
-                  {t("text.reservation.qrisInfo")}
+                <div className="mt-2 space-y-2">
+                  <p className="text-[10px] tracking-widest uppercase text-gray-400">{t("text.reservation.selectQrisProvider")}</p>
+                  <div className={`border rounded-xl overflow-hidden ${errors.paymentMethod ? 'border-red-300' : 'border-gray-100'}`}>
+                    {enabledQris.map((provider) => (
+                      <button
+                        data-cy={`qris-option-${provider.value}`}
+                        key={provider.value}
+                        onClick={() => handleSelectQris(provider.value)}
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition text-left border-b border-gray-50 last:border-b-0
+                          ${selectedQris === provider.value ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}
+                      >
+                        <span className="w-10 h-6 bg-gray-100 rounded text-[10px] font-bold text-gray-500 flex items-center justify-center">{provider.logo}</span>
+                        QRIS {provider.name}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="px-4 py-3 bg-blue-50 rounded-xl text-sm text-blue-600 text-center">
+                    {t("text.reservation.qrisInfo")}
+                  </div>
                 </div>
               )}
 

@@ -103,6 +103,8 @@ export interface Payment {
   expiredAt: string
   paidAt: any
   type: string
+  // Khusus type QRIS
+  provider?: 'MIDTRANS' | 'DPAY'
   vaNumber: any
   vaBank: string
   billerCode: string

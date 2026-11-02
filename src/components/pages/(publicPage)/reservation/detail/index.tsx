@@ -6,6 +6,7 @@ import { BookingPriceSnapshot, type BookingDisplaySnapshot } from '@/src/compone
 import { Payment, type bookingDetailState } from '@/src/models/bookings/detail'
 import { usePaymentStatus } from '@/src/hooks/custom/payment/usePaymentStatus'
 import { useTranslation } from 'react-i18next'
+import { DPAY_SANDBOX_SIMULATOR_URL } from '@/src/constans/payment'
 
 function formatExpiry(dateStr: string) {
     return new Date(dateStr).toLocaleString('id-ID', {
@@ -25,6 +26,7 @@ function getPaymentUrl(payment: Payment) {
     if (payment.vaBank === 'BNI') return 'https://simulator.sandbox.midtrans.com/bni/va/index'
     if (payment.vaBank === 'BRI') return 'https://simulator.sandbox.midtrans.com/bri/va/index'
     if (payment.vaBank === 'MANDIRI') return 'https://simulator.sandbox.midtrans.com/openapi/va/index?bank=mandiri'
+    if (payment.type === 'QRIS' && payment.provider === 'DPAY') return DPAY_SANDBOX_SIMULATOR_URL
     if (payment.type === 'QRIS') return 'https://simulator.sandbox.midtrans.com/qris/index'
     return '#'
 }
@@ -165,7 +167,8 @@ function PaymentInfoPanel({ payment, totalAmount, snapshot }: { payment: Payment
 
     return (
         <div className="flex flex-col gap-5">
-            <QrisSandboxWarning />
+            {/* Peringatan simulator QRIS sandbox khusus Midtrans */}
+            {payment.provider !== 'DPAY' && <QrisSandboxWarning />}
 
             <div>
                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">{t('text.reservation.qrCode')}</p>
@@ -296,7 +299,9 @@ function PaymentLinkPanel({ payment }: { payment: Payment }) {
                 <p className="text-sm text-gray-500 leading-relaxed">
                     {payment.type === 'VIRTUAL_ACCOUNT'
                         ? `${t('text.reservation.vaSimulationDesc')} ${payment.vaBank} ${t('text.reservation.vaSimulationDesc2')}`
-                        : t('text.reservation.qrisSimulationDesc')}
+                        : payment.provider === 'DPAY'
+                            ? t('text.reservation.qrisSimulationDescDpay')
+                            : t('text.reservation.qrisSimulationDesc')}
                 </p>
             </div>
 
