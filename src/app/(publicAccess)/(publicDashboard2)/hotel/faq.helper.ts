@@ -141,7 +141,7 @@ function buildAutoFaq(
   // Pembayaran
   if (facts.paymentMethods.length) {
     const methods = facts.paymentMethods.map((m) => m.label)
-    const hasBill = facts.paymentMethods.some((m) => ['bca', 'bni', 'bri', 'mandiri', 'qris', 'qris_dpay'].includes(m.method))
+    const hasBill = facts.paymentMethods.some((m) => ['bca', 'bni', 'bri', 'mandiri', 'va_dpay', 'qris', 'qris_dpay'].includes(m.method))
     add(
       'payment',
       [t('roomListing.faq.paymentA', { list: list(methods) }), hasBill && t('roomListing.faq.paymentDeadline')]

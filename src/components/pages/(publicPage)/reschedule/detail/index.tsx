@@ -31,13 +31,14 @@ import {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type PaymentCategory = 'va' | 'qris' | 'sgt' | 'credit'
-type VABank = 'bca' | 'bni' | 'bri' | 'mandiri'
+type VABank = 'bca' | 'bni' | 'bri' | 'mandiri' | 'va_dpay'
 
 const VA_BANKS: { value: VABank; name: string; logo: string }[] = [
   { value: 'bca', name: 'BCA', logo: 'BCA' },
   { value: 'bni', name: 'BNI', logo: 'BNI' },
   { value: 'bri', name: 'BRI', logo: 'BRI' },
   { value: 'mandiri', name: 'Mandiri', logo: 'MDR' },
+  { value: 'va_dpay', name: 'Duit', logo: 'DUIT' },
 ]
 
 const PAY_CATS: PaymentCategory[] = ['va', 'qris', 'sgt', 'credit']
@@ -70,6 +71,7 @@ function formatPaymentMethod(method: string | null, t: TFunction) {
   if (method === 'CREDIT') return t('reschedule.pay.bookingCredit')
   if (method === 'QRIS') return t('reschedule.pay.qris')
   if (method === 'QRIS_DPAY') return `${t('reschedule.pay.qris')} Duit`
+  if (method === 'VA_DPAY') return t('reschedule.pay.vaBank', { bank: 'Duit' })
   if (method === 'SGT') return t('reschedule.pay.sgt')
   if (method.startsWith('VA_')) return t('reschedule.pay.vaBank', { bank: method.replace('VA_', '') })
   return method

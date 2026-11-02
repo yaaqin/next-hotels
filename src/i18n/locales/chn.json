@@ -291,6 +291,7 @@
       "qrisSimulation": "QRIS 模拟",
       "vaSimulationDesc": "使用以下链接模拟",
       "vaSimulationDesc2": "的 VA 付款（Midtrans 沙箱）。",
+      "vaSimulationDescDpay": "打开 DPAY 沙箱模拟器，选择 VA 标签页，然后输入上方的虚拟账号。",
       "qrisSimulationDesc": "使用以下链接在 Midtrans 沙箱中模拟 QRIS 付款。",
       "qrisSimulationDescDpay": "打开 DPAY 沙箱模拟器，选择 QRIS 标签页，然后粘贴上方的 QRIS 图片链接。",
       "billerCode": "付款代码",

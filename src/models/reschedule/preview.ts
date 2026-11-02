@@ -81,7 +81,7 @@ export interface reschedulePreviewPayload {
   preferredRoomId?: string
 }
 
-export type reschedulePaymentMethod = 'bca' | 'bni' | 'bri' | 'mandiri' | 'qris' | 'qris_dpay' | 'sgt' | 'credit'
+export type reschedulePaymentMethod = 'bca' | 'bni' | 'bri' | 'mandiri' | 'va_dpay' | 'qris' | 'qris_dpay' | 'sgt' | 'credit'
 
 export interface rescheduleConfirmPayload {
   bookingId: string

@@ -291,6 +291,7 @@
       "qrisSimulation": "QRISシミュレーション",
       "vaSimulationDesc": "以下のリンクを使用して",
       "vaSimulationDesc2": "のVA支払いをMidtransサンドボックスでシミュレートしてください。",
+      "vaSimulationDescDpay": "DPAYサンドボックスシミュレーターを開き、VAタブを選んで上のバーチャルアカウント番号を入力してください。",
       "qrisSimulationDesc": "以下のリンクを使用してMidtransサンドボックスでQRIS支払いをシミュレートしてください。",
       "qrisSimulationDescDpay": "DPAYサンドボックスシミュレーターを開き、QRISタブを選んで上のQRIS画像URLを貼り付けてください。",
       "billerCode": "請求者コード",

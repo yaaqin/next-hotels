@@ -21,12 +21,17 @@ function formatRupiah(amount: number) {
     }).format(amount)
 }
 
+// VA DPAY disimpan dengan vaBank 'DPAY'; ke tamu tampil sebagai "Duit"
+function vaBankName(payment: Payment) {
+    return payment.provider === 'DPAY' ? 'Duit' : payment.vaBank
+}
+
 function getPaymentUrl(payment: Payment) {
+    if (payment.provider === 'DPAY') return DPAY_SANDBOX_SIMULATOR_URL
     if (payment.vaBank === 'BCA') return 'https://simulator.sandbox.midtrans.com/bca/va/index'
     if (payment.vaBank === 'BNI') return 'https://simulator.sandbox.midtrans.com/bni/va/index'
     if (payment.vaBank === 'BRI') return 'https://simulator.sandbox.midtrans.com/bri/va/index'
     if (payment.vaBank === 'MANDIRI') return 'https://simulator.sandbox.midtrans.com/openapi/va/index?bank=mandiri'
-    if (payment.type === 'QRIS' && payment.provider === 'DPAY') return DPAY_SANDBOX_SIMULATOR_URL
     if (payment.type === 'QRIS') return 'https://simulator.sandbox.midtrans.com/qris/index'
     return '#'
 }
@@ -109,7 +114,7 @@ function PaymentInfoPanel({ payment, totalAmount, snapshot }: { payment: Payment
                     </div>
                     <div>
                         <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">{t('text.reservation.bank')}</p>
-                        <p className="text-sm font-bold text-gray-800">{payment.vaBank}</p>
+                        <p className="text-sm font-bold text-gray-800">{vaBankName(payment)}</p>
                     </div>
                 </div>
 
@@ -293,12 +298,14 @@ function PaymentLinkPanel({ payment }: { payment: Payment }) {
             <div>
                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">
                     {payment.type === 'VIRTUAL_ACCOUNT'
-                        ? `${t('text.reservation.vaSimulation')} ${payment.vaBank}`
+                        ? `${t('text.reservation.vaSimulation')} ${vaBankName(payment)}`
                         : t('text.reservation.qrisSimulation')}
                 </p>
                 <p className="text-sm text-gray-500 leading-relaxed">
                     {payment.type === 'VIRTUAL_ACCOUNT'
-                        ? `${t('text.reservation.vaSimulationDesc')} ${payment.vaBank} ${t('text.reservation.vaSimulationDesc2')}`
+                        ? payment.provider === 'DPAY'
+                            ? t('text.reservation.vaSimulationDescDpay')
+                            : `${t('text.reservation.vaSimulationDesc')} ${payment.vaBank} ${t('text.reservation.vaSimulationDesc2')}`
                         : payment.provider === 'DPAY'
                             ? t('text.reservation.qrisSimulationDescDpay')
                             : t('text.reservation.qrisSimulationDesc')}

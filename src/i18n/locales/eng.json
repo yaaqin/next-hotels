@@ -291,6 +291,7 @@
       "qrisSimulation": "QRIS Simulation",
       "vaSimulationDesc": "Use the following link to simulate VA payment for",
       "vaSimulationDesc2": "on the Midtrans sandbox.",
+      "vaSimulationDescDpay": "Open the DPAY sandbox simulator, choose the VA tab, then enter the Virtual Account number above.",
       "qrisSimulationDesc": "Use the following link to simulate QRIS payment on the Midtrans sandbox.",
       "qrisSimulationDescDpay": "Open the DPAY sandbox simulator, choose the QRIS tab, then paste the QRIS image URL above.",
       "billerCode": "Biller Code",

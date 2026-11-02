@@ -31,7 +31,7 @@ import { PaymentCurrencyModal } from '@/src/components/organisms/reservation/Pay
 import type { DisplayPricing } from '@/src/models/public/currency'
 import { QRIS_PROVIDERS, type QrisProvider } from '@/src/constans/payment'
 
-type PaymentMethod = 'va_bca' | 'va_bni' | 'va_bri' | 'va_mandiri' | 'qris' | 'sgt' | 'credit'
+type PaymentMethod = 'va_bca' | 'va_bni' | 'va_bri' | 'va_mandiri' | 'va_dpay' | 'qris' | 'sgt' | 'credit'
 type PaymentCategory = 'va' | 'qris' | 'sgt' | 'credit'
 
 // ─── Validation Types ────────────────────────────────────────────────────────
@@ -104,11 +104,13 @@ function validateForm({
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+// `method` = paymentMethod yang dikirim ke BE
 const VA_BANKS = [
-  { value: 'va_bca', label: 'BCA Virtual Account', logo: 'BCA' },
-  { value: 'va_bni', label: 'BNI Virtual Account', logo: 'BNI' },
-  { value: 'va_bri', label: 'BRI Virtual Account', logo: 'BRI' },
-  { value: 'va_mandiri', label: 'Mandiri Virtual Account', logo: 'MDR' },
+  { value: 'va_bca', method: 'bca', label: 'BCA Virtual Account', logo: 'BCA' },
+  { value: 'va_bni', method: 'bni', label: 'BNI Virtual Account', logo: 'BNI' },
+  { value: 'va_bri', method: 'bri', label: 'BRI Virtual Account', logo: 'BRI' },
+  { value: 'va_mandiri', method: 'mandiri', label: 'Mandiri Virtual Account', logo: 'MDR' },
+  { value: 'va_dpay', method: 'va_dpay', label: 'Duit Virtual Account', logo: 'DUIT' },
 ]
 
 // Kode negara telepon. Nomor disimpan gabungan: "+62" + "81234567890"
@@ -478,7 +480,7 @@ export default function ReservationPage() {
 
   // On/off metode diatur di config panel (scope BOOKING, per cabang)
   const { enabledMethods } = useEnabledPaymentMethods('BOOKING', payload.siteCode)
-  const enabledBanks = VA_BANKS.filter((b) => enabledMethods.includes(b.value.replace('va_', '')))
+  const enabledBanks = VA_BANKS.filter((b) => enabledMethods.includes(b.method))
   const enabledQris = QRIS_PROVIDERS.filter((p) => enabledMethods.includes(p.value))
   const isCategoryEnabled = (cat: PaymentCategory) =>
     cat === 'va' ? enabledBanks.length > 0
@@ -505,7 +507,7 @@ export default function ReservationPage() {
   const handleSelectVA = (method: PaymentMethod) => {
     setSelectedVA(method)
     setVaOpen(false)
-    setPaymentMethod(method.replace('va_', '') as any)
+    setPaymentMethod(VA_BANKS.find((b) => b.value === method)!.method as any)
     if (submitted) setErrors((prev) => ({ ...prev, paymentMethod: undefined }))
   }
 

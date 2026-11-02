@@ -25,6 +25,7 @@ const METHOD_LABEL: Record<string, string> = {
   VA_BNI: 'VA BNI',
   VA_BRI: 'VA BRI',
   VA_MANDIRI: 'VA Mandiri',
+  VA_DPAY: 'VA Duit',
   QRIS: 'QRIS',
   QRIS_DPAY: 'QRIS Duit',
   SGT: 'Crypto (SGT)',

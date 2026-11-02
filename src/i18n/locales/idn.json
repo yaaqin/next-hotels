@@ -291,6 +291,7 @@
       "qrisSimulation": "Simulasi QRIS",
       "vaSimulationDesc": "Gunakan link berikut untuk simulasi pembayaran VA",
       "vaSimulationDesc2": "di sandbox Midtrans.",
+      "vaSimulationDescDpay": "Buka simulator DPAY sandbox, pilih tab VA, lalu masukkan nomor Virtual Account di atas.",
       "qrisSimulationDesc": "Gunakan link berikut untuk simulasi pembayaran QRIS di sandbox Midtrans.",
       "qrisSimulationDescDpay": "Buka simulator DPAY sandbox, pilih tab QRIS, lalu tempel URL gambar QRIS di atas.",
       "billerCode": "Biller Code",

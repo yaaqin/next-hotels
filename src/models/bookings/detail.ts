@@ -103,7 +103,7 @@ export interface Payment {
   expiredAt: string
   paidAt: any
   type: string
-  // Khusus type QRIS
+  // Gateway tagihan (type QRIS / VIRTUAL_ACCOUNT)
   provider?: 'MIDTRANS' | 'DPAY'
   vaNumber: any
   vaBank: string
