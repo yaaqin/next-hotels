@@ -4,6 +4,8 @@ export interface CreateFoodOrderPayload {
   restaurantSiteId: string;
   tableNote: string;
   note?: string;
+  // Metode katalog FOOD (bca, qris, qris_dpay, va_dpay, ...)
+  paymentMethod?: string;
   items: { productId: string; quantity: number; note?: string }[];
 }
 
@@ -13,8 +15,9 @@ export interface CreateFoodOrderResponse {
     orderId: string;
     orderCode: string;
     totalAmount: number;
-    snapToken: string;
-    paymentUrl: string;
+    // Midtrans → Snap; DPAY → null, tamu bayar di /food/order/[id]
+    snapToken: string | null;
+    paymentUrl: string | null;
   };
 }
 

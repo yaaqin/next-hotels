@@ -3,11 +3,26 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { ChevronLeft, Minus, Plus, MapPin, MessageSquare, Loader2, User, ShoppingBag } from 'lucide-react';
+import { ChevronLeft, Minus, Plus, MapPin, MessageSquare, Loader2, User, ShoppingBag, CreditCard } from 'lucide-react';
 import { useSafeSession } from '@/src/hooks/custom/payment/useSafeSession';
 import toast from 'react-hot-toast';
 import { useCartStore } from '@/src/stores/restaurant/cartStore';
 import { createFoodOrder } from '@/src/services/publicFood/createOrderFood';
+import { useEnabledFoodPaymentMethods } from '@/src/hooks/query/paymentMethod/public';
+import { QRIS_PROVIDERS } from '@/src/constans/payment';
+
+type PaymentCategory = 'va' | 'qris';
+
+// `value` = paymentMethod katalog FOOD. Midtrans dibayar lewat Snap, Duit (DPAY) di /food/order/[id]
+const VA_BANKS = [
+  { value: 'bca', label: 'BCA Virtual Account', logo: 'BCA' },
+  { value: 'bni', label: 'BNI Virtual Account', logo: 'BNI' },
+  { value: 'bri', label: 'BRI Virtual Account', logo: 'BRI' },
+  { value: 'permata', label: 'Permata Virtual Account', logo: 'PMT' },
+  { value: 'va_dpay', label: 'Duit Virtual Account', logo: 'DUIT' },
+];
+
+const QRIS_OPTIONS = QRIS_PROVIDERS.map((p) => ({ value: p.value as string, label: `QRIS ${p.name}`, logo: p.logo }));
 
 const C = {
   primary: '#0f172a',
@@ -54,9 +69,28 @@ export default function CheckoutPage() {
 
   const tableNoteError = submitted && !tableNote.trim() ? 'Lokasi meja wajib diisi' : '';
 
-   const handleCheckout = async () => {
+  // On/off metode diatur di config panel (scope FOOD, cabang hotel restoran ini)
+  const { enabledMethods, isLoading: methodsLoading } = useEnabledFoodPaymentMethods(restaurantSiteId || undefined);
+  const enabledBanks = VA_BANKS.filter((b) => enabledMethods.includes(b.value));
+  const enabledQris = QRIS_OPTIONS.filter((q) => enabledMethods.includes(q.value));
+  const [paymentCategory, setPaymentCategory] = useState<PaymentCategory | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
+  const paymentError = submitted && !paymentMethod
+    ? paymentCategory === 'va' ? 'Bank virtual account wajib dipilih'
+      : paymentCategory === 'qris' ? 'Provider QRIS wajib dipilih'
+        : 'Metode pembayaran wajib dipilih'
+    : '';
+
+  const handleSelectCategory = (cat: PaymentCategory) => {
+    setPaymentCategory(cat);
+    // Cuma satu pilihan yang aktif → langsung terpilih
+    const options = cat === 'va' ? enabledBanks : enabledQris;
+    setPaymentMethod(options.length === 1 ? options[0].value : null);
+  };
+
+  const handleCheckout = async () => {
     setSubmitted(true);
-    if (!tableNote.trim() || items.length === 0) return;
+    if (!tableNote.trim() || items.length === 0 || !paymentMethod) return;
 
     setLoading(true);
     try {
@@ -64,18 +98,19 @@ export default function CheckoutPage() {
         restaurantSiteId,
         tableNote,
         note: orderNote || undefined,
+        paymentMethod,
         items: items.map((i) => ({ productId: i.id, quantity: i.quantity })),
       });
 
-      const { paymentUrl } = res.data;
+      const { paymentUrl, orderId } = res.data;
+      clearCart();
 
+      // DPAY: tagihan sudah dibuat, QR / nomor VA ditampilkan di halaman order
       if (!paymentUrl) {
-        toast.error('URL pembayaran tidak tersedia. Silakan coba lagi.');
-        setLoading(false);
+        router.push(`/food/order/${orderId}`);
         return;
       }
 
-      clearCart();
       window.location.href = paymentUrl;
 
     } catch (e: any) {
@@ -269,17 +304,77 @@ export default function CheckoutPage() {
             <SummaryRow label="Total" value={formatPrice(totalPrice())} bold />
           </Section>
 
-          {/* ── Info pembayaran ── */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            padding: '10px 14px', background: C.accentBg,
-            border: `1px solid ${C.accentBorder}`, borderRadius: 10,
-          }}>
-            <span style={{ fontSize: 16 }}>💳</span>
-            <p style={{ margin: 0, fontSize: 12, color: C.accentText, lineHeight: 1.5 }}>
-              Metode pembayaran (Transfer VA, QRIS, dll) dipilih di halaman berikutnya
-            </p>
-          </div>
+          {/* ── 5. Metode Pembayaran ── */}
+          <Section title="Metode Pembayaran" icon={<CreditCard style={{ width: 14, height: 14, color: C.accent }} />}>
+            {methodsLoading ? (
+              <div style={{ height: 36, background: C.border, borderRadius: 10 }} />
+            ) : enabledBanks.length === 0 && enabledQris.length === 0 ? (
+              <p style={{ margin: 0, fontSize: 12, color: C.muted }}>Belum ada metode pembayaran yang aktif untuk restoran ini</p>
+            ) : (
+              <>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {([
+                    { key: 'va', label: 'Virtual Account', enabled: enabledBanks.length > 0 },
+                    { key: 'qris', label: 'QRIS', enabled: enabledQris.length > 0 },
+                  ] as { key: PaymentCategory; label: string; enabled: boolean }[]).map((cat) => {
+                    const active = paymentCategory === cat.key;
+                    return (
+                      <button
+                        key={cat.key}
+                        disabled={!cat.enabled}
+                        onClick={() => handleSelectCategory(cat.key)}
+                        style={{
+                          padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
+                          border: cat.enabled ? 'none' : `1px dashed ${C.border}`,
+                          background: !cat.enabled ? C.bg : active ? C.accent : C.accentBg,
+                          color: !cat.enabled ? C.border : active ? '#fff' : C.accentText,
+                          cursor: cat.enabled ? 'pointer' : 'not-allowed',
+                          textDecoration: cat.enabled ? 'none' : 'line-through',
+                        }}
+                      >
+                        {cat.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {paymentCategory && (
+                  <div style={{
+                    marginTop: 10, borderRadius: 10, overflow: 'hidden',
+                    border: `1.5px solid ${paymentError ? C.danger : C.border}`,
+                  }}>
+                    {(paymentCategory === 'va' ? enabledBanks : enabledQris).map((opt, i) => {
+                      const active = paymentMethod === opt.value;
+                      return (
+                        <button
+                          key={opt.value}
+                          onClick={() => setPaymentMethod(opt.value)}
+                          style={{
+                            width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                            padding: '10px 12px', border: 'none', textAlign: 'left',
+                            borderTop: i === 0 ? 'none' : `1px solid ${C.border}`,
+                            background: active ? C.accentBg : C.surface,
+                            color: active ? C.accentText : C.primary,
+                            fontSize: 13, fontWeight: active ? 700 : 500, cursor: 'pointer',
+                          }}
+                        >
+                          <span style={{
+                            width: 40, height: 24, borderRadius: 4, background: C.bg,
+                            fontSize: 10, fontWeight: 800, color: C.subtle,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                          }}>
+                            {opt.logo}
+                          </span>
+                          {opt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            )}
+            {paymentError && <ErrMsg msg={paymentError} />}
+          </Section>
         </div>
 
         {/* ── Sticky Bottom ── */}

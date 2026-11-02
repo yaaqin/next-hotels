@@ -10,3 +10,11 @@ export const getEnabledPaymentMethods = async (
   const res = await axiosPublic.get(`/public/payment-methods`, { params: { scope, siteCode } })
   return res.data
 }
+
+// Checkout food cuma tahu restoran; BE yang mencari cabangnya
+export const getEnabledFoodPaymentMethods = async (
+  restaurantSiteId: string,
+): Promise<{ success: boolean; message: string; data: string[] }> => {
+  const res = await axiosPublic.get(`/public/payment-methods`, { params: { scope: 'FOOD', restaurantSiteId } })
+  return res.data
+}

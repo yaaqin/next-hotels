@@ -24,7 +24,7 @@ const ALL_SITES = ''
 
 const SCOPES: { key: PaymentScope; label: string; hint: string }[] = [
   { key: 'BOOKING', label: 'Booking kamar', hint: 'Halaman reservasi & bayar selisih reschedule' },
-  { key: 'FOOD', label: 'Food order', hint: 'Pilihan bayar di halaman Midtrans untuk pesanan makanan' },
+  { key: 'FOOD', label: 'Food order', hint: 'Pilihan bayar di checkout pesanan makanan (Midtrans lewat Snap, Duit langsung di halaman pesanan)' },
 ]
 
 const onOff = (v: boolean) => (v ? 'On' : 'Off')
