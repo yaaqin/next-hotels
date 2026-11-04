@@ -279,6 +279,7 @@
       "paypalLinkDesc": "点击下方按钮登录 PayPal 并完成付款，完成后将返回此页面。",
       "paypalPay": "使用 PayPal 付款",
       "paypalProcessing": "正在处理 PayPal 付款…",
+      "paypalRedirecting": "正在跳转到 PayPal…",
       "paypalCancelled": "PayPal 付款已取消。您仍可在截止时间前付款。",
       "paypalCaptureFailed": "PayPal 付款尚未确认，此页面将自动更新。",
       "cryptoNoticeTitle": "使用新加坡代币 (SGT) 付款",

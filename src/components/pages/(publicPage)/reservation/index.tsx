@@ -637,9 +637,12 @@ export default function ReservationPage() {
           }
 
           // PayPal: langsung ke halaman approve PayPal, balik lagi ke /reservation/{code}?paypal=return
+          // Overlay dipasang dulu supaya form yang di-reset tidak terlihat kosong
+          // selama browser memuat halaman PayPal, dan tombol tidak bisa diklik lagi.
           if (payment?.type === 'PAYPAL' && payment.paymentUrl) {
+            setPaypalRedirect(bookingCode)
             reset()
-            window.location.href = payment.paymentUrl
+            window.location.assign(payment.paymentUrl)
             return
           }
 
@@ -657,12 +660,32 @@ export default function ReservationPage() {
     )
   }
 
-  const canSubmit = isAuthenticated && !isPending
+  // Booking PayPal sudah dibuat & sedang pindah ke halaman PayPal
+  const [paypalRedirect, setPaypalRedirect] = useState<string | null>(null)
+
+  // Tamu menekan Back dari PayPal: halaman bisa dipulihkan dari bfcache dengan overlay
+  // masih terpasang. Booking-nya sudah ada, jadi arahkan ke detailnya (bisa bayar ulang di sana).
+  useEffect(() => {
+    if (!paypalRedirect) return
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) router.replace(`/reservation/${paypalRedirect}`)
+    }
+    window.addEventListener('pageshow', onPageShow)
+    return () => window.removeEventListener('pageshow', onPageShow)
+  }, [paypalRedirect])
+
+  const canSubmit = isAuthenticated && !isPending && !paypalRedirect
 
   const { t } = useTranslation()
 
   return (
     <div className="min-h-screen bg-[#f5f4f0] py-10 px-4">
+      {paypalRedirect && (
+        <div data-cy="paypal-redirect-overlay" className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-3 bg-[#f5f4f0]">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-gray-500">{t("text.reservation.paypalRedirecting")}</p>
+        </div>
+      )}
       {showCurrencyModal && totalDisplay && (
         <PaymentCurrencyModal
           display={totalDisplay}

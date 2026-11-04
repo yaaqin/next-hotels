@@ -279,6 +279,7 @@
       "paypalLinkDesc": "Klik tombol di bawah untuk masuk ke PayPal dan menyelesaikan pembayaran. Setelah selesai kamu akan kembali ke halaman ini.",
       "paypalPay": "Bayar dengan PayPal",
       "paypalProcessing": "Memproses pembayaran PayPal…",
+      "paypalRedirecting": "Mengarahkan ke PayPal…",
       "paypalCancelled": "Pembayaran PayPal dibatalkan. Kamu masih bisa membayar sebelum batas waktu.",
       "paypalCaptureFailed": "Pembayaran PayPal belum terkonfirmasi. Halaman akan diperbarui otomatis.",
       "cryptoNoticeTitle": "Pembayaran menggunakan Singapore Token (SGT)",
