@@ -1,6 +1,8 @@
 'use client'
-import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useState, useEffect, useRef } from 'react'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import toast from 'react-hot-toast'
+import { axiosPublic } from '@/src/libs/instance'
 import { useBookingDetail } from '@/src/hooks/query/bookings/detail'
 import { BookingPriceSnapshot, type BookingDisplaySnapshot } from '@/src/components/molecules/bookingPriceSnapshot'
 import { Payment, type bookingDetailState } from '@/src/models/bookings/detail'
@@ -26,7 +28,14 @@ function vaBankName(payment: Payment) {
     return payment.provider === 'DPAY' ? 'Duit' : payment.vaBank
 }
 
+function formatPaypalAmount(payment: Payment) {
+    const value = Number(payment.paypalAmount)
+    if (!payment.paypalAmount || Number.isNaN(value)) return '—'
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: payment.paypalCurrency ?? 'USD' }).format(value)
+}
+
 function getPaymentUrl(payment: Payment) {
+    if (payment.type === 'PAYPAL') return payment.paymentUrl ?? '#'
     if (payment.provider === 'DPAY') return DPAY_SANDBOX_SIMULATOR_URL
     if (payment.vaBank === 'BCA') return 'https://simulator.sandbox.midtrans.com/bca/va/index'
     if (payment.vaBank === 'BNI') return 'https://simulator.sandbox.midtrans.com/bni/va/index'
@@ -104,6 +113,38 @@ function QrisSandboxWarning() {
 function PaymentInfoPanel({ payment, totalAmount, snapshot }: { payment: Payment; totalAmount: number; snapshot: BookingDisplaySnapshot }) {
     const { t } = useTranslation()
     const qrisUrl = (payment as any).qrisUrl as string | undefined
+
+    if (payment.type === 'PAYPAL') {
+        return (
+            <div className="flex flex-col gap-5">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                        <span className="text-xs font-bold text-blue-600">PP</span>
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">{t('text.reservation.paypalCharged')}</p>
+                        <p className="text-sm font-bold text-gray-800">PayPal</p>
+                    </div>
+                </div>
+
+                <div className="bg-green-50 border border-green-100 rounded-xl px-4 py-3">
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{t('text.reservation.totalPayment')}</p>
+                    <p className="text-2xl font-bold text-green-600">{formatPaypalAmount(payment)}</p>
+                    <p className="text-xs text-gray-500 mt-1">≈ {formatRupiah(totalAmount)}</p>
+                    <BookingPriceSnapshot snapshot={snapshot} className="mt-2 pt-2 border-t border-green-100" />
+                </div>
+
+                <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                    <svg className="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-xs text-amber-700">
+                        {t('text.reservation.payBefore')} <span className="font-semibold">{formatExpiry(payment.expiredAt)}</span>
+                    </p>
+                </div>
+            </div>
+        )
+    }
 
     if (payment.type === 'VIRTUAL_ACCOUNT') {
         return (
@@ -293,6 +334,27 @@ function PaymentLinkPanel({ payment }: { payment: Payment }) {
     const isMandiri = payment.vaBank === 'MANDIRI'
     const mandiriPayment = payment as any
 
+    // PayPal: buka halaman approve di tab yang sama, PayPal balikin ke sini (?paypal=return)
+    if (payment.type === 'PAYPAL') {
+        return (
+            <div className="flex flex-col gap-5 h-auto">
+                <p className="text-sm text-gray-500 leading-relaxed">{t('text.reservation.paypalLinkDesc')}</p>
+                <a
+                    data-cy="btn-paypal-pay"
+                    href={paymentUrl}
+                    className="flex items-center justify-center gap-2 w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold text-sm px-4 py-3.5 rounded-xl transition-all duration-200 shadow-sm shadow-blue-100 hover:shadow-blue-200"
+                >
+                    {t('text.reservation.paypalPay')}
+                </a>
+                <div className="mt-auto pt-4 border-t border-gray-100">
+                    <p className="text-xs text-gray-400 text-center leading-relaxed">
+                        {t('text.reservation.autoUpdate')}
+                    </p>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="flex flex-col gap-5 h-auto">
             <div>
@@ -369,6 +431,37 @@ export default function PaymentStatus() {
     const { data, isLoading, refetch } = useBookingDetail(bookingCode)
     const { status } = usePaymentStatus(bookingCode)
 
+    // Balik dari PayPal: ?paypal=return → capture di BE, ?paypal=cancel → user batal di PayPal.
+    // Webhook CHECKOUT.ORDER.APPROVED juga capture, jadi kalau request ini gagal status tetap jalan.
+    const searchParams = useSearchParams()
+    const paypalParam = searchParams.get('paypal')
+    const [capturing, setCapturing] = useState(paypalParam === 'return')
+    const paypalHandled = useRef(false)
+    useEffect(() => {
+        if (!paypalParam || paypalHandled.current) return
+        paypalHandled.current = true
+        const clearParam = () => router.replace(`/reservation/${bookingCode}`)
+
+        if (paypalParam === 'cancel') {
+            toast(t('text.reservation.paypalCancelled'))
+            clearParam()
+            return
+        }
+        if (paypalParam !== 'return') return
+
+        axiosPublic
+            .post(`/booking/${encodeURIComponent(bookingCode)}/paypal/capture`)
+            .then((res) => {
+                if (res?.data?.data?.status !== 'PAID') toast(t('text.reservation.paypalCaptureFailed'))
+            })
+            .catch(() => toast.error(t('text.reservation.paypalCaptureFailed')))
+            .finally(() => {
+                refetch()
+                setCapturing(false)
+                clearParam()
+            })
+    }, [paypalParam])
+
     // Dibayar saat halaman terbuka → ambil ulang detail supaya tampilan lunas muncul di tempat
     useEffect(() => {
         if (status === 'PAID') refetch()
@@ -382,10 +475,11 @@ export default function PaymentStatus() {
         return () => clearInterval(timer)
     }, [bookingStatus, refetch])
 
-    if (isLoading) {
+    if (isLoading || capturing) {
         return (
-            <div className="flex items-center justify-center py-20">
+            <div className="flex flex-col items-center justify-center gap-3 py-20">
                 <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                {capturing && <p className="text-sm text-gray-500">{t('text.reservation.paypalProcessing')}</p>}
             </div>
         )
     }

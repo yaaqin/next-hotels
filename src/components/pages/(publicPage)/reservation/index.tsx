@@ -31,8 +31,8 @@ import { PaymentCurrencyModal } from '@/src/components/organisms/reservation/Pay
 import type { DisplayPricing } from '@/src/models/public/currency'
 import { QRIS_PROVIDERS, type QrisProvider } from '@/src/constans/payment'
 
-type PaymentMethod = 'va_bca' | 'va_bni' | 'va_bri' | 'va_mandiri' | 'va_dpay' | 'qris' | 'sgt' | 'credit'
-type PaymentCategory = 'va' | 'qris' | 'sgt' | 'credit'
+type PaymentMethod = 'va_bca' | 'va_bni' | 'va_bri' | 'va_mandiri' | 'va_dpay' | 'qris' | 'sgt' | 'credit' | 'paypal'
+type PaymentCategory = 'va' | 'qris' | 'paypal' | 'sgt' | 'credit'
 
 // ─── Validation Types ────────────────────────────────────────────────────────
 
@@ -500,6 +500,7 @@ export default function ReservationPage() {
     // Cuma satu provider QRIS yang aktif → langsung terpilih
     if (cat === 'qris' && enabledQris.length === 1) handleSelectQris(enabledQris[0].value)
     if (cat === 'credit') setPaymentMethod('credit' as any)
+    if (cat === 'paypal') setPaymentMethod('paypal')
     if (cat !== 'sgt') setSgtWalletAddress(null)
     if (submitted) setErrors((prev) => ({ ...prev, paymentMethod: undefined }))
   }
@@ -632,6 +633,13 @@ export default function ReservationPage() {
               console.error('SGT payment gagal:', err)
               toast.error('Transaksi SGT dibatalkan atau gagal.')
             }
+            return
+          }
+
+          // PayPal: langsung ke halaman approve PayPal, balik lagi ke /reservation/{code}?paypal=return
+          if (payment?.type === 'PAYPAL' && payment.paymentUrl) {
+            reset()
+            window.location.href = payment.paymentUrl
             return
           }
 
@@ -780,13 +788,14 @@ export default function ReservationPage() {
 
               {/* Payment Category Tabs */}
               <div className="flex flex-wrap gap-2 mb-4">
-                {(['va', 'qris', 'sgt', 'credit'] as PaymentCategory[]).map((cat) => {
+                {(['va', 'qris', 'paypal', 'sgt', 'credit'] as PaymentCategory[]).map((cat) => {
                   const isDisabled = !isCategoryEnabled(cat)
                   const label =
                     cat === 'va' ? t("text.reservation.virtualAccount") :
                       cat === 'sgt' ? t("text.reservation.crypto") :
                         cat === 'credit' ? 'Credit' :
-                          cat.toUpperCase()
+                          cat === 'paypal' ? 'PayPal' :
+                            cat.toUpperCase()
 
                   return (
                     <button
@@ -869,6 +878,13 @@ export default function ReservationPage() {
                   <div className="px-4 py-3 bg-blue-50 rounded-xl text-sm text-blue-600 text-center">
                     {t("text.reservation.qrisInfo")}
                   </div>
+                </div>
+              )}
+
+              {/* PayPal Info */}
+              {paymentCategory === 'paypal' && (
+                <div data-cy="paypal-info" className="mt-2 px-4 py-3 bg-blue-50 rounded-xl text-sm text-blue-600 text-center">
+                  {t("text.reservation.paypalInfo")}
                 </div>
               )}
 

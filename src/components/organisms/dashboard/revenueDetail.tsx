@@ -29,6 +29,7 @@ const METHOD_LABEL: Record<string, string> = {
   QRIS: 'QRIS',
   QRIS_DPAY: 'QRIS Duit',
   SGT: 'Crypto (SGT)',
+  PAYPAL: 'PayPal',
   UNKNOWN: 'Lainnya',
 }
 const methodLabel = (m: string | null) => (m ? METHOD_LABEL[m] ?? m : '—')

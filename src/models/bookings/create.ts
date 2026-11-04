@@ -113,4 +113,6 @@ export interface Payment {
   sgtAmountDue: number
   rateSnapshot: number
   expiredAt: string
+  // type PAYPAL: link approve PayPal
+  paymentUrl?: string | null
 }

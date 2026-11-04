@@ -104,7 +104,11 @@ export interface Payment {
   paidAt: any
   type: string
   // Gateway tagihan (type QRIS / VIRTUAL_ACCOUNT)
-  provider?: 'MIDTRANS' | 'DPAY'
+  provider?: 'MIDTRANS' | 'DPAY' | 'PAYPAL'
+  // type PAYPAL: link approve PayPal + nominal yang ditagih PayPal (USD, string desimal)
+  paymentUrl?: string | null
+  paypalAmount?: string | null
+  paypalCurrency?: string | null
   vaNumber: any
   vaBank: string
   billerCode: string
