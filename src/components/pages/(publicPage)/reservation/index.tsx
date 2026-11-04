@@ -425,7 +425,36 @@ function ContactCard({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
+// Data booking (cabang, tanggal, tipe kamar) cuma ada di store localStorage yang diisi
+// dari RDP. Tanpa itu halaman ini kosong → langsung ke home sebelum form di-render.
+// Dicek sekali saat halaman dibuka, jadi reset() setelah booking berhasil tidak ikut
+// melempar ke home (navigasi ke halaman pembayaran tetap jalan).
+function hasBookingData() {
+  const { siteCode, checkInDate, checkOutDate, items } = useBookingStore.getState().payload
+  return !!siteCode && !!checkInDate && !!checkOutDate && items.some((i) => !!i.roomTypeId)
+}
+
 export default function ReservationPage() {
+  const router = useRouter()
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    const check = () => {
+      if (hasBookingData()) setReady(true)
+      else router.replace('/')
+    }
+    if (useBookingStore.persist.hasHydrated()) {
+      check()
+      return
+    }
+    return useBookingStore.persist.onFinishHydration(check)
+  }, [])
+
+  if (!ready) return <div className="min-h-screen bg-[#f5f4f0]" />
+  return <ReservationForm />
+}
+
+function ReservationForm() {
   const { session, isLoading, isAuthenticated, isUnauthenticated } = useSafeSession()
   const { payload, setContact, setPaymentMethod, setRooms, isReadyToSubmit } = useBookingStore()
   const { checkInDate, checkOutDate, items, contact } = payload
