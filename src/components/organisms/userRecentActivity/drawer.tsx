@@ -263,6 +263,18 @@ export function RecentActivityDrawer({
                   ))}
                 </div>
 
+                {/* Belum dibayar — halaman /reservation/{code} sudah menangani semua metode
+                    (VA, QRIS, PayPal, dst.) termasuk tampilan expired */}
+                {booking.status === 'PENDING' && (
+                  <Link
+                    data-cy="btn-pay-now"
+                    href={`/reservation/${encodeURIComponent(booking.bookingCode)}`}
+                    className="block w-full py-3.5 rounded-xl text-sm font-medium tracking-widest uppercase text-center transition-all duration-200 bg-blue-500 text-white hover:bg-blue-600 shadow-lg shadow-blue-100"
+                  >
+                    Pay Now
+                  </Link>
+                )}
+
                 {/* Room items */}
                 {booking.items?.length > 0 && (
                   <div className="space-y-2">
@@ -322,18 +334,6 @@ export function RecentActivityDrawer({
                   </div>
                   <div className="text-3xl opacity-20">🏨</div>
                 </div>
-
-                {/* Belum dibayar — halaman /reservation/{code} sudah menangani semua metode
-                    (VA, QRIS, PayPal, dst.) termasuk tampilan expired */}
-                {booking.status === 'PENDING' && (
-                  <Link
-                    data-cy="btn-pay-now"
-                    href={`/reservation/${encodeURIComponent(booking.bookingCode)}`}
-                    className="block w-full py-3.5 rounded-xl text-sm font-medium tracking-widest uppercase text-center transition-all duration-200 bg-blue-500 text-white hover:bg-blue-600 shadow-lg shadow-blue-100"
-                  >
-                    Pay Now
-                  </Link>
-                )}
 
                 {/* Check In */}
                 {booking.allowCheckIn !== undefined && (
