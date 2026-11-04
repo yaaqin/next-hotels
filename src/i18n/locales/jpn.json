@@ -668,5 +668,48 @@
       "description": "お探しの記事は削除されたか、タイトルが変更されたか、リンクが間違っている可能性があります。",
       "cta": "他のニュースを見る"
     }
+  },
+  "chat": {
+    "title": "チャット",
+    "subtitle": "ユーザー名で他のゲストと直接チャット",
+    "loginTitle": "ログインしてチャットを始める",
+    "loginDesc": "チャットはGoogleでログインしたアカウントで利用できます。",
+    "loginButton": "Googleでログイン",
+    "setupTitle": "ユーザー名を選択",
+    "setupDesc": "ユーザー名は他の人があなたを見つけてチャットするために使われます。保存後は変更できません。",
+    "setupPlaceholder": "例: yaa.qin",
+    "setupRules": "3〜20文字: 英字、数字、ドット、アンダースコア。先頭と末尾は英字か数字。",
+    "checking": "確認中…",
+    "available": "このユーザー名は使用できます",
+    "setupSubmit": "ユーザー名を保存",
+    "saving": "保存中…",
+    "reason": {
+      "LENGTH": "ユーザー名は3〜20文字にしてください",
+      "FORMAT": "英字・数字・ドット・アンダースコアのみ。先頭と末尾は英字か数字",
+      "RESERVED": "このユーザー名は使用できません",
+      "TAKEN": "このユーザー名は既に使われています"
+    },
+    "searchPlaceholder": "ユーザー名を検索…",
+    "searchHint": "2文字以上入力してください",
+    "searchEmpty": "ユーザー名が見つかりません",
+    "searching": "検索中…",
+    "listEmpty": "まだ会話がありません。上でユーザー名を検索してチャットを始めましょう。",
+    "you": "あなた",
+    "selectConversation": "会話を選ぶか、ユーザー名を検索してチャットを始めましょう",
+    "inputPlaceholder": "メッセージを入力…",
+    "send": "送信",
+    "sending": "送信中…",
+    "failed": "送信失敗・タップして再送",
+    "read": "既読",
+    "sent": "送信済み",
+    "loadOlder": "以前のメッセージを読み込む",
+    "noMessages": "まだメッセージはありません。挨拶してみましょう！",
+    "back": "戻る",
+    "deleted": "メッセージは削除されました",
+    "offline": "再接続中…",
+    "today": "今日",
+    "yesterday": "昨日",
+    "loadError": "チャットを読み込めませんでした",
+    "retry": "再試行"
   }
 }

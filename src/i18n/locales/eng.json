@@ -668,5 +668,48 @@
       "description": "The article you're looking for may have been removed, renamed, or the link is wrong.",
       "cta": "Browse other news"
     }
+  },
+  "chat": {
+    "title": "Chat",
+    "subtitle": "Talk directly with other guests by username",
+    "loginTitle": "Sign in to start chatting",
+    "loginDesc": "Chat is available for accounts signed in with Google.",
+    "loginButton": "Sign in with Google",
+    "setupTitle": "Choose your username",
+    "setupDesc": "Others use your username to find and chat with you. It can't be changed once saved.",
+    "setupPlaceholder": "e.g. yaa.qin",
+    "setupRules": "3–20 characters: letters, numbers, dots or underscores. Must start and end with a letter or number.",
+    "checking": "Checking…",
+    "available": "Username is available",
+    "setupSubmit": "Save username",
+    "saving": "Saving…",
+    "reason": {
+      "LENGTH": "Username must be 3–20 characters",
+      "FORMAT": "Letters, numbers, dots, underscores only; start & end with a letter/number",
+      "RESERVED": "This username can't be used",
+      "TAKEN": "Username is already taken"
+    },
+    "searchPlaceholder": "Search username…",
+    "searchHint": "Type at least 2 characters",
+    "searchEmpty": "No username found",
+    "searching": "Searching…",
+    "listEmpty": "No conversations yet. Search a username above to start chatting.",
+    "you": "You",
+    "selectConversation": "Select a conversation or search a username to start chatting",
+    "inputPlaceholder": "Write a message…",
+    "send": "Send",
+    "sending": "Sending…",
+    "failed": "Not sent · tap to retry",
+    "read": "Read",
+    "sent": "Sent",
+    "loadOlder": "Load earlier messages",
+    "noMessages": "No messages yet. Say hi!",
+    "back": "Back",
+    "deleted": "Message deleted",
+    "offline": "Reconnecting…",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "loadError": "Failed to load chat",
+    "retry": "Try again"
   }
 }

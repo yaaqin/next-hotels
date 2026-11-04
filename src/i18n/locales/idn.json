@@ -668,5 +668,48 @@
       "description": "Artikel yang kamu cari mungkin sudah dihapus, judulnya berubah, atau tautannya salah.",
       "cta": "Lihat berita lainnya"
     }
+  },
+  "chat": {
+    "title": "Chat",
+    "subtitle": "Ngobrol langsung dengan sesama tamu lewat username",
+    "loginTitle": "Login untuk mulai chat",
+    "loginDesc": "Chat tersedia untuk akun yang masuk dengan Google.",
+    "loginButton": "Masuk dengan Google",
+    "setupTitle": "Pilih username kamu",
+    "setupDesc": "Username dipakai orang lain untuk menemukan dan chat dengan kamu. Username tidak bisa diganti setelah disimpan.",
+    "setupPlaceholder": "contoh: yaa.qin",
+    "setupRules": "3–20 karakter: huruf, angka, titik, atau underscore. Diawali dan diakhiri huruf/angka.",
+    "checking": "Mengecek…",
+    "available": "Username tersedia",
+    "setupSubmit": "Simpan username",
+    "saving": "Menyimpan…",
+    "reason": {
+      "LENGTH": "Username harus 3–20 karakter",
+      "FORMAT": "Hanya huruf, angka, titik, underscore; diawali & diakhiri huruf/angka",
+      "RESERVED": "Username ini tidak bisa dipakai",
+      "TAKEN": "Username sudah dipakai"
+    },
+    "searchPlaceholder": "Cari username…",
+    "searchHint": "Ketik minimal 2 karakter",
+    "searchEmpty": "Username tidak ditemukan",
+    "searching": "Mencari…",
+    "listEmpty": "Belum ada percakapan. Cari username di atas untuk mulai chat.",
+    "you": "Kamu",
+    "selectConversation": "Pilih percakapan atau cari username untuk mulai chat",
+    "inputPlaceholder": "Tulis pesan…",
+    "send": "Kirim",
+    "sending": "Mengirim…",
+    "failed": "Gagal terkirim · ketuk untuk coba lagi",
+    "read": "Dibaca",
+    "sent": "Terkirim",
+    "loadOlder": "Muat pesan sebelumnya",
+    "noMessages": "Belum ada pesan. Sapa duluan!",
+    "back": "Kembali",
+    "deleted": "Pesan dihapus",
+    "offline": "Menyambungkan ulang…",
+    "today": "Hari ini",
+    "yesterday": "Kemarin",
+    "loadError": "Gagal memuat chat",
+    "retry": "Coba lagi"
   }
 }

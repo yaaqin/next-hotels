@@ -668,5 +668,48 @@
       "description": "您要找的文章可能已被刪除、標題已變更，或連結有誤。",
       "cta": "瀏覽其他新聞"
     }
+  },
+  "chat": {
+    "title": "聊天",
+    "subtitle": "通过用户名与其他住客直接聊天",
+    "loginTitle": "登录后开始聊天",
+    "loginDesc": "聊天功能仅限使用 Google 登录的账户。",
+    "loginButton": "使用 Google 登录",
+    "setupTitle": "选择你的用户名",
+    "setupDesc": "其他人通过用户名找到你并与你聊天。保存后无法更改。",
+    "setupPlaceholder": "例如: yaa.qin",
+    "setupRules": "3–20 个字符：字母、数字、点或下划线，须以字母或数字开头和结尾。",
+    "checking": "检查中…",
+    "available": "用户名可用",
+    "setupSubmit": "保存用户名",
+    "saving": "保存中…",
+    "reason": {
+      "LENGTH": "用户名须为 3–20 个字符",
+      "FORMAT": "仅限字母、数字、点、下划线；须以字母或数字开头和结尾",
+      "RESERVED": "该用户名不可使用",
+      "TAKEN": "该用户名已被使用"
+    },
+    "searchPlaceholder": "搜索用户名…",
+    "searchHint": "至少输入 2 个字符",
+    "searchEmpty": "未找到该用户名",
+    "searching": "搜索中…",
+    "listEmpty": "还没有对话。在上方搜索用户名开始聊天。",
+    "you": "你",
+    "selectConversation": "选择一个对话，或搜索用户名开始聊天",
+    "inputPlaceholder": "输入消息…",
+    "send": "发送",
+    "sending": "发送中…",
+    "failed": "发送失败 · 点击重试",
+    "read": "已读",
+    "sent": "已发送",
+    "loadOlder": "加载更早的消息",
+    "noMessages": "还没有消息，打个招呼吧！",
+    "back": "返回",
+    "deleted": "消息已删除",
+    "offline": "正在重新连接…",
+    "today": "今天",
+    "yesterday": "昨天",
+    "loadError": "聊天加载失败",
+    "retry": "重试"
   }
 }
