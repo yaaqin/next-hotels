@@ -280,6 +280,7 @@
       "paypalPay": "PayPalで支払う",
       "paypalProcessing": "PayPalの支払いを処理中…",
       "paypalRedirecting": "PayPalに移動しています…",
+      "paymentRedirecting": "支払いページを準備しています…",
       "paypalCancelled": "PayPalの支払いはキャンセルされました。期限内であれば再度お支払いいただけます。",
       "paypalCaptureFailed": "PayPalの支払いはまだ確認されていません。このページは自動的に更新されます。",
       "cryptoNoticeTitle": "シンガポールトークン (SGT) でのお支払い",

@@ -280,6 +280,7 @@
       "paypalPay": "Bayar dengan PayPal",
       "paypalProcessing": "Memproses pembayaran PayPal…",
       "paypalRedirecting": "Mengarahkan ke PayPal…",
+      "paymentRedirecting": "Menyiapkan halaman pembayaran…",
       "paypalCancelled": "Pembayaran PayPal dibatalkan. Kamu masih bisa membayar sebelum batas waktu.",
       "paypalCaptureFailed": "Pembayaran PayPal belum terkonfirmasi. Halaman akan diperbarui otomatis.",
       "cryptoNoticeTitle": "Pembayaran menggunakan Singapore Token (SGT)",

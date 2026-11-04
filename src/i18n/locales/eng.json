@@ -280,6 +280,7 @@
       "paypalPay": "Pay with PayPal",
       "paypalProcessing": "Processing PayPal payment…",
       "paypalRedirecting": "Redirecting to PayPal…",
+      "paymentRedirecting": "Preparing payment page…",
       "paypalCancelled": "PayPal payment was cancelled. You can still pay before the deadline.",
       "paypalCaptureFailed": "PayPal payment is not confirmed yet. This page will update automatically.",
       "cryptoNoticeTitle": "Payment using Singapore Token (SGT)",

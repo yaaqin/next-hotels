@@ -513,6 +513,11 @@ export default function ReservationPage() {
   }
 
   const { mutate, isPending } = useCreateBooking()
+
+  // Booking sudah dibuat & sedang pindah halaman. Overlay menutup form yang sudah
+  // di-reset (biar tidak terlihat kosong) dan mengunci tombol submit.
+  // external = pindah ke situs lain (PayPal), selain itu navigasi internal.
+  const [redirecting, setRedirecting] = useState<{ bookingCode: string; external: boolean } | null>(null)
   const { reset } = useBookingStore()
   const router = useRouter()
 
@@ -577,6 +582,7 @@ export default function ReservationPage() {
             const data = res?.data
             // Credit cukup — langsung redirect ke success
             const bookingCode = data?.booking?.bookingCode
+            setRedirecting({ bookingCode, external: false })
             reset()
             router.push(`/payment/success?bookingCode=${bookingCode}`)
           },
@@ -627,6 +633,7 @@ export default function ReservationPage() {
             try {
               const txDigest = await executePayment({ hotelWalletAddress, sgtAmountDue })
               await axiosPublic.post('/booking/sgt/verify', { bookingCode, txDigest })
+              setRedirecting({ bookingCode, external: false })
               reset()
               router.push(`/payment/success?bookingCode=${bookingCode}`)
             } catch (err) {
@@ -640,12 +647,13 @@ export default function ReservationPage() {
           // Overlay dipasang dulu supaya form yang di-reset tidak terlihat kosong
           // selama browser memuat halaman PayPal, dan tombol tidak bisa diklik lagi.
           if (payment?.type === 'PAYPAL' && payment.paymentUrl) {
-            setPaypalRedirect(bookingCode)
+            setRedirecting({ bookingCode, external: true })
             reset()
             window.location.assign(payment.paymentUrl)
             return
           }
 
+          setRedirecting({ bookingCode, external: false })
           reset()
           router.push(`/reservation/${bookingCode}`)
         },
@@ -660,30 +668,30 @@ export default function ReservationPage() {
     )
   }
 
-  // Booking PayPal sudah dibuat & sedang pindah ke halaman PayPal
-  const [paypalRedirect, setPaypalRedirect] = useState<string | null>(null)
-
   // Tamu menekan Back dari PayPal: halaman bisa dipulihkan dari bfcache dengan overlay
   // masih terpasang. Booking-nya sudah ada, jadi arahkan ke detailnya (bisa bayar ulang di sana).
   useEffect(() => {
-    if (!paypalRedirect) return
+    if (!redirecting?.external) return
+    const code = redirecting.bookingCode
     const onPageShow = (e: PageTransitionEvent) => {
-      if (e.persisted) router.replace(`/reservation/${paypalRedirect}`)
+      if (e.persisted) router.replace(`/reservation/${code}`)
     }
     window.addEventListener('pageshow', onPageShow)
     return () => window.removeEventListener('pageshow', onPageShow)
-  }, [paypalRedirect])
+  }, [redirecting])
 
-  const canSubmit = isAuthenticated && !isPending && !paypalRedirect
+  const canSubmit = isAuthenticated && !isPending && !redirecting
 
   const { t } = useTranslation()
 
   return (
     <div className="min-h-screen bg-[#f5f4f0] py-10 px-4">
-      {paypalRedirect && (
-        <div data-cy="paypal-redirect-overlay" className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-3 bg-[#f5f4f0]">
+      {redirecting && (
+        <div data-cy="payment-redirect-overlay" className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-3 bg-[#f5f4f0]">
           <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-500">{t("text.reservation.paypalRedirecting")}</p>
+          <p className="text-sm text-gray-500">
+            {t(redirecting.external ? "text.reservation.paypalRedirecting" : "text.reservation.paymentRedirecting")}
+          </p>
         </div>
       )}
       {showCurrencyModal && totalDisplay && (
